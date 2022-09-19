@@ -25,6 +25,7 @@ EXTERN swIntDispatcher
 EXTERN getRSP				; multitasking.c
 EXTERN getSS 				; multitasking.c
 EXTERN moveToNextTask		; multitasking.c
+EXTERN multitaskingEnabled
 
 GLOBAL forceNextTask
 GLOBAL forceCurrentTask
@@ -192,6 +193,10 @@ forceCurrentTask:
 _irq00Handler:
 	pushState
 
+	call multitaskingEnabled
+	cmp eax, 1
+	jne tickHandle
+
 	switchTask:
 		mov rdi, rsp 			; pongo los actuales asi despues puedo volver adonde estaba
 		mov rsi, ss
@@ -201,6 +206,7 @@ _irq00Handler:
 		call getSS	
 		mov ss, rax	
 
+	tickHandle:
 	mov rdi, 0				
 	call irqDispatcher
 

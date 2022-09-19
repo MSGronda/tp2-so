@@ -50,19 +50,12 @@ typedef struct taskInfo{
 // ------ Queue de tasks -------
 static taskInfo tasks[TOTAL_TASKS];
 
-static uint8_t currentPid;				// identificador para cada proceso
-static uint8_t isEnabled;				// denota si multitasking se habilito
-
-static unsigned int currentTask;		
+static uint8_t currentPid;					// identificador para cada proceso
+static uint8_t isEnabled = 0;				// denota si multitasking se habilito
+	
+static unsigned int currentTask;			// posicion en el array
 
 static int dimTasks = NO_TASKS;
-
-// -----El defualt stack/task-------
-// Este es la info del stack que se inicializa 
-// al comienzo de la ejecucion del kernel
-static taskInfo defaultStack;
-
-
 
 /* =========== CODIGO =========== */
 
@@ -79,7 +72,7 @@ void enableMultiTasking(){
 	Se fija si se habilito el multitasking.
 */
 uint8_t multitaskingEnabled(){
-	return (dimTasks != NO_TASKS) && isEnabled;
+	return isEnabled;
 }
 
 
@@ -88,13 +81,6 @@ uint8_t multitaskingEnabled(){
 	Parametros:  stackPointer: puntero al stack del task anterior  |  stackSegment: valor del stack segment del task anterior  
 */
 void moveToNextTask(uint64_t stackPointer, uint64_t stackSegment){
-	if(!multitaskingEnabled()){										// si no hay tasks, se usa el normal
-		defaultStack.stackPointer = stackPointer;					// Pongo los datos del stack normal, en la primera posicion
-		defaultStack.stackSegment = stackSegment;
-		defaultStack.screen = 1;
-		defaultStack.pid = currentPid++;
-		return;
-	}
 
 	tasks[currentTask].stackPointer = stackPointer;			// updateo el current
 	tasks[currentTask].stackSegment = stackSegment;
@@ -117,9 +103,6 @@ void moveToNextTask(uint64_t stackPointer, uint64_t stackSegment){
 	de ejecutar.
 */
 uint64_t getRSP(){
-	if(!multitaskingEnabled()){					// si no hay tasks, se usa el normal
-		return defaultStack.stackPointer;
-	}
 	return tasks[currentTask].stackPointer;
 }
 
@@ -131,9 +114,6 @@ uint64_t getRSP(){
 	de ejecutar.
 */
 uint64_t getSS(){
-	if(!multitaskingEnabled()){					// si no hay tasks, se usa el normal
-		return defaultStack.stackSegment;
-	}
 	return tasks[currentTask].stackSegment;
 }
 
