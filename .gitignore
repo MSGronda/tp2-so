@@ -36,6 +36,13 @@
 *.x86_64
 *.hex
 
+# otros
+*.bin
+*.img
+*.qcow2
+*.vmdk
+.bash_history
+
 # Debug files
 *.dSYM/
 *.su
