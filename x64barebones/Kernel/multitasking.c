@@ -59,12 +59,20 @@ static int dimTasks = NO_TASKS;
 
 /* =========== CODIGO =========== */
 
+void idleTask(){
+	while(1)
+		_hlt();
+}
+
 /*
 	Se habilita el multitasking e instantaneamente
 	pasa al primer task en el queue.
 */
 void enableMultiTasking(){
 	isEnabled = 1;
+
+	addTask(&idleTask, 0, 0);
+
 	forceCurrentTask();
 }
 
