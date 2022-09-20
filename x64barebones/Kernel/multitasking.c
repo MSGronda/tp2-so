@@ -3,11 +3,13 @@
 // ---- Constantes ----
 #define TOTAL_TASKS 4
 #define STACK_SIZE 2000
+#define DEFAULT_PRIORITY 1
 
 // ----- Estado de task -----
-#define INACTIVE_PROCESS 0
+#define DEAD_PROCESS 0
 #define ACTIVE_PROCESS 1 
 #define PAUSED_PROCESS 2
+#define WAITING_PROCESS 3
 
 // ---- Valores default para el armado del stack ----
 #define FLAG_VALUES 0x202
@@ -44,20 +46,29 @@ typedef struct taskInfo{
 		uint64_t  stackSegment;  	// valor de ss
 		uint8_t screen;				// en que pantalla va a imprimir
 		uint8_t pid;				// valor unico identificador
-		uint8_t state;			// si el proceso es uno activo o ya se elimino
+		uint8_t state;				// si el proceso es uno activo o ya se elimino
+		uint8_t priority;			
 }taskInfo;
 
 // ------ Queue de tasks -------
 static taskInfo tasks[TOTAL_TASKS];
 
-static uint8_t currentPid;					// identificador para cada proceso
+static uint8_t newPidValue = 0;					// identificador para cada proceso
 static uint8_t isEnabled = 0;				// denota si multitasking se habilito
 	
-static unsigned int currentTask;			// posicion en el array
-
-static int dimTasks = NO_TASKS;
+static unsigned int currentTask = 0;			// posicion en el array
+static unsigned int currentRemainingTicks = 0;			// How many timer ticks are remaining for the current process.
+static unsigned int currentDimTasks = NO_TASKS;
 
 /* =========== CODIGO =========== */
+
+uint8_t hasTimeLeft(){
+	return currentRemainingTicks < tasks[currentTask].priority; 
+}
+
+void decreaseTimeLeft(){
+	currentRemainingTicks++;
+}
 
 void idleTask(){
 	while(1)
@@ -71,7 +82,7 @@ void idleTask(){
 void enableMultiTasking(){
 	isEnabled = 1;
 
-	addTask(&idleTask, 0, 0);
+	addTask((uint64_t)&idleTask, 0, 0);
 
 	forceCurrentTask();
 }
@@ -101,7 +112,8 @@ void moveToNextTask(uint64_t stackPointer, uint64_t stackSegment){
 			found = 1;
 		}	
 	}
-	
+
+	currentRemainingTicks = 0;		// reset del current task
 }
 
 
@@ -139,15 +151,18 @@ uint8_t getCurrentScreen(){
 	Elimina el current task y pasa al proximo. 
 */
 void removeCurrentTask(){
-	tasks[currentTask].state = INACTIVE_PROCESS;
-	dimTasks = dimTasks==1 ? NO_TASKS : dimTasks - 1;
+	tasks[currentTask].state = DEAD_PROCESS;
+	currentDimTasks = currentDimTasks==1 ? NO_TASKS : currentDimTasks - 1;
+
+	// There's no need to reset currentRemainingTicks, eventually moveToNextTask will do so
+
 	forceNextTask();				
 }
 
 // Encuentro el task usando el pid
 int findTask(unsigned int pid){
 	for(int i=0; i<TOTAL_TASKS; i++){
-		if(tasks[i].pid == pid && tasks[i].state != INACTIVE_PROCESS)
+		if(tasks[i].pid == pid && tasks[i].state != DEAD_PROCESS)
 			return i;
 	}	
 	return NO_TASK_FOUND;			// no existe task con ese pid
@@ -157,12 +172,15 @@ int findTask(unsigned int pid){
 	Un task no se puede matar a si mismo.
 */
 int removeTask(unsigned int pid){
+
+	//TODO: si remuevo el actual entonces tengo que resetear el currentRemainingTicks
+
 	int pos = findTask(pid);
 	if(pos < 0)					// se quiere remover task que no existe
 		return NO_TASK_FOUND;
 
-	tasks[pos].state = INACTIVE_PROCESS;
-	dimTasks = dimTasks==1 ? NO_TASKS : dimTasks - 1;
+	tasks[pos].state = DEAD_PROCESS;
+	currentDimTasks = currentDimTasks==1 ? NO_TASKS : currentDimTasks - 1;
 	return TASK_ALTERED;
 }
 // pauso o despauso proceso con el pid
@@ -181,10 +199,10 @@ int pauseOrUnpauseProcess(unsigned int pid){
 */
 
 int addTask(uint64_t entrypoint, int screen, uint64_t arg0){
-	if(dimTasks>=TOTAL_TASKS){		// no acepto mas tasks al estar lleno
+	if(currentDimTasks>=TOTAL_TASKS){		// no acepto mas tasks al estar lleno
 		return ERROR_NO_SPACE_FOR_TASK;
 	}
-	dimTasks = dimTasks == NO_TASKS ? 1 : dimTasks+1;
+	currentDimTasks = currentDimTasks == NO_TASKS ? 1 : currentDimTasks+1;
 
 	int pos;
 	for(pos=0; tasks[pos].state==ACTIVE_PROCESS;pos++);											// encuentro posicion libre en el array de tasks
@@ -215,8 +233,9 @@ int addTask(uint64_t entrypoint, int screen, uint64_t arg0){
 	tasks[pos].stackPointer = (uint64_t) stacks[pos] + STACK_SIZE - STACK_POINT_OF_ENTRY;					// comienzo del stack
 	tasks[pos].stackSegment = SS_VALUE;		
 	tasks[pos].screen = screen;
-	tasks[pos].pid = currentPid++;
+	tasks[pos].pid = newPidValue++;
 	tasks[pos].state = ACTIVE_PROCESS;
+	tasks[pos].priority = DEFAULT_PRIORITY;
 
 	return tasks[pos].pid;
 }

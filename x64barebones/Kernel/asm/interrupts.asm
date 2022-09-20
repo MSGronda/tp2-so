@@ -26,6 +26,8 @@ EXTERN getRSP				; multitasking.c
 EXTERN getSS 				; multitasking.c
 EXTERN moveToNextTask		; multitasking.c
 EXTERN multitaskingEnabled
+EXTERN hasTimeLeft
+EXTERN decreaseTimeLeft
 
 GLOBAL forceNextTask
 GLOBAL forceCurrentTask
@@ -176,7 +178,7 @@ _swIntHandler:
 
 ;  = = = = = = Multitasking = = = = = = 
 
-
+	 
 forceNextTask:
 	call moveToNextTask		; me muevo al proximo
 forceCurrentTask:
@@ -193,9 +195,18 @@ forceCurrentTask:
 _irq00Handler:
 	pushState
 
+	; check if multitasking is enabled
 	call multitaskingEnabled
 	cmp eax, 1
 	jne tickHandle
+
+	; check if current process still has time left
+	call hasTimeLeft
+	cmp eax, 1
+	jne switchTask
+
+	call decreaseTimeLeft
+	jmp tickHandle
 
 	switchTask:
 		mov rdi, rsp 			; pongo los actuales asi despues puedo volver adonde estaba
