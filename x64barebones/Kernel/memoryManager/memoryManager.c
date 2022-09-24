@@ -1,4 +1,4 @@
-#include "MemoryManager.h"
+#include "memoryManager.h"
 
 typedef struct MemoryManagerCDT {
 	char *nextAddress;
@@ -17,4 +17,8 @@ void *allocMemory(MemoryManagerADT const restrict memoryManager, const size_t me
 	memoryManager->nextAddress += memoryToAllocate;
 
 	return (void *) allocation;
+}
+
+void freeMemory(MemoryManagerADT const restrict memoryManager, void *memoryToFree) {
+	
 }
