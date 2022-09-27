@@ -3,7 +3,7 @@
 // ---- Constantes ----
 #define TOTAL_TASKS 4
 #define STACK_SIZE 2000
-#define DEFAULT_PRIORITY 1
+#define DEFAULT_PRIORITY 3
 
 // ----- Estado de task -----
 #define DEAD_PROCESS 0

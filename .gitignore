@@ -57,3 +57,12 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+#other 
+*.bin
+*.img
+*.qcow2
+*.vmdk
+.bash_history
+
+

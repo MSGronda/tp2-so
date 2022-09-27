@@ -32,6 +32,10 @@ EXTERN decreaseTimeLeft
 GLOBAL forceNextTask
 GLOBAL forceCurrentTask
 
+SECTION .data
+
+multi_tasking_enabled db 0
+
 SECTION .text
 
 %macro pushState 0
@@ -189,6 +193,11 @@ forceCurrentTask:
 	popState				; popeo los registros para el proximo task
 	iretq					; popeo el IP, CS, RSP, SS, FLAGS, .... para el proximo task	
 
+
+enable_multi_tasking:
+	mov BYTE [multi_tasking_enabled], 1
+	jmp tickHandle
+
 ; = = = = = = = = = = = = = = = = = = =
 
 ; = = = = = = Timer Tick = = = = = = = =
@@ -196,9 +205,8 @@ _irq00Handler:
 	pushState
 
 	; check if multitasking is enabled
-	call multitaskingEnabled
-	cmp eax, 1
-	jne tickHandle
+	cmp BYTE [multi_tasking_enabled], 1
+	jne enable_multi_tasking
 
 	; check if current process still has time left
 	call hasTimeLeft
