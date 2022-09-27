@@ -3,7 +3,7 @@
 // ---- Constantes ----
 #define TOTAL_TASKS 4
 #define STACK_SIZE 2000
-#define DEFAULT_PRIORITY 3
+#define DEFAULT_PRIORITY 1
 
 // ----- Estado de task -----
 #define DEAD_PROCESS 0
@@ -62,13 +62,22 @@ static unsigned int currentDimTasks = NO_TASKS;
 
 /* =========== CODIGO =========== */
 
-uint8_t hasTimeLeft(){
-	return currentRemainingTicks < tasks[currentTask].priority; 
+
+typedef struct waitInfo{
+
+}waitInfo;
+
+
+// se fija si le queda tiempo, si le queda, decrementa esa cantidad y
+uint8_t has_or_decrease_time(){
+	if(currentRemainingTicks < tasks[currentTask].priority - 1){
+		currentRemainingTicks++;
+		return 1;
+	}
+	return 0;
+
 }
 
-void decreaseTimeLeft(){
-	currentRemainingTicks++;
-}
 
 void idleTask(){
 	while(1)

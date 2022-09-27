@@ -16,8 +16,7 @@
 void enableMultiTasking();
 uint8_t multitaskingEnabled();
 
-uint8_t hasTimeLeft();
-void decreaseTimeLeft();
+uint8_t has_or_decrease_time();
 
 void moveToNextTask(uint64_t stackPointer, uint64_t stackSegment);
 

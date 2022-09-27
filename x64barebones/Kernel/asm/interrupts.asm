@@ -28,6 +28,7 @@ EXTERN moveToNextTask		; multitasking.c
 EXTERN multitaskingEnabled
 EXTERN hasTimeLeft
 EXTERN decreaseTimeLeft
+EXTERN has_or_decrease_time 
 
 GLOBAL forceNextTask
 GLOBAL forceCurrentTask
@@ -209,12 +210,16 @@ _irq00Handler:
 	jne enable_multi_tasking
 
 	; check if current process still has time left
-	call hasTimeLeft
+	;call hasTimeLeft
+	;cmp eax, 1
+	;jne switchTask
+
+	;call decreaseTimeLeft
+	;jmp tickHandle
+
+	call has_or_decrease_time
 	cmp eax, 1
 	jne switchTask
-
-	call decreaseTimeLeft
-	jmp tickHandle
 
 	switchTask:
 		mov rdi, rsp 			; pongo los actuales asi despues puedo volver adonde estaba
