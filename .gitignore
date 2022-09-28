@@ -59,3 +59,9 @@ Mkfile.old
 dkms.conf
 
 
+*.bin
+*.sys
+*.bin
+*.img
+*.qcow2
+*.vmdk
