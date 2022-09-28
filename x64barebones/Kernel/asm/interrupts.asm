@@ -30,6 +30,7 @@ EXTERN hasTimeLeft
 EXTERN decreaseTimeLeft
 EXTERN has_or_decrease_time 
 
+GLOBAL saveAndForceNextTask
 GLOBAL forceNextTask
 GLOBAL forceCurrentTask
 
@@ -183,8 +184,9 @@ _swIntHandler:
 
 ;  = = = = = = Multitasking = = = = = = 
 
-	 
-forceNextTask:
+saveAndForceNextTask:
+	; ya tiene en rdi y rsi los parametros para moveToNextTask
+forceNextTask:		
 	call moveToNextTask		; me muevo al proximo
 forceCurrentTask:
 	call getRSP				; rax tiene el RSP del proximo task
@@ -198,7 +200,7 @@ forceCurrentTask:
 enable_multi_tasking:
 	mov BYTE [multi_tasking_enabled], 1
 	jmp tickHandle
-
+	
 ; = = = = = = = = = = = = = = = = = = =
 
 ; = = = = = = Timer Tick = = = = = = = =
@@ -209,17 +211,9 @@ _irq00Handler:
 	cmp BYTE [multi_tasking_enabled], 1
 	jne enable_multi_tasking
 
-	; check if current process still has time left
-	;call hasTimeLeft
-	;cmp eax, 1
-	;jne switchTask
-
-	;call decreaseTimeLeft
-	;jmp tickHandle
-
 	call has_or_decrease_time
 	cmp eax, 1
-	jne switchTask
+	je tickHandle
 
 	switchTask:
 		mov rdi, rsp 			; pongo los actuales asi despues puedo volver adonde estaba

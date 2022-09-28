@@ -12,9 +12,10 @@
 #define NO_TASK_FOUND -1
 #define TASK_ALTERED 1
 
+void wait_for_children(uint64_t rsp, uint64_t ss);
+unsigned int add_child_task(uint64_t entrypoint, int screen, uint64_t arg0);
 
 void enableMultiTasking();
-uint8_t multitaskingEnabled();
 
 uint8_t has_or_decrease_time();
 

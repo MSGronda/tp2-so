@@ -10,6 +10,8 @@
 #define SYS_PAUSE_PROCESS 9
 #define SYS_INFOREG 10
 #define SYS_PRINTMEM 11
+#define SYS_REGISTER_CHILD_PROCESS 12
+#define SYS_WAIT_FOR_CHILDREN 13
 
 #define NULL 0
 
@@ -26,9 +28,19 @@ unsigned int sys_read(char * buf, unsigned int length){
 unsigned int sys_clear_screen(){
     return syscaller(SYS_CLEAR_SCREEN, NULL, NULL, NULL );        // feo arreglar
 }
+
 unsigned int sys_register_process(uint64_t entryPoint, int screen, uint64_t arg0){
     return syscaller(SYS_REGISTER_PROCESS, (uint64_t) entryPoint, (uint64_t) screen, arg0);        // feo arreglar
 }
+
+unsigned int sys_register_child_process(uint64_t entryPoint, int screen, uint64_t arg0){
+    return syscaller(SYS_REGISTER_CHILD_PROCESS, (uint64_t) entryPoint, (uint64_t) screen, arg0);        // feo arreglar
+}
+
+unsigned int sys_wait_for_children(){
+    return syscaller(SYS_WAIT_FOR_CHILDREN, NULL, NULL, NULL);
+}
+
 unsigned int sys_rtc(unsigned int  mode){
     return syscaller(SYS_RTC, (uint64_t)mode, NULL, NULL);        // feo arreglar
 }

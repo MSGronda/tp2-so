@@ -16,6 +16,8 @@
 #define SYS_PAUSE_PROCESS 9
 #define SYS_INFOREG 10
 #define SYS_PRINTMEM 11
+#define SYS_REGISTER_CHILD_PROCESS 12
+#define SYS_WAIT_FOR_CHILDREN 13
 
 // Entrada estandar
 #define STDIN 1
@@ -35,6 +37,9 @@
 // Return values
 #define INVALID_SCREEN -1
 
+unsigned int sys_wait_for_children(uint64_t rsp, uint64_t ss);
+
+unsigned int sys_register_child_process(uint64_t entryPoint, int screen, uint64_t arg0);
 
 /*
  * << sys_write >>

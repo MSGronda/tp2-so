@@ -183,6 +183,14 @@ void commandsDispatcher(char ** words, unsigned int count){
     }
 }
 
+void test_func(){
+    for(int i=0; i<1000; i++){
+        print("run!\n", 5);
+        print("run!\n", 5);
+        print("run?\n", 5);
+    }
+}
+
 void shell(){
     char buffer[BUFFER_LENGTH];
     char * commands[MAX_WORDS];
@@ -190,10 +198,22 @@ void shell(){
 
     int amount;
     while(1){
-        print(SYMBOL, SYMBOL_LENGTH);
-        read_line(buffer, BUFFER_LENGTH);
+        //print(SYMBOL, SYMBOL_LENGTH);
+        //read_line(buffer, BUFFER_LENGTH);
 
-        amount = parseCommands(buffer, commands);
-        commandsDispatcher(commands, amount);
+        sys_register_child_process((uint64_t)&test_func, 1, NULL);
+
+        sys_wait_for_children();
+
+        for(int i=0; i<500000000; i++);
+
+        clear_screen();
+
+        print("termino!", 7);
+
+        for(int i=0; i<500000000; i++);
+
+        //amount = parseCommands(buffer, commands);
+        //commandsDispatcher(commands, amount);
     }
 }
