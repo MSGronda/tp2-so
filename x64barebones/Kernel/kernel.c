@@ -54,7 +54,7 @@ int main()
 
 	load_idt();
 
-    addTask((uint64_t)sampleCodeModuleAddress,1,0);	// llamada a userland
+    add_task((uint64_t)sampleCodeModuleAddress, 1,1, 1,0);	// llamada a userland
 	
 	enableMultiTasking();
 	

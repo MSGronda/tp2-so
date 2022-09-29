@@ -3,6 +3,7 @@
 
 #define INVALID_SYS_CALL 255
 
+static uint8_t * vid = (uint8_t*)0xB8000;
 
 //registros en asm:		rax		  rdi		 rsi	 rdx		r10		 r8			r9
 //registros en c: 		rdi		  rsi		 rdx	 rcx		r8		 r9		   stack		// de derecha a izquierda se pasan a los registros
@@ -10,21 +11,19 @@ unsigned int swIntDispatcher(uint64_t mode, uint64_t arg0, uint64_t arg1,
 	uint64_t arg2, uint64_t arg3, uint64_t arg4, uint64_t arg5, uint64_t ss, uint64_t rsp) 
 {
 	switch (mode) {
+
+		// IO
 		case SYS_WRITE_TO_SCREEN:
 			return sys_write_to_screen((const char *) arg0,(unsigned int) arg1);
-
 		case SYS_READ_FROM_SCREEN:
 			return sys_read_from_screen((char *) arg0, (unsigned int) arg1);
-		
 		case SYS_CONSUME_STDIN:
 			return sys_consume_stdin((char *) arg0 , (unsigned int) arg1);
-		
 		case SYS_CLEAR_SCREEN:
 			return sys_clear_screen();
 
 
-
-
+		// Procesos
 		case SYS_REGISTER_PROCESS:
 			return sys_register_process(arg0, (int) arg1, arg2);
 			
@@ -41,7 +40,7 @@ unsigned int swIntDispatcher(uint64_t mode, uint64_t arg0, uint64_t arg1,
 			return sys_kill_process((unsigned int) arg0);
 
 
-
+		// Otros
 		case SYS_RTC:
 			return sys_rtc((unsigned int) arg0);
 

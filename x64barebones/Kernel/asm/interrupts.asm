@@ -30,7 +30,6 @@ EXTERN hasTimeLeft
 EXTERN decreaseTimeLeft
 EXTERN has_or_decrease_time 
 
-GLOBAL saveAndForceNextTask
 GLOBAL forceNextTask
 GLOBAL forceCurrentTask
 
@@ -167,6 +166,14 @@ haltcpu:
 ; = = = = = Interrupts de software = = = = = ;
 
 _swIntHandler:
+	pushState
+
+	push rsp
+
+	mov rax, 0 		; xor rax, rax
+	mov rax, ss
+	push rax
+	mov rax, [rsp + 8 * 16]	; restauro rax
 
 	push r9
 	mov r9, r8
@@ -179,13 +186,15 @@ _swIntHandler:
 	call swIntDispatcher 
 	pop r9
 
+	pop rax
+	pop rax
+
+	popState
 	iretq
 ; = = = = = = = = = = = = = = = = = = = = = ;
 
 ;  = = = = = = Multitasking = = = = = = 
 
-saveAndForceNextTask:
-	; ya tiene en rdi y rsi los parametros para moveToNextTask
 forceNextTask:		
 	call moveToNextTask		; me muevo al proximo
 forceCurrentTask:

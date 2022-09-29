@@ -5,6 +5,19 @@ extern char readKeyboard();		// en libasm.asm
 /*-------- CONSTANTS --------*/
 #define BUFFER_SIZE 200
 
+// --- Caracteres especiales ---
+#define ESCAPE_KEY 27
+#define F1_KEY 17
+#define F2_KEY 18
+#define F3_KEY 19
+
+// Scan codes
+#define ESCAPE_KEY_SCAN_CODE 0x01
+#define F1_SCAN_CODE 0x3B
+#define F2_SCAN_CODE 0x3C
+#define F3_SCAN_CODE 0x3D
+#define F5_SCAN_CODE 0x3F
+
 /*--------- MACROS ----------*/
 #define INCREASE_MOD(x,total)	(x) = ((x) + 1) % total;
 #define DECREASE_MOD(x, total) 	x--;\
@@ -44,8 +57,24 @@ char keyboard_handler(uint64_t * regDumpPos)
 
 	int c = readKeyboard();
 
-	if(c==F5_SCAN_CODE)
-		saveInfoReg(regDumpPos);	// caso: aprienta boton de captura de registros
+	switch(c){
+		case F5_SCAN_CODE:
+			saveInfoReg(regDumpPos);	// caso: aprienta boton de captura de registros
+			return VALID_KEY;
+
+		case ESCAPE_KEY_SCAN_CODE:
+			kill_screen_processes();
+			return VALID_KEY;
+
+		case F1_SCAN_CODE:
+			return VALID_KEY;
+
+		case F2_SCAN_CODE:
+			return VALID_KEY;
+
+		case F3_SCAN_CODE:
+			return VALID_KEY;
+	}
 
 	if(c<0 || c>=128)			// caso: codigo invalido 
 		return NO_KEY;

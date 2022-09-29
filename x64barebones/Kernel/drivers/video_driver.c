@@ -77,11 +77,6 @@ unsigned int writeDispatcher(unsigned int fd, const char * buf, unsigned int cou
 			write(buf, format, count, &currentVideoPosRightOffset, START_RIGHT, SPLIT_MODE_LENGTH, SPLIT_MODE_STEP);
 			currentVideoPosOffset = 0;		// se resetean el normal mode
 		break;
-		
-		default:			// el default ese la pantalla completa
-			write(buf, format, count, &currentVideoPosOffset, START_LEFT, NORMAL_MODE_LENGTH, NORMAL_MODE_STEP);
-			currentVideoPosRightOffset = 0;		// se resetean las split screen
-			currentVideoPosLeftOffset = 0;
 	}
 
     return 0;
@@ -117,7 +112,6 @@ unsigned int clearScreenDispatcher()
 			break;
 
 		case STDOUT:
-		default:
 			currentVideoPosOffset = currentVideoPosLeftOffset = START_LEFT;		// se resetan las pantallas
 			currentVideoPosRightOffset = START_RIGHT;
 			clearScreen(START_LEFT, NORMAL_MODE_LENGTH, NORMAL_MODE_STEP);

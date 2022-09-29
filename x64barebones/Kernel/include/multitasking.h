@@ -12,6 +12,10 @@
 #define NO_TASK_FOUND -1
 #define TASK_ALTERED 1
 
+int add_task(uint64_t entrypoint, uint8_t screen, uint8_t priority, uint8_t immortal ,uint64_t arg0);
+
+void kill_screen_processes();
+
 void wait_for_children(uint64_t rsp, uint64_t ss);
 unsigned int add_child_task(uint64_t entrypoint, int screen, uint64_t arg0);
 

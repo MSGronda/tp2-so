@@ -201,7 +201,8 @@ void shell(){
         //print(SYMBOL, SYMBOL_LENGTH);
         //read_line(buffer, BUFFER_LENGTH);
 
-        sys_register_child_process((uint64_t)&test_func, 1, NULL);
+        sys_register_child_process((uint64_t)&primos, LEFT_SCREEN, NULL);
+        sys_register_child_process((uint64_t)&primos, RIGHT_SCREEN, NULL);
 
         sys_wait_for_children();
 
