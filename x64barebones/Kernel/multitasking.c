@@ -158,7 +158,21 @@ static wait_info wait_table[MAX_WAIT_TASKS] = {0};		// TODO: tira warning
 
 static uint8_t * vid = (uint8_t*)0xB8000;
 
+uint8_t has_children(uint8_t pid){
+	for(int i=0; i<MAX_WAIT_TASKS; i++){
+		if(wait_table[i].fatherPid == pid){
+			return 1;
+		}
+	}
+	return 0;
+}
+
+
 void wait_for_children(uint64_t rsp, uint64_t ss){
+	if(!has_children(getCurrentPid())){
+		return;
+	}
+
 	tasks[currentTask].state = WAITING_PROCESS;
 
 	forceNextTask(rsp, ss); 		//	ya tiene en rdi y rsi los parametros para moveToNextTask
