@@ -57,6 +57,8 @@ char keyboard_handler(uint64_t * regDumpPos)
 
 	int c = readKeyboard();
 
+
+	// Special Actions
 	switch(c){
 		case F5_SCAN_CODE:
 			saveInfoReg(regDumpPos);	// caso: aprienta boton de captura de registros
@@ -67,12 +69,15 @@ char keyboard_handler(uint64_t * regDumpPos)
 			return VALID_KEY;
 
 		case F1_SCAN_CODE:
+			pauseScreenProcess(STDOUT);
 			return VALID_KEY;
 
 		case F2_SCAN_CODE:
+			pauseScreenProcess(STDOUT_LEFT);
 			return VALID_KEY;
 
 		case F3_SCAN_CODE:
+			pauseScreenProcess(STDOUT_RIGHT);
 			return VALID_KEY;
 	}
 

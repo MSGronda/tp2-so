@@ -206,8 +206,6 @@ void shell(){
 
         sys_wait_for_children();
 
-        for(int i=0; i<500000000; i++);
-
         clear_screen();
 
         print("termino!", 7);

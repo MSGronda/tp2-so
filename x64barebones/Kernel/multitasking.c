@@ -74,6 +74,23 @@ static unsigned int currentDimTasks = NO_TASKS;
 
 // ==============================
 
+uint8_t screenAvailable(unsigned int screen){
+	for(int i=0; i<TOTAL_TASKS; i++){
+		if(tasks[i].state != DEAD_PROCESS && tasks[i].screen == screen){
+			return 0;
+		}
+	}
+	return 1;
+}
+
+void pauseScreenProcess(unsigned int screen){
+	for(int i=0; i<TOTAL_TASKS; i++){
+		if(tasks[i].state != WAITING_PROCESS && tasks[i].state != DEAD_PROCESS && tasks[i].screen == screen){
+			tasks[i].state = tasks[i].state==PAUSED_PROCESS ? ACTIVE_PROCESS : PAUSED_PROCESS; 	// pausado -> despausado  | despausado -> pausado
+		}
+	}
+}
+
 void kill_screen_processes(){
 	for(int i=0; i< TOTAL_TASKS; i++){
 		if(tasks[i].state == ACTIVE_PROCESS && tasks[i].immortal != IS_IMMORTAL && tasks[i].screen != BACKGROUND_PROCESS){
@@ -360,54 +377,13 @@ int pauseOrUnpauseProcess(unsigned int pid){
 	Agrega una funcion al queue de tasks. 
 	Parametros:  entrypoint: puntero a funcion  |  screen: en que pantalla va a imprimir
 */
-
-int addTask(uint64_t entrypoint, int screen, uint64_t arg0){
-	if(currentDimTasks>=TOTAL_TASKS){		// no acepto mas tasks al estar lleno
-		return ERROR_NO_SPACE_FOR_TASK;
-	}
-	currentDimTasks++;
-
-	int pos;
-	for(pos=0; tasks[pos].state==ACTIVE_PROCESS;pos++);											// encuentro posicion libre en el array de tasks
-
-	// --- Parametros de funcion ---
-	*(STACK_POS(RDI_POS)) = arg0;
-
-
-	// --- Pongo todos los registros que no se usan en 0 ---
-	for(int i=7 ; i<21 ; i++){
-		if(i!=12)
-			*(STACK_POS(i * 8)) = 0;
-	}
-
-	
-	// --- "Stack frame" minimo para la funcion ---
-	*(STACK_POS(IP_POS)) = entrypoint;							// puntero al proceso que se va a correr
-	*(STACK_POS(CS_POS)) = CS_VALUE;				
-	
-	*(STACK_POS(FLAGS_POS)) = FLAG_VALUES;						// tenemos que poner el flag de interrupcion en 1 y otros obligatorios
-	
-	*(STACK_POS(SP_POS)) = (uint64_t) stacks[pos] + STACK_SIZE - RET_POS;	// agarro el comienzo del stack
-	*(STACK_POS(SS_POS)) = SS_VALUE;
-	
-	*(STACK_POS(RET_POS)) = (uint64_t) &removeCurrentTask;		// para el RET que vaya y se remueva automaticamente de los tasks
-
-	// --- Datos de task ---
-	tasks[pos].stackPointer = (uint64_t) stacks[pos] + STACK_SIZE - STACK_POINT_OF_ENTRY;					// comienzo del stack
-	tasks[pos].stackSegment = SS_VALUE;		
-	tasks[pos].screen = screen;
-	tasks[pos].pid = newPidValue++;
-	tasks[pos].state = ACTIVE_PROCESS;
-	tasks[pos].priority = DEFAULT_PRIORITY;
-	tasks[pos].immortal = 0;
-
-	return tasks[pos].pid;
-}
-
 int add_task(uint64_t entrypoint, uint8_t screen, uint8_t priority, uint8_t immortal, uint64_t arg0){
 
 	if(currentDimTasks>=TOTAL_TASKS){		// no acepto mas tasks al estar lleno
 		return ERROR_NO_SPACE_FOR_TASK;
+	}
+	if(!screenAvailable(screen)){
+		return ERROR_SCREEN_NOT_AVAILABLE;
 	}
 	currentDimTasks++;
 
@@ -446,6 +422,10 @@ int add_task(uint64_t entrypoint, uint8_t screen, uint8_t priority, uint8_t immo
 	tasks[pos].immortal = immortal;
 
 	return tasks[pos].pid;
+}
+
+int addTask(uint64_t entrypoint, int screen, uint64_t arg0){
+	return add_task(entrypoint, screen, DEFAULT_PRIORITY, 0, arg0);
 }
 
 
