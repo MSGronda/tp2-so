@@ -14,6 +14,7 @@
 #define SYS_WAIT_FOR_CHILDREN 13
 #define SYS_RENOUNCE_CPU 14
 #define SYS_NICE 15
+#define SYS_GET_PID 16
 
 #define NULL 0
 
@@ -49,6 +50,10 @@ unsigned int sys_renounce_cpu(){
 
 unsigned int sys_nice(uint8_t pid, int delta){
     return syscaller(SYS_NICE, pid, delta, NULL);
+}
+
+unsigned int sys_get_pid(){
+    return syscaller(SYS_GET_PID, NULL, NULL, NULL);
 }
 
 

@@ -1,4 +1,4 @@
-#ifndef _MULTITASKING_H
+#ifndef _MULTITASKING_Husigned int 
 #define _MULTITASKING_H
 
 /*--------  DEPENDENCIES --------*/
@@ -27,7 +27,7 @@ void enableMultiTasking();
 uint64_t getRSP();
 uint64_t getSS();
 uint8_t getCurrentScreen();
-
+unsigned int  get_current_pid();
 
 /* --- Process Management --- */
 int add_task(uint64_t entrypoint, uint8_t screen, uint8_t priority, uint8_t immortal ,uint64_t arg0);
@@ -39,7 +39,7 @@ void kill_screen_processes();
 void removeCurrentTask();
 int removeTask(unsigned int pid);
 
-unsigned int change_priority(uint8_t pid, int delta);
+unsigned int change_priority(unsigned int pid, int delta);
 
 /* --- Scheduling --- */
 uint8_t has_or_decrease_time();

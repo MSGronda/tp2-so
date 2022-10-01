@@ -51,7 +51,7 @@ typedef struct taskInfo{
 		uint64_t  stackPointer;		// valor de rsp 
 		uint64_t  stackSegment;  	// valor de ss
 		uint8_t screen;				// en que pantalla va a imprimir
-		uint8_t pid;				// valor unico identificador
+		unsigned int pid;				// valor unico identificador
 		uint8_t state;				// si el proceso es uno activo o ya se elimino
 		uint8_t priority;			// cuantos ticks puede tener por rafaga 
 		uint8_t immortal;			// si se puede matar o no
@@ -60,7 +60,7 @@ typedef struct taskInfo{
 // ------ Queue de tasks -------
 static taskInfo tasks[TOTAL_TASKS];
 
-static uint8_t newPidValue = 1;					// identificador para cada proceso
+static unsigned int newPidValue = 1;					// identificador para cada proceso
 	
 static unsigned int currentTask = 0;			// posicion en el array
 static unsigned int currentRemainingTicks = 0;			// How many timer ticks are remaining for the current process.
@@ -75,8 +75,8 @@ static unsigned int currentDimTasks = NO_TASKS;
 #define FINISHED 2
 
 typedef struct wait_info{
-	uint8_t fatherPid;
-	uint8_t childPid;
+	unsigned int fatherPid;
+	unsigned int childPid;
 	uint8_t state;
 }wait_info;
 
@@ -86,7 +86,7 @@ static wait_info wait_table[MAX_WAIT_TASKS] = {0};		// TODO: tira warning
 
 void idleTask();
 void enableMultiTasking();
-uint8_t getCurrentPid();
+unsigned int get_current_pid();
 uint64_t getRSP();
 uint64_t getSS();
 uint8_t getCurrentScreen();
@@ -100,13 +100,13 @@ void removeCurrentTask();
 int removeTask(unsigned int pid);
 uint8_t has_or_decrease_time();
 void moveToNextTask(uint64_t stackPointer, uint64_t stackSegment);
-uint8_t has_children(uint8_t pid);
+uint8_t has_children(unsigned int pid);
 void wait_for_children(uint64_t rsp, uint64_t ss);
 void signal_process_finished(unsigned int pid);
-void remove_children(uint8_t fatherPid);
-void add_child(uint8_t fatherPid, uint8_t childPid);
+void remove_children(unsigned int fatherPid);
+void add_child(unsigned int fatherPid, unsigned int childPid);
 unsigned int add_child_task(uint64_t entrypoint, int screen, uint64_t arg0);
-uint8_t children_finished(uint8_t fatherPid);
+uint8_t children_finished(unsigned int fatherPid);
 
 
 /* =========== CODE =========== */
@@ -125,7 +125,7 @@ void enableMultiTasking(){
 
 
 /* --- Getters --- */
-uint8_t getCurrentPid(){
+unsigned int get_current_pid(){
 	return tasks[currentTask].pid;
 }
 uint64_t getRSP(){
@@ -269,7 +269,7 @@ int removeTask(unsigned int pid){
 	return TASK_ALTERED;
 }
 
-unsigned int change_priority(uint8_t pid, int delta){
+unsigned int change_priority(unsigned int pid, int delta){
 	int pos = findTask(pid);
 	if(pos < 0)
 		return NO_TASK_FOUND;
@@ -339,7 +339,7 @@ void moveToNextTask(uint64_t stackPointer, uint64_t stackSegment){
 
 // TODO: Por ahora lo dejo separado pero quizas hay que juntar con el resto de las funcionas
 
-uint8_t has_children(uint8_t pid){
+uint8_t has_children(unsigned int pid){
 	for(int i=0; i<MAX_WAIT_TASKS; i++){
 		if(wait_table[i].fatherPid == pid){
 			return 1;
@@ -350,7 +350,7 @@ uint8_t has_children(uint8_t pid){
 
 
 void wait_for_children(uint64_t rsp, uint64_t ss){
-	if(!has_children(getCurrentPid())){
+	if(!has_children(get_current_pid())){
 		return;
 	}
 
@@ -370,7 +370,7 @@ void signal_process_finished(unsigned int pid){
 	}
 }
 
-void remove_children(uint8_t fatherPid){
+void remove_children(unsigned int fatherPid){
 	for(int i=0 ; i<MAX_WAIT_TASKS; i++){
 		if(wait_table[i].fatherPid == fatherPid){
 			wait_table[i].fatherPid = 0;
@@ -380,7 +380,7 @@ void remove_children(uint8_t fatherPid){
 	}
 }
 
-void add_child(uint8_t fatherPid, uint8_t childPid){
+void add_child(unsigned int fatherPid, unsigned int childPid){
 	for(int i=0 ; i<MAX_WAIT_TASKS; i++){
 		if(wait_table[i].state == NOT_TRACKING){
 
@@ -395,13 +395,13 @@ void add_child(uint8_t fatherPid, uint8_t childPid){
 unsigned int add_child_task(uint64_t entrypoint, int screen, uint64_t arg0){
 	uint8_t child_pid = add_task(entrypoint, screen, DEFAULT_PRIORITY, MORTAL , arg0);
 
-	add_child(getCurrentPid(), child_pid);
+	add_child(get_current_pid(), child_pid);
 
 	return child_pid;
 }
 
 // checks if ALL children that are being tracked have finished
-uint8_t children_finished(uint8_t fatherPid){
+uint8_t children_finished(unsigned int fatherPid){
 
 	for(int i=0; i< MAX_WAIT_TASKS; i++){
 		if(wait_table[i].state == RUNNING && wait_table[i].fatherPid == fatherPid){
