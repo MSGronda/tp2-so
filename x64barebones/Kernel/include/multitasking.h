@@ -39,6 +39,7 @@ void kill_screen_processes();
 void removeCurrentTask();
 int removeTask(unsigned int pid);
 
+unsigned int change_priority(uint8_t pid, int delta);
 
 /* --- Scheduling --- */
 uint8_t has_or_decrease_time();

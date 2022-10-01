@@ -184,6 +184,7 @@ void commandsDispatcher(char ** words, unsigned int count){
 }
 
 void test_func(){
+
     for(int i=0; i<1000; i++){
         print("run!\n", 5);
         print("run!\n", 5);
@@ -202,8 +203,7 @@ void shell(){
         //read_line(buffer, BUFFER_LENGTH);
 
         sys_register_child_process((uint64_t)&primos, LEFT_SCREEN, NULL);
-        sys_register_child_process((uint64_t)&test_func, RIGHT_SCREEN, NULL);
-
+        sys_register_child_process((uint64_t)&primos, RIGHT_SCREEN, NULL);
         sys_wait_for_children();
 
         clear_screen();

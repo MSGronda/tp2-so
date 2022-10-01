@@ -3,8 +3,6 @@
 
 #define INVALID_SYS_CALL 255
 
-static uint8_t * vid = (uint8_t*)0xB8000;
-
 //registros en asm:		rax		  rdi		 rsi	 rdx		r10		 r8			r9
 //registros en c: 		rdi		  rsi		 rdx	 rcx		r8		 r9		   stack		// de derecha a izquierda se pasan a los registros
 unsigned int swIntDispatcher(uint64_t mode, uint64_t arg0, uint64_t arg1, 
@@ -41,6 +39,9 @@ unsigned int swIntDispatcher(uint64_t mode, uint64_t arg0, uint64_t arg1,
 
 		case SYS_RENOUNCE_CPU:
 			return sys_renounce_cpu(rsp, ss);
+
+		case SYS_NICE:
+			return sys_nice(arg0, arg1);
 
 		// Otros
 		case SYS_RTC:

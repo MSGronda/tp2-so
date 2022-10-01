@@ -4,6 +4,8 @@
 #define TOTAL_TASKS 4
 #define STACK_SIZE 2000
 
+#define MAX_PRIORITY 5
+
 #define NULL 0 // !!!! REMOVE !!!!
 
 // ----- Estado de task -----
@@ -58,7 +60,7 @@ typedef struct taskInfo{
 // ------ Queue de tasks -------
 static taskInfo tasks[TOTAL_TASKS];
 
-static uint8_t newPidValue = 0;					// identificador para cada proceso
+static uint8_t newPidValue = 1;					// identificador para cada proceso
 	
 static unsigned int currentTask = 0;			// posicion en el array
 static unsigned int currentRemainingTicks = 0;			// How many timer ticks are remaining for the current process.
@@ -267,6 +269,21 @@ int removeTask(unsigned int pid){
 	return TASK_ALTERED;
 }
 
+unsigned int change_priority(uint8_t pid, int delta){
+	int pos = findTask(pid);
+	if(pos < 0)
+		return NO_TASK_FOUND;
+
+	int newPriority = tasks[pos].priority + delta;
+	if(newPriority > MAX_PRIORITY)
+		newPriority = MAX_PRIORITY;
+	else if(newPriority < 1)
+		newPriority = DEFAULT_PRIORITY;
+	
+	tasks[pos].priority = newPriority;
+
+	return 1;
+}
 
 
 
