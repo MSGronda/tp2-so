@@ -5,6 +5,7 @@
 #define FALSE (!TRUE)
 
 #define HEAP_SIZE 4096
+#define EOL_SIZE (sizeof(uint64_t))
 
 #define MASK_LAST_BIT(num) (((num) >> 1) << 1)
 #define GET_SIZE(ptr) (*(ptr) & -2)
@@ -29,8 +30,8 @@ void freeBlock(void * ptr) {
 
 // Allocate in a free block, split if needed
 void addBlock(void * ptr, uint64_t len) {
-    int64_t newSize = MASK_LAST_BIT(len + 1);
-    int64_t oldSize = GET_SIZE(ptr);
+    uint64_t newSize = MASK_LAST_BIT(len + 1); // we also round the number
+    uint64_t oldSize = GET_SIZE(ptr);
 
     *ptr = SET_HEADER(len);
     if(newSize < oldSize)
@@ -40,7 +41,7 @@ void addBlock(void * ptr, uint64_t len) {
 void * findFree(uint64_t len) {
     void * ptr = heapStart;
 
-    while( (ptr + len < heapEnd) && (IS_ALLOCATED(ptr) || (*ptr <= len) )
+    while( (ptr + len + EOL_SIZE < ) && (IS_ALLOCATED(ptr) || (*ptr < len) )
         ptr = ptr + GET_SIZE(ptr);
 
     if(ptr + len >= heapEnd)
@@ -48,8 +49,21 @@ void * findFree(uint64_t len) {
     return ptr;
 }
 
+// Add End Of List block
+void addEOL(void * ptr) {
+    *ptr = (uint64_t) 1;  // size = 0 y allocated = 1
+}
 
-void * malloc(uint64_t len) {
+
+void mm_init() {
+    addEOL(heapStart);
+}
+
+
+void * mm_malloc(uint64_t len) {
+    if(len == 0) 
+        return NULL;
+
     void * out = findFree(len + sizeof(uint64_t));
     addBlock(out, len + sizeof(uint64_t));
 
@@ -57,7 +71,7 @@ void * malloc(uint64_t len) {
 }
 
 
-void free(void * ptr) {
+void mm_free(void * ptr) {
     if(ptr == NULL || ptr < heapStart || ptr >= heapEnd)
         return;
     
