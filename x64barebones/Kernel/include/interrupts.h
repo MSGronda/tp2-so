@@ -42,8 +42,7 @@ void haltcpu();
  *  Description: used after sys_pause and sys_kill to force 
  *  the next task to be executed
  */
-void saveAndForceNextTask(uint64_t rsp, uint64_t ss);
-void forceNextTask();
+void forceNextTask(uint64_t rsp, uint64_t ss);
 void forceCurrentTask();
 
 /*

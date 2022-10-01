@@ -3,16 +3,14 @@
 // ---- Constantes ----
 #define TOTAL_TASKS 4
 #define STACK_SIZE 2000
-#define DEFAULT_PRIORITY 1
 
+#define NULL 0 // !!!! REMOVE !!!!
 
 // ----- Estado de task -----
 #define DEAD_PROCESS 0
 #define ACTIVE_PROCESS 1 
 #define PAUSED_PROCESS 2
 #define WAITING_PROCESS 3
-
-#define IS_IMMORTAL 1
 
 // ---- Screen ----
 #define BACKGROUND_PROCESS 0
@@ -53,94 +51,20 @@ typedef struct taskInfo{
 		uint8_t screen;				// en que pantalla va a imprimir
 		uint8_t pid;				// valor unico identificador
 		uint8_t state;				// si el proceso es uno activo o ya se elimino
-		uint8_t priority;
-		uint8_t immortal;			
+		uint8_t priority;			// cuantos ticks puede tener por rafaga 
+		uint8_t immortal;			// si se puede matar o no
 }taskInfo;
 
 // ------ Queue de tasks -------
 static taskInfo tasks[TOTAL_TASKS];
 
 static uint8_t newPidValue = 0;					// identificador para cada proceso
-static uint8_t isEnabled = 0;				// denota si multitasking se habilito
 	
 static unsigned int currentTask = 0;			// posicion en el array
 static unsigned int currentRemainingTicks = 0;			// How many timer ticks are remaining for the current process.
 static unsigned int currentDimTasks = NO_TASKS;
 
-
-
-/* =========== CODIGO =========== */
-
-
-// ==============================
-
-uint8_t screenAvailable(unsigned int screen){
-	for(int i=0; i<TOTAL_TASKS; i++){
-		if(tasks[i].state != DEAD_PROCESS && tasks[i].screen == screen){
-			return 0;
-		}
-	}
-	return 1;
-}
-
-void pauseScreenProcess(unsigned int screen){
-	for(int i=0; i<TOTAL_TASKS; i++){
-		if(tasks[i].state != WAITING_PROCESS && tasks[i].state != DEAD_PROCESS && tasks[i].screen == screen){
-			tasks[i].state = tasks[i].state==PAUSED_PROCESS ? ACTIVE_PROCESS : PAUSED_PROCESS; 	// pausado -> despausado  | despausado -> pausado
-		}
-	}
-}
-
-void kill_screen_processes(){
-	for(int i=0; i< TOTAL_TASKS; i++){
-		if(tasks[i].state == ACTIVE_PROCESS && tasks[i].immortal != IS_IMMORTAL && tasks[i].screen != BACKGROUND_PROCESS){
-			tasks[i].state = DEAD_PROCESS;
-			currentDimTasks--;
-
-			signal_process_finished(tasks[i].pid);
-
-			// TODO: quizas sigue corriendo por lo que queda del tick?
-		}
-	}
-}
-
-// ========== GETTERS ============
-
-uint8_t getCurrentPid(){
-	return tasks[currentTask].pid;
-}
-/*
-	Consigue el Stack Pointer del proceso 
-	actual, es decir, el que se esta a punto
-	de ejecutar.
-*/
-uint64_t getRSP(){
-	return tasks[currentTask].stackPointer;
-}
-
-
-
-/*
-	Consigue el Stack Segment del proceso 
-	actual, es decir, el que se esta a punto
-	de ejecutar.
-*/
-uint64_t getSS(){
-	return tasks[currentTask].stackSegment;
-}
-
-
-/*	
-	Consigue la pantalla a la cual el proceso
-	actual escribe.
-*/
-uint8_t getCurrentScreen(){
-	return tasks[currentTask].screen;
-}
-
-
-
-// ======== WAIT ==========
+// Child Processes
 
 #define MAX_WAIT_TASKS 20
 
@@ -156,7 +80,247 @@ typedef struct wait_info{
 
 static wait_info wait_table[MAX_WAIT_TASKS] = {0};		// TODO: tira warning
 
-static uint8_t * vid = (uint8_t*)0xB8000;
+/* =========== PROTOYPES =========== */
+
+void idleTask();
+void enableMultiTasking();
+uint8_t getCurrentPid();
+uint64_t getRSP();
+uint64_t getSS();
+uint8_t getCurrentScreen();
+int findTask(unsigned int pid);
+uint8_t screenAvailable(unsigned int screen);
+int add_task(uint64_t entrypoint, uint8_t screen, uint8_t priority, uint8_t immortal, uint64_t arg0);
+void pauseScreenProcess(unsigned int screen);
+int pauseOrUnpauseProcess(unsigned int pid);
+void kill_screen_processes();
+void removeCurrentTask();
+int removeTask(unsigned int pid);
+uint8_t has_or_decrease_time();
+void moveToNextTask(uint64_t stackPointer, uint64_t stackSegment);
+uint8_t has_children(uint8_t pid);
+void wait_for_children(uint64_t rsp, uint64_t ss);
+void signal_process_finished(unsigned int pid);
+void remove_children(uint8_t fatherPid);
+void add_child(uint8_t fatherPid, uint8_t childPid);
+unsigned int add_child_task(uint64_t entrypoint, int screen, uint64_t arg0);
+uint8_t children_finished(uint8_t fatherPid);
+
+
+/* =========== CODE =========== */
+
+/* --- Init --- */
+
+void idleTask(){
+	while(1)
+		_hlt();
+}
+
+void enableMultiTasking(){
+	add_task((uint64_t)&idleTask, BACKGROUND_PROCESS, DEFAULT_PRIORITY, IMMORTAL,0);
+	forceCurrentTask();
+}
+
+
+/* --- Getters --- */
+uint8_t getCurrentPid(){
+	return tasks[currentTask].pid;
+}
+uint64_t getRSP(){
+	return tasks[currentTask].stackPointer;
+}
+uint64_t getSS(){
+	return tasks[currentTask].stackSegment;
+}
+uint8_t getCurrentScreen(){
+	return tasks[currentTask].screen;
+}
+// Encuentro el task usando el pid
+int findTask(unsigned int pid){
+	for(int i=0; i<TOTAL_TASKS; i++){
+		if(tasks[i].pid == pid && tasks[i].state != DEAD_PROCESS)
+			return i;
+	}	
+	return NO_TASK_FOUND;			// no existe task con ese pid
+}
+
+
+/* --- Checkers --- */
+
+uint8_t screenAvailable(unsigned int screen){
+	for(int i=0; i<TOTAL_TASKS; i++){
+		if(tasks[i].state != DEAD_PROCESS && tasks[i].screen == screen){
+			return 0;
+		}
+	}
+	return 1;
+}
+
+
+
+
+/* --- Process Management --- */
+
+int add_task(uint64_t entrypoint, uint8_t screen, uint8_t priority, uint8_t immortal, uint64_t arg0){
+
+	if(currentDimTasks>=TOTAL_TASKS){		// no acepto mas tasks al estar lleno
+		return ERROR_NO_SPACE_FOR_TASK;
+	}
+	if(!screenAvailable(screen)){
+		return ERROR_SCREEN_NOT_AVAILABLE;
+	}
+	currentDimTasks++;
+
+	int pos;
+	for(pos=0; tasks[pos].state==ACTIVE_PROCESS;pos++);											// encuentro posicion libre en el array de tasks
+
+	// --- Parametros de funcion ---
+	*(STACK_POS(RDI_POS)) = arg0;
+
+
+	// --- Pongo todos los registros que no se usan en 0 ---
+	for(int i=7 ; i<21 ; i++){
+		if(i!=12)
+			*(STACK_POS(i * 8)) = 0;
+	}
+
+	
+	// --- "Stack frame" minimo para la funcion ---
+	*(STACK_POS(IP_POS)) = entrypoint;							// puntero al proceso que se va a correr
+	*(STACK_POS(CS_POS)) = CS_VALUE;				
+	
+	*(STACK_POS(FLAGS_POS)) = FLAG_VALUES;						// tenemos que poner el flag de interrupcion en 1 y otros obligatorios
+	
+	*(STACK_POS(SP_POS)) = (uint64_t) stacks[pos] + STACK_SIZE - RET_POS;	// agarro el comienzo del stack
+	*(STACK_POS(SS_POS)) = SS_VALUE;
+	
+	*(STACK_POS(RET_POS)) = (uint64_t) &removeCurrentTask;		// para el RET que vaya y se remueva automaticamente de los tasks
+
+	// --- Datos de task ---
+	tasks[pos].stackPointer = (uint64_t) stacks[pos] + STACK_SIZE - STACK_POINT_OF_ENTRY;					// comienzo del stack
+	tasks[pos].stackSegment = SS_VALUE;		
+	tasks[pos].screen = screen;
+	tasks[pos].pid = newPidValue++;
+	tasks[pos].state = ACTIVE_PROCESS;
+	tasks[pos].priority = priority;
+	tasks[pos].immortal = immortal;
+
+	return tasks[pos].pid;
+}
+
+
+void pauseScreenProcess(unsigned int screen){
+	for(int i=0; i<TOTAL_TASKS; i++){
+		if(tasks[i].state != WAITING_PROCESS && tasks[i].state != DEAD_PROCESS && tasks[i].screen == screen){
+			tasks[i].state = tasks[i].state==PAUSED_PROCESS ? ACTIVE_PROCESS : PAUSED_PROCESS; 	// pausado -> despausado  | despausado -> pausado
+		}
+	}
+}
+
+// pauso o despauso proceso con el pid
+int pauseOrUnpauseProcess(unsigned int pid){
+	int pos = findTask(pid);
+	if(pos < 0)					// se quiere pausar task que no existe
+		return NO_TASK_FOUND;
+
+	tasks[pos].state = tasks[pos].state==PAUSED_PROCESS ? ACTIVE_PROCESS : PAUSED_PROCESS; 	// pausado -> despausado  | despausado -> pausado
+	return TASK_ALTERED;
+}
+
+
+void kill_screen_processes(){
+	for(int i=0; i< TOTAL_TASKS; i++){
+		if(tasks[i].state == ACTIVE_PROCESS && tasks[i].immortal != IMMORTAL && tasks[i].screen != BACKGROUND_PROCESS){
+			tasks[i].state = DEAD_PROCESS;
+			currentDimTasks--;
+
+			signal_process_finished(tasks[i].pid);
+
+			// TODO: quizas sigue corriendo por lo que queda del tick?
+		}
+	}
+}
+
+void removeCurrentTask(){
+	tasks[currentTask].state = DEAD_PROCESS;
+	currentDimTasks--;
+
+	signal_process_finished(tasks[currentTask].pid);
+
+	// There's no need to reset currentRemainingTicks, eventually moveToNextTask will do so
+
+	forceNextTask(NULL, NULL);				
+}
+
+int removeTask(unsigned int pid){
+
+	//TODO: si remuevo el actual entonces tengo que resetear el currentRemainingTicks
+
+	int pos = findTask(pid);
+	if(pos < 0)					// se quiere remover task que no existe
+		return NO_TASK_FOUND;
+
+	signal_process_finished(pid);
+
+	tasks[pos].state = DEAD_PROCESS;
+	currentDimTasks--;
+	return TASK_ALTERED;
+}
+
+
+
+
+/* --- Scheduling --- */
+
+// se fija si le queda tiempo, si le queda, decrementa esa cantidad y
+uint8_t has_or_decrease_time(){
+	if(currentRemainingTicks < tasks[currentTask].priority - 1){
+		currentRemainingTicks++;
+		return 1;
+	}
+	return 0;
+
+}
+/*	
+	Pasa al proximo task que se tiene que ejecutar. 
+	Parametros:  stackPointer: puntero al stack del task anterior  |  stackSegment: valor del stack segment del task anterior  
+*/
+void moveToNextTask(uint64_t stackPointer, uint64_t stackSegment){
+
+	tasks[currentTask].stackPointer = stackPointer;			// updateo el current
+	tasks[currentTask].stackSegment = stackSegment;
+	
+	char found=0;
+	for(unsigned int i=currentTask; !found ; ){			// busco el proximo stack
+		i = (i +  1) % TOTAL_TASKS;
+
+		switch(tasks[i].state){
+
+			case ACTIVE_PROCESS:
+				currentTask = i;
+				found = 1;
+				break;
+
+			case WAITING_PROCESS:
+				if(children_finished(tasks[i].pid)){
+					
+					remove_children(tasks[i].pid);
+
+					tasks[i].state = ACTIVE_PROCESS;
+
+					currentTask = i;
+					found = 1;
+				}
+				break;
+		}
+	}
+
+	currentRemainingTicks = 0;		// reset del current task
+}
+
+/* --- Child processes --- */
+
+// TODO: Por ahora lo dejo separado pero quizas hay que juntar con el resto de las funcionas
 
 uint8_t has_children(uint8_t pid){
 	for(int i=0; i<MAX_WAIT_TASKS; i++){
@@ -212,7 +376,7 @@ void add_child(uint8_t fatherPid, uint8_t childPid){
 }
 
 unsigned int add_child_task(uint64_t entrypoint, int screen, uint64_t arg0){
-	uint8_t child_pid = addTask(entrypoint, screen, arg0);
+	uint8_t child_pid = add_task(entrypoint, screen, DEFAULT_PRIORITY, MORTAL , arg0);
 
 	add_child(getCurrentPid(), child_pid);
 
@@ -231,215 +395,5 @@ uint8_t children_finished(uint8_t fatherPid){
 	return 1;
 }
 
-// ========= PRIORITY  ========= 
-
-// se fija si le queda tiempo, si le queda, decrementa esa cantidad y
-uint8_t has_or_decrease_time(){
-	if(currentRemainingTicks < tasks[currentTask].priority - 1){
-		currentRemainingTicks++;
-		return 1;
-	}
-	return 0;
-
-}
-
-
-// ========== ENABLED ==========
-
-void idleTask(){
-	while(1)
-		_hlt();
-}
-
-/*
-	Se habilita el multitasking e instantaneamente
-	pasa al primer task en el queue.
-*/
-void enableMultiTasking(){
-	isEnabled = 1;
-
-	add_task((uint64_t)&idleTask, BACKGROUND_PROCESS,1, 1,0);
-
-	forceCurrentTask();
-}
-
-
-// ========== ALTER AND ADD ==============
-
-/*	
-	Pasa al proximo task que se tiene que ejecutar. 
-	Parametros:  stackPointer: puntero al stack del task anterior  |  stackSegment: valor del stack segment del task anterior  
-*/
-void moveToNextTask(uint64_t stackPointer, uint64_t stackSegment){
-
-	// !!!!! REMOVE !!!!!
-	int a=0, w=0, d=0, p=0;
-	for(int i=0; i<TOTAL_TASKS; i++){
-		switch(tasks[i].state){
-			case ACTIVE_PROCESS:
-				a++;
-				break;
-
-			case WAITING_PROCESS:
-				w++;
-				break;
-			case PAUSED_PROCESS:
-				p++;
-				break;
-			case DEAD_PROCESS:
-				d++;
-				break;
-		}
-	}
-	*(vid + 60) =  '|';
-	*(vid + 62) = 'a';
-	*(vid + 64) = a % 10 + '0';
-	*(vid + 66) = 'w';
-	*(vid + 68) = w % 10 + '0';
-	*(vid + 70) = 'p';
-	*(vid + 72) = p % 10 + '0';
-	*(vid + 74) = 'd';
-	*(vid + 76) = d % 10 + '0';
-	*(vid + 78) =  '|';
-
-
-	tasks[currentTask].stackPointer = stackPointer;			// updateo el current
-	tasks[currentTask].stackSegment = stackSegment;
-	
-	char found=0;
-	for(unsigned int i=currentTask; !found ; ){			// busco el proximo stack
-		i = (i +  1) % TOTAL_TASKS;
-
-		switch(tasks[i].state){
-
-			case ACTIVE_PROCESS:
-				currentTask = i;
-				found = 1;
-				break;
-
-			case WAITING_PROCESS:
-				if(children_finished(tasks[i].pid)){
-					
-					remove_children(tasks[i].pid);
-
-					tasks[i].state = ACTIVE_PROCESS;
-
-					currentTask = i;
-					found = 1;
-				}
-				break;
-		}
-	}
-
-	currentRemainingTicks = 0;		// reset del current task
-}
-
-
-
-// Encuentro el task usando el pid
-int findTask(unsigned int pid){
-	for(int i=0; i<TOTAL_TASKS; i++){
-		if(tasks[i].pid == pid && tasks[i].state != DEAD_PROCESS)
-			return i;
-	}	
-	return NO_TASK_FOUND;			// no existe task con ese pid
-}
-
-
-void removeCurrentTask(){
-	tasks[currentTask].state = DEAD_PROCESS;
-	currentDimTasks--;
-
-	signal_process_finished(tasks[currentTask].pid);
-
-	// There's no need to reset currentRemainingTicks, eventually moveToNextTask will do so
-
-	forceNextTask();				
-}
-
-/*	
-	Elimina el task con ese pid y pasa al proximo. 
-	Un task no se puede matar a si mismo.
-*/
-int removeTask(unsigned int pid){
-
-	//TODO: si remuevo el actual entonces tengo que resetear el currentRemainingTicks
-
-	int pos = findTask(pid);
-	if(pos < 0)					// se quiere remover task que no existe
-		return NO_TASK_FOUND;
-
-	signal_process_finished(pid);
-
-	tasks[pos].state = DEAD_PROCESS;
-	currentDimTasks--;
-	return TASK_ALTERED;
-}
-
-
-// pauso o despauso proceso con el pid
-int pauseOrUnpauseProcess(unsigned int pid){
-	int pos = findTask(pid);
-	if(pos < 0)					// se quiere pausar task que no existe
-		return NO_TASK_FOUND;
-
-	tasks[pos].state = tasks[pos].state==PAUSED_PROCESS ? ACTIVE_PROCESS : PAUSED_PROCESS; 	// pausado -> despausado  | despausado -> pausado
-	return TASK_ALTERED;
-}
-
-/*	
-	Agrega una funcion al queue de tasks. 
-	Parametros:  entrypoint: puntero a funcion  |  screen: en que pantalla va a imprimir
-*/
-int add_task(uint64_t entrypoint, uint8_t screen, uint8_t priority, uint8_t immortal, uint64_t arg0){
-
-	if(currentDimTasks>=TOTAL_TASKS){		// no acepto mas tasks al estar lleno
-		return ERROR_NO_SPACE_FOR_TASK;
-	}
-	if(!screenAvailable(screen)){
-		return ERROR_SCREEN_NOT_AVAILABLE;
-	}
-	currentDimTasks++;
-
-	int pos;
-	for(pos=0; tasks[pos].state==ACTIVE_PROCESS;pos++);											// encuentro posicion libre en el array de tasks
-
-	// --- Parametros de funcion ---
-	*(STACK_POS(RDI_POS)) = arg0;
-
-
-	// --- Pongo todos los registros que no se usan en 0 ---
-	for(int i=7 ; i<21 ; i++){
-		if(i!=12)
-			*(STACK_POS(i * 8)) = 0;
-	}
-
-	
-	// --- "Stack frame" minimo para la funcion ---
-	*(STACK_POS(IP_POS)) = entrypoint;							// puntero al proceso que se va a correr
-	*(STACK_POS(CS_POS)) = CS_VALUE;				
-	
-	*(STACK_POS(FLAGS_POS)) = FLAG_VALUES;						// tenemos que poner el flag de interrupcion en 1 y otros obligatorios
-	
-	*(STACK_POS(SP_POS)) = (uint64_t) stacks[pos] + STACK_SIZE - RET_POS;	// agarro el comienzo del stack
-	*(STACK_POS(SS_POS)) = SS_VALUE;
-	
-	*(STACK_POS(RET_POS)) = (uint64_t) &removeCurrentTask;		// para el RET que vaya y se remueva automaticamente de los tasks
-
-	// --- Datos de task ---
-	tasks[pos].stackPointer = (uint64_t) stacks[pos] + STACK_SIZE - STACK_POINT_OF_ENTRY;					// comienzo del stack
-	tasks[pos].stackSegment = SS_VALUE;		
-	tasks[pos].screen = screen;
-	tasks[pos].pid = newPidValue++;
-	tasks[pos].state = ACTIVE_PROCESS;
-	tasks[pos].priority = priority;
-	tasks[pos].immortal = immortal;
-
-	return tasks[pos].pid;
-}
-
-int addTask(uint64_t entrypoint, int screen, uint64_t arg0){
-	return add_task(entrypoint, screen, DEFAULT_PRIORITY, 0, arg0);
-}
 
 

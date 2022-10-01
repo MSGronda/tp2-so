@@ -18,6 +18,7 @@
 #define SYS_PRINTMEM 11
 #define SYS_REGISTER_CHILD_PROCESS 12
 #define SYS_WAIT_FOR_CHILDREN 13
+#define SYS_RENOUNCE_CPU 14
 
 // Entrada estandar
 #define STDIN 1
@@ -36,6 +37,8 @@
 
 // Return values
 #define INVALID_SCREEN -1
+
+unsigned int sys_renounce_cpu(uint64_t rsp, uint64_t ss);
 
 unsigned int sys_wait_for_children(uint64_t rsp, uint64_t ss);
 

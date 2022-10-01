@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-
+unsigned int sys_renounce_cpu();
 unsigned int sys_wait_for_children();
 unsigned int sys_register_child_process(uint64_t entryPoint, int screen, uint64_t arg0);
 

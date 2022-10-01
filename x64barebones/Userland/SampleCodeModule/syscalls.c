@@ -12,6 +12,7 @@
 #define SYS_PRINTMEM 11
 #define SYS_REGISTER_CHILD_PROCESS 12
 #define SYS_WAIT_FOR_CHILDREN 13
+#define SYS_RENOUNCE_CPU 14
 
 #define NULL 0
 
@@ -39,6 +40,10 @@ unsigned int sys_register_child_process(uint64_t entryPoint, int screen, uint64_
 
 unsigned int sys_wait_for_children(){
     return syscaller(SYS_WAIT_FOR_CHILDREN, NULL, NULL, NULL);
+}
+
+unsigned int sys_renounce_cpu(){
+    return syscaller(SYS_RENOUNCE_CPU, NULL, NULL, NULL);
 }
 
 unsigned int sys_rtc(unsigned int  mode){

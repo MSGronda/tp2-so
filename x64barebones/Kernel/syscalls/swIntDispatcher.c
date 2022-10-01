@@ -39,6 +39,8 @@ unsigned int swIntDispatcher(uint64_t mode, uint64_t arg0, uint64_t arg1,
 		case SYS_KILL_PROCESS:
 			return sys_kill_process((unsigned int) arg0);
 
+		case SYS_RENOUNCE_CPU:
+			return sys_renounce_cpu(rsp, ss);
 
 		// Otros
 		case SYS_RTC:
