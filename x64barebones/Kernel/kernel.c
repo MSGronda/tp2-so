@@ -5,6 +5,7 @@
 #include <string.h>
 #include <multitasking.h>
 #include <syscalls.h>
+#include <memoryManager.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -53,6 +54,40 @@ int main()
 	sys_clear_screen();
 
 	load_idt();
+	mm_init();
+	char * ptr1 = mm_malloc(5);
+	char * ptr2 = mm_malloc(5);
+
+	char buffer1[100];
+	hex_to_string(ptr1, buffer1, 100);
+	char buffer2[100];
+	hex_to_string(ptr1, buffer2, 100);
+
+	sys_write(1, buffer1, 100);
+	sys_write(1, '\n', 1);
+	sys_write(1, buffer2, 100);
+
+
+	ptr1[0] = 'h';
+	ptr1[1] = 'o';
+	ptr1[2] = 'l';
+	ptr1[3] = 'a';
+	ptr1[4] = 0;
+
+	ptr2[0] = 'c';
+	ptr2[1] = 'h';
+	ptr2[2] = 'a';
+	ptr2[3] = 'u';
+	ptr2[4] = 0;
+
+
+	sys_write(1, ptr1, 5);
+	for(int i=0 ; i<500000000 ; i++);
+	sys_write(1, ptr2, 5);
+	for(int i=0 ; i<50000000000 ; i++);
+	mm_free(ptr1);
+	mm_free(ptr2);
+
 	
 	addTask((uint64_t)sampleCodeModuleAddress,1,0);	// llamada a userland
 	enableMultiTasking();
