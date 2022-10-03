@@ -173,7 +173,7 @@ _swIntHandler:
 	mov rax, 0 		; xor rax, rax
 	mov rax, ss
 	push rax
-	mov rax, [rsp + 8 * 16]	; restauro rax
+	mov rax, [rsp + 8 * 16]		; restauro rax
 
 	push r9
 	mov r9, r8
@@ -184,10 +184,12 @@ _swIntHandler:
 	mov rdi, rax 
 
 	call swIntDispatcher 
-	pop r9
+	pop r8
 
-	pop rax
-	pop rax
+	mov [rsp + 8 * 16], rax  ; valor de retorno
+
+	pop r8
+	pop r8
 
 	popState
 	iretq

@@ -3,5 +3,5 @@
 
 unsigned int sys_get_pid()
 {
-	unsigned int get_current_pid();
+	return get_current_pid();
 }

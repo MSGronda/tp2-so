@@ -62,7 +62,7 @@ static taskInfo tasks[TOTAL_TASKS];
 
 static unsigned int newPidValue = 1;					// identificador para cada proceso
 	
-static unsigned int currentTask = 0;			// posicion en el array
+static unsigned int currentTask = 0;				// posicion en el array
 static unsigned int currentRemainingTicks = 0;			// How many timer ticks are remaining for the current process.
 static unsigned int currentDimTasks = NO_TASKS;
 
