@@ -49,12 +49,8 @@ void * initializeKernelBinary()
 	return getStackBase();
 }
 
-int main()
-{	
-	sys_clear_screen();
-
-	load_idt();
-	mm_init();
+/* TESTEOS MM -- BORRAR */
+void testFree() {
 	char * ptr1 = mm_malloc(5);
 	char * ptr2 = mm_malloc(5);
 
@@ -67,13 +63,20 @@ int main()
 	sys_write(1, '\n', 1);
 	sys_write(1, buffer2, 100);
 
-
+	mm_free(ptr1);
 	ptr1[0] = 'h';
 	ptr1[1] = 'o';
 	ptr1[2] = 'l';
 	ptr1[3] = 'a';
 	ptr1[4] = 0;
 
+	char * ptr3 = mm_malloc(5);
+	ptr3[0] = 'j';
+	ptr3[1] = 'a';
+	ptr3[2] = 'l';
+	ptr3[3] = 'a';
+	ptr3[4] = 0;
+	
 	ptr2[0] = 'c';
 	ptr2[1] = 'h';
 	ptr2[2] = 'a';
@@ -85,10 +88,43 @@ int main()
 	for(int i=0 ; i<500000000 ; i++);
 	sys_write(1, ptr2, 5);
 	for(int i=0 ; i<50000000000 ; i++);
-	mm_free(ptr1);
-	mm_free(ptr2);
 
+	mm_free(ptr2);
+}
+
+void testLimit() {
+	char * ptr = mm_malloc(HEAP_SIZE - HEADER_SIZE - EOL_SIZE);
+	char * check = mm_malloc(3);
+
+	if(ptr == NULL) 
+		sys_write(1, "ptr null", 8);
+	else
+		sys_write(1, "ptr no null", 12);
+
+	if(check == NULL) 
+		sys_write(1, "chc null", 8);
+	else
+		sys_write(1, "chc no null", 12);
+
+	// Lo que se deberia ver es:
+	// ptr no null chc null
+	// pero me esta apareciendo que ambos son no null
+}
+/* ---------------------- */
+
+int main()
+{	
+	sys_clear_screen();
+
+	load_idt();
+
+	mm_init();
 	
+	/* Testeos MM */
+	testLimit();
+	
+	/* --------- */
+
 	addTask((uint64_t)sampleCodeModuleAddress,1,0);	// llamada a userland
 	enableMultiTasking();
 	
