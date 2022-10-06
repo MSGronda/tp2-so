@@ -5,6 +5,7 @@
 #include <interrupts.h>
 #include <stdint.h>
 
+
 /* --- CONSTANTS  --- */
 // Return values
 #define NO_TASKS 0
@@ -18,6 +19,11 @@
 #define DEFAULT_PRIORITY 1
 #define IMMORTAL 1
 #define MORTAL 0
+
+
+void list_process();
+
+
 
 /* --- Init --- */
 void enableMultiTasking();

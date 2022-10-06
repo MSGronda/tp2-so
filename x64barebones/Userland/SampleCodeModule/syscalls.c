@@ -15,10 +15,16 @@
 #define SYS_RENOUNCE_CPU 14
 #define SYS_NICE 15
 #define SYS_GET_PID 16
+#define SYS_LIST_PROCESS 17
 
 #define NULL 0
 
 extern uint64_t syscaller(uint64_t syscallID, uint64_t param1, uint64_t param2, uint64_t param3);
+
+unsigned int sys_list_process(){
+    return syscaller(SYS_LIST_PROCESS, NULL, NULL, NULL);
+}
+
 
 unsigned int sys_write(const char * string, unsigned int length){
     return syscaller(SYS_WRITE_TO_SCREEN, (uint64_t) string, (uint64_t) length, NULL);        // feo arreglar

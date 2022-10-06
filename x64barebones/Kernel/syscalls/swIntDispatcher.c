@@ -56,6 +56,8 @@ unsigned int swIntDispatcher(uint64_t mode, uint64_t arg0, uint64_t arg1,
 		case SYS_PRINTMEM:
 			return sys_printmem((uint64_t)arg0, (char *) arg1);
 
+		case SYS_LIST_PROCESS:
+			return sys_list_process();
 
 		default:
 			return INVALID_SYS_CALL;

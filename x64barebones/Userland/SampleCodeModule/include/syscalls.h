@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+
+unsigned int sys_list_process();
 unsigned int sys_get_pid();
 unsigned int sys_nice(uint8_t pid, int delta);
 unsigned int sys_renounce_cpu();

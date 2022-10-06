@@ -111,6 +111,78 @@ uint8_t children_finished(unsigned int fatherPid);
 
 /* =========== CODE =========== */
 
+#include <video.h>
+
+// !!!! REMOVE !!!!
+#define STDOUT 1
+#define STDERR 2
+#define STDOUT_LEFT 3
+#define STDOUT_RIGHT 5
+#define STDERR_LEFT 4
+#define STDERR_RIGHT 6
+
+void list_process(){
+	int len;
+	char buffer[100];
+
+	for(int i=0; i<TOTAL_TASKS -1 ; i++){
+		if(tasks[i].state != DEAD_PROCESS){
+			writeDispatcher(getCurrentScreen(), "Name: \n", 7);
+
+			len = num_to_string(tasks[i].pid, buffer);
+			writeDispatcher(getCurrentScreen(), "ID: ", 4);
+			writeDispatcher(getCurrentScreen(), buffer, len);
+			writeDispatcher(getCurrentScreen(), "\n", 1);
+
+			writeDispatcher(getCurrentScreen(), "State: ", 7);
+			switch(tasks[i].state){
+				case ACTIVE_PROCESS:
+					writeDispatcher(getCurrentScreen(), "Active", 6);
+					break;
+				case PAUSED_PROCESS:
+					writeDispatcher(getCurrentScreen(), "Paused", 6);
+					break;
+				case WAITING_PROCESS:
+					writeDispatcher(getCurrentScreen(), "Waiting for child", 17);
+					break;
+			}
+			writeDispatcher(getCurrentScreen(), "\n", 1);
+
+
+			len = num_to_string(tasks[i].priority, buffer);
+			writeDispatcher(getCurrentScreen(), "Priority: ", 10);
+			writeDispatcher(getCurrentScreen(), buffer, len);
+			writeDispatcher(getCurrentScreen(), "\n", 1);
+
+			len = num_to_string(tasks[i].stackPointer, buffer);
+			writeDispatcher(getCurrentScreen(), "Stack Pointer: ", 15);
+			writeDispatcher(getCurrentScreen(), buffer, len);
+			writeDispatcher(getCurrentScreen(), "\n", 1);
+
+			writeDispatcher(getCurrentScreen(), "Screen: ", 8);
+			switch(tasks[i].screen){
+				case BACKGROUND_PROCESS:
+					writeDispatcher(getCurrentScreen(), "Background", 10);
+					break;
+				case STDOUT:
+					writeDispatcher(getCurrentScreen(), "Stdout", 6);
+					break;
+				case STDOUT_LEFT:
+					writeDispatcher(getCurrentScreen(), "Stdout left", 11);
+					break;
+				case STDOUT_RIGHT:
+					writeDispatcher(getCurrentScreen(), "Stdout right", 12);
+					break;
+			}
+			writeDispatcher(getCurrentScreen(), "\n\n", 2);
+		}
+		
+
+	}
+}
+
+
+
 /* --- Init --- */
 
 void idleTask(){

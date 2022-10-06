@@ -21,6 +21,7 @@
 #define SYS_RENOUNCE_CPU 14
 #define SYS_NICE 15
 #define SYS_GET_PID 16
+#define SYS_LIST_PROCESS 17
 
 // Entrada estandar
 #define STDIN 1
@@ -39,6 +40,8 @@
 
 // Return values
 #define INVALID_SCREEN -1
+
+unsigned int sys_list_process();
 
 unsigned int sys_get_pid();
 
