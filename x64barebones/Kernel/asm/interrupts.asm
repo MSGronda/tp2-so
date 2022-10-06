@@ -1,4 +1,3 @@
-
 GLOBAL _cli
 GLOBAL _sti
 GLOBAL picMasterMask
@@ -24,7 +23,7 @@ EXTERN swIntDispatcher
 
 EXTERN getRSP				; multitasking.c
 EXTERN getSS 				; multitasking.c
-EXTERN moveToNextTask		; multitasking.c
+EXTERN next_task		; multitasking.c
 EXTERN multitaskingEnabled
 EXTERN hasTimeLeft
 EXTERN decreaseTimeLeft
@@ -197,15 +196,18 @@ _swIntHandler:
 
 ;  = = = = = = Multitasking = = = = = = 
 
-forceNextTask:		
-	call moveToNextTask		; me muevo al proximo
+; sirve si no queres hacer backup del rsp y ss actual, y solo queres moverte al task
 forceCurrentTask:
-	call getRSP				; rax tiene el RSP del proximo task
+	call getRSP	
 	mov rsp,rax
-	call getSS	
-	mov ss, rax	
-	popState				; popeo los registros para el proximo task
-	iretq					; popeo el IP, CS, RSP, SS, FLAGS, .... para el proximo task	
+	popState
+	iretq
+
+forceNextTask:		
+	call next_task
+	mov rsp,rax
+	popState
+	iretq
 
 
 enable_multi_tasking:
@@ -229,11 +231,9 @@ _irq00Handler:
 	switchTask:
 		mov rdi, rsp 			; pongo los actuales asi despues puedo volver adonde estaba
 		mov rsi, ss
-		call moveToNextTask		
-		call getRSP				; rax tiene el SP del proximo stack
+		call next_task		
 		mov rsp,rax
-		call getSS	
-		mov ss, rax	
+
 
 	tickHandle:
 	mov rdi, 0				
@@ -242,8 +242,8 @@ _irq00Handler:
 	mov al, 20h	
 	out 20h, al 								; signal pic EOI (End of Interrupt)
 
-	popState									
-	iretq										
+	popState				; popeo los registros para el proximo task									
+	iretq					; popeo el IP, CS, RSP, SS, FLAGS, .... para el proximo task											
 
 ; = = = = = = = = = = = = = = = = = = =
 

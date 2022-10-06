@@ -19,8 +19,8 @@
 
 // ---- Valores default para el armado del stack ----
 #define FLAG_VALUES 0x202
-#define SS_VALUE 0
-#define CS_VALUE 8
+#define SS_VALUE 0x0				// en nuestro caso se mantiene constante
+#define CS_VALUE 0x8
 
 // ------Posiciones para el armado de stack para cada proceso------
 										/*		 -=-=STACK=-=-		*/
@@ -47,7 +47,7 @@ static uint8_t * stacks[TOTAL_TASKS] = {stack1, stack2, stack3, stack4};
 
 
 // -----Informacion sobre cada task-----
-typedef struct taskInfo{
+typedef struct process_control_block{
 		uint64_t  stackPointer;		// valor de rsp 
 		uint64_t  stackSegment;  	// valor de ss
 		uint8_t screen;				// en que pantalla va a imprimir
@@ -55,10 +55,10 @@ typedef struct taskInfo{
 		uint8_t state;				// si el proceso es uno activo o ya se elimino
 		uint8_t priority;			// cuantos ticks puede tener por rafaga 
 		uint8_t immortal;			// si se puede matar o no
-}taskInfo;
+}process_control_block;
 
 // ------ Queue de tasks -------
-static taskInfo tasks[TOTAL_TASKS];
+static process_control_block tasks[TOTAL_TASKS];
 
 static unsigned int newPidValue = 1;					// identificador para cada proceso
 	
@@ -99,7 +99,7 @@ void kill_screen_processes();
 void removeCurrentTask();
 int removeTask(unsigned int pid);
 uint8_t has_or_decrease_time();
-void moveToNextTask(uint64_t stackPointer, uint64_t stackSegment);
+uint64_t next_task(uint64_t stackPointer, uint64_t stackSegment);
 uint8_t has_children(unsigned int pid);
 void wait_for_children(uint64_t rsp, uint64_t ss);
 void signal_process_finished(unsigned int pid);
@@ -200,7 +200,7 @@ int add_task(uint64_t entrypoint, uint8_t screen, uint8_t priority, uint8_t immo
 
 	// --- Datos de task ---
 	tasks[pos].stackPointer = (uint64_t) stacks[pos] + STACK_SIZE - STACK_POINT_OF_ENTRY;					// comienzo del stack
-	tasks[pos].stackSegment = SS_VALUE;		
+	tasks[pos].stackSegment = SS_VALUE;				// se mantiene constante
 	tasks[pos].screen = screen;
 	tasks[pos].pid = newPidValue++;
 	tasks[pos].state = ACTIVE_PROCESS;
@@ -249,7 +249,7 @@ void removeCurrentTask(){
 
 	signal_process_finished(tasks[currentTask].pid);
 
-	// There's no need to reset currentRemainingTicks, eventually moveToNextTask will do so
+	// There's no need to reset currentRemainingTicks, eventually next_task will do so
 
 	forceNextTask(NULL, NULL);				
 }
@@ -302,7 +302,7 @@ uint8_t has_or_decrease_time(){
 	Pasa al proximo task que se tiene que ejecutar. 
 	Parametros:  stackPointer: puntero al stack del task anterior  |  stackSegment: valor del stack segment del task anterior  
 */
-void moveToNextTask(uint64_t stackPointer, uint64_t stackSegment){
+uint64_t next_task(uint64_t stackPointer, uint64_t stackSegment){
 
 	tasks[currentTask].stackPointer = stackPointer;			// updateo el current
 	tasks[currentTask].stackSegment = stackSegment;
@@ -333,6 +333,8 @@ void moveToNextTask(uint64_t stackPointer, uint64_t stackSegment){
 	}
 
 	currentRemainingTicks = 0;		// reset del current task
+
+	return tasks[currentTask].stackPointer;
 }
 
 /* --- Child processes --- */
@@ -356,7 +358,7 @@ void wait_for_children(uint64_t rsp, uint64_t ss){
 
 	tasks[currentTask].state = WAITING_PROCESS;
 
-	forceNextTask(rsp, ss); 		//	ya tiene en rdi y rsi los parametros para moveToNextTask
+	forceNextTask(rsp, ss); 		//	ya tiene en rdi y rsi los parametros para next_task
 }
 
 

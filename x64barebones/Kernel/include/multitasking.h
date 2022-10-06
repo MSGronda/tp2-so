@@ -1,4 +1,4 @@
-#ifndef _MULTITASKING_Husigned int 
+#ifndef _MULTITASKING_H
 #define _MULTITASKING_H
 
 /*--------  DEPENDENCIES --------*/
@@ -43,7 +43,7 @@ unsigned int change_priority(unsigned int pid, int delta);
 
 /* --- Scheduling --- */
 uint8_t has_or_decrease_time();
-void moveToNextTask(uint64_t stackPointer, uint64_t stackSegment);
+uint64_t next_task(uint64_t stackPointer, uint64_t stackSegment);
 
 
 /* --- Child processes --- */
