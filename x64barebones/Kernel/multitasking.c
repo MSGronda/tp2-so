@@ -116,7 +116,7 @@ void idleTask(){
 }
 
 void enableMultiTasking(){
-	add_task((uint64_t)&idleTask, BACKGROUND, DEFAULT_PRIORITY, IMMORTAL,0);
+	add_task((uint64_t)&idleTask, BACKGROUND, 1, IMMORTAL,0);
 	forceCurrentTask();
 }
 
@@ -355,7 +355,7 @@ void list_process(){
 
 			len = num_to_string(tasks[i].stackPointer, buffer);
 			writeDispatcher(tasks[currentTask].screen, buffer, len);
-			writeDispatcher(tasks[currentTask].screen, "      ",6);
+			writeDispatcher(tasks[currentTask].screen, "   ",3);
 
 			switch(tasks[i].screen){
 				case BACKGROUND:
