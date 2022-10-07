@@ -1,6 +1,6 @@
 #include <memoryManager.h>
 
-void printNum(uint32_t num);
+void printNum(uint64_t num);
 
 // TODO: CHEQUEO DE ERRORES
 // TODO: HACER EL FREE PARA ATRAS TAMBIEN
@@ -14,34 +14,34 @@ void freeBlock(header_t * ptr) {
 
 
 // Allocate in a free block, split if needed
-void addBlock(header_t * ptr, uint32_t len) {
+void addBlock(header_t * ptr, uint64_t len) {
 
-    uint32_t oldSize = GET_SIZE(ptr);
+    uint64_t oldSize = GET_SIZE(ptr);
 
-    if(IS_EOL(ptr))
-        addEOL(ptr + len);
-
-    if(len + HEADER_SIZE >= oldSize && oldSize != 0) 
+    if(IS_EOL(ptr)) {
+        addEOL(ptr + len / BITS_IN_BYTE);
+        *ptr = SET_ALLOCATED(len);
+    }
+    else if(len + HEADER_SIZE >= oldSize) 
     	*ptr = SET_ALLOCATED(oldSize);
     else {
         *ptr = SET_ALLOCATED(len);
-        *(ptr + len) = oldSize - len; 
+        *(ptr + len / BITS_IN_BYTE) = oldSize - len; 
     }
 
 }
 
 
-header_t * findFree(uint32_t len) {
+header_t * findFree(uint64_t len) {
     header_t * ptr = HEAP_START;
 
     // TODO: Creo que hay un error , es necesario ptr<HEAP_END??
     while( !IS_EOL(ptr) && (IS_ALLOCATED(ptr) || (*ptr < len)) )
-        ptr = ptr + GET_SIZE(ptr);
-
+        ptr = ptr + GET_SIZE(ptr) / 8;
 
     if(IS_EOL(ptr)) {
     	// Check if it fits
-    	if(ptr + len + EOL_SIZE > HEAP_END)
+    	if((ptr + (len + EOL_SIZE) / BITS_IN_BYTE) > HEAP_END)
     		return NULL;
     }
 
@@ -61,18 +61,18 @@ void mm_init() {
 }
 
 
-void * mm_malloc(uint32_t len) {
+void * mm_malloc(uint64_t len) {
     if(len == 0) 
         return NULL;
 
-    uint32_t newSize = MASK_LAST_BIT(len + 1); // Alligns the number, rounding it
+    uint64_t newSize = MASK_LAST_BIT(len + 1 + HEADER_SIZE); // Alligns the number, rounding it
 
-    header_t * out = findFree(newSize + HEADER_SIZE);
+    header_t * out = findFree(newSize);
 
     if(out == NULL)
     	return NULL;
 
-    addBlock(out, newSize + HEADER_SIZE);
+    addBlock(out, newSize);
 
     // User has a pointer after the header
     return (void *) (out + HEADER_SIZE);
@@ -90,7 +90,7 @@ void mm_free(void * ptr) {
     *castedPtr = MASK_LAST_BIT(*castedPtr);
 }
 
-void printNum(uint32_t num){
+void printNum(uint64_t num){
     char buffer[30];
     hex_to_string(num, buffer, 30);
     sys_write(1, buffer, 30);

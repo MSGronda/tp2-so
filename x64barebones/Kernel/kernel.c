@@ -57,7 +57,7 @@ void testFree() {
 	char buffer1[100];
 	hex_to_string(ptr1, buffer1, 100);
 	char buffer2[100];
-	hex_to_string(ptr1, buffer2, 100);
+	hex_to_string(ptr2, buffer2, 100);
 
 	sys_write(1, buffer1, 100);
 	sys_write(1, '\n', 1);
@@ -93,8 +93,10 @@ void testFree() {
 }
 
 void testLimit() {
+	sys_write(1, "ptr", 3);
 	char * ptr = mm_malloc(HEAP_SIZE - HEADER_SIZE - EOL_SIZE);
-	sys_write(1, "check", 5);
+	
+	sys_write(1, "chc", 3);
 	char * check = mm_malloc(3);
 
 	if(ptr == NULL) 
@@ -102,6 +104,7 @@ void testLimit() {
 	else
 		sys_write(1, "ptr no null", 12);
 
+	sys_write(1, "        ", 8);
 	if(check == NULL) 
 		sys_write(1, "chc null", 8);
 	else
