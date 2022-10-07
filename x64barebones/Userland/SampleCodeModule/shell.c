@@ -183,17 +183,6 @@ void commandsDispatcher(char ** words, unsigned int count){
     }
 }
 
-static uint8_t * vid = (uint8_t*)0xB8000;
-
-
-void test_func(){
-    unsigned int pid =  sys_get_pid();
-
-    
-    char c = (pid  % 10)+ '0';
-    print(&c,1);
-
-}
 
 void shell(){
     char buffer[BUFFER_LENGTH];
@@ -205,15 +194,12 @@ void shell(){
         //print(SYMBOL, SYMBOL_LENGTH);
         //read_line(buffer, BUFFER_LENGTH);
 
-        sys_register_child_process((uint64_t)&primos, LEFT_SCREEN, NULL);
-        sys_register_child_process((uint64_t)&sys_list_process, RIGHT_SCREEN, NULL);
-        sys_wait_for_children();
+        sys_register_process((uint64_t)&primos, 0, NULL);
+        sys_nice(3, 2);
+        sys_list_process();
 
-        clear_screen();
+        for(int i=0; i<5000000000; i++);
 
-        print("termino!", 7);
-
-        for(int i=0; i<500000000; i++);
 
         //amount = parseCommands(buffer, commands);
         //commandsDispatcher(commands, amount);

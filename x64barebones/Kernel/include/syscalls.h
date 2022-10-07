@@ -3,6 +3,7 @@
 
 /*--------  DEPENDENCIES --------*/
 #include <stdint.h>
+#include <video.h>
 
 
 /* --- CONSTANTS  --- */
@@ -22,21 +23,6 @@
 #define SYS_NICE 15
 #define SYS_GET_PID 16
 #define SYS_LIST_PROCESS 17
-
-// Entrada estandar
-#define STDIN 1
-#define STDIN_LEFT 3
-#define STDIN_RIGHT 5
-
-// Normal mode
-#define STDOUT 1
-#define STDERR 2
-
-// Split screen
-#define STDOUT_LEFT 3
-#define STDOUT_RIGHT 5
-#define STDERR_LEFT 4
-#define STDERR_RIGHT 6
 
 // Return values
 #define INVALID_SCREEN -1

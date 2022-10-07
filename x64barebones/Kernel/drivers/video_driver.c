@@ -2,6 +2,25 @@
 #include <multitasking.h>
 #include <video.h>
 
+// Columna de comienzo en pantalla
+#define START_LEFT 0
+#define START_RIGHT 80
+
+// Dimensiones de pantalla
+#define NORMAL_MODE_LENGTH 160
+#define SPLIT_MODE_LENGTH 80
+
+#define SCREEN_HEIGHT 25
+#define SCREEN_WIDTH 160
+
+// Salto de pantalla
+#define NORMAL_MODE_STEP 0
+#define SPLIT_MODE_STEP 80
+
+// Colores 
+#define STDOUT_COLOR 7
+#define STDERR_COLOR 4
+
 // Variables estaticas
 static uint8_t * defaultVideoPos = (uint8_t*)0xB8000;
 

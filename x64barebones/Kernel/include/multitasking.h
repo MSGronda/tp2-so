@@ -4,7 +4,7 @@
 /*--------  DEPENDENCIES --------*/
 #include <interrupts.h>
 #include <stdint.h>
-
+#include <video.h>
 
 /* --- CONSTANTS  --- */
 // Return values
