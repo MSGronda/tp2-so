@@ -11,7 +11,7 @@ typedef size_t header_t;
 #define FALSE (!TRUE)
 
 #define HEAP_SIZE 4096
-#define HEAP_START (header_t *) 5000
+#define HEAP_START (header_t *) 4096
 #define HEAP_END (header_t *) (HEAP_START + HEAP_SIZE)
 
 #define EOL_SIZE HEADER_SIZE

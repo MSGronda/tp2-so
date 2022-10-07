@@ -63,12 +63,12 @@ void testFree() {
 	sys_write(1, '\n', 1);
 	sys_write(1, buffer2, 100);
 
-	mm_free(ptr1);
 	ptr1[0] = 'h';
 	ptr1[1] = 'o';
 	ptr1[2] = 'l';
 	ptr1[3] = 'a';
 	ptr1[4] = 0;
+	mm_free(ptr1);
 
 	char * ptr3 = mm_malloc(5);
 	ptr3[0] = 'j';
@@ -94,6 +94,7 @@ void testFree() {
 
 void testLimit() {
 	char * ptr = mm_malloc(HEAP_SIZE - HEADER_SIZE - EOL_SIZE);
+	sys_write(1, "check", 5);
 	char * check = mm_malloc(3);
 
 	if(ptr == NULL) 
@@ -106,6 +107,8 @@ void testLimit() {
 	else
 		sys_write(1, "chc no null", 12);
 
+
+	for(int i=0 ; i<50000000000 ; i++);
 	// Lo que se deberia ver es:
 	// ptr no null chc null
 	// pero me esta apareciendo que ambos son no null
@@ -121,7 +124,7 @@ int main()
 	mm_init();
 	
 	/* Testeos MM */
-	testLimit();
+	testFree();
 	
 	/* --------- */
 

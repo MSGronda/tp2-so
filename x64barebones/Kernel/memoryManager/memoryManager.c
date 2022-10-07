@@ -1,5 +1,7 @@
 #include <memoryManager.h>
 
+void printNum(uint32_t num);
+
 // TODO: CHEQUEO DE ERRORES
 // TODO: HACER EL FREE PARA ATRAS TAMBIEN
 void freeBlock(header_t * ptr) {
@@ -13,38 +15,36 @@ void freeBlock(header_t * ptr) {
 
 // Allocate in a free block, split if needed
 void addBlock(header_t * ptr, uint32_t len) {
-    uint32_t newSize = MASK_LAST_BIT(len + 1); // Alligns the number, rounding it
+
     uint32_t oldSize = GET_SIZE(ptr);
 
-    if(newSize + HEADER_SIZE >= oldSize && oldSize != 0) 
+    if(IS_EOL(ptr))
+        addEOL(ptr + len);
+
+    if(len + HEADER_SIZE >= oldSize && oldSize != 0) 
     	*ptr = SET_ALLOCATED(oldSize);
     else {
-        *ptr = SET_ALLOCATED(newSize);
-        *(ptr + newSize) = oldSize - newSize; 
+        *ptr = SET_ALLOCATED(len);
+        *(ptr + len) = oldSize - len; 
     }
+
 }
 
 
 header_t * findFree(uint32_t len) {
     header_t * ptr = HEAP_START;
 
-    // TODO: Creo que hay un error aca
-    while( !IS_EOL(ptr) && (IS_ALLOCATED(ptr) || (*ptr < len)) && ptr < HEAP_END)
+    // TODO: Creo que hay un error , es necesario ptr<HEAP_END??
+    while( !IS_EOL(ptr) && (IS_ALLOCATED(ptr) || (*ptr < len)) )
         ptr = ptr + GET_SIZE(ptr);
 
-    // Probably no more space
-    if(ptr > HEAP_END)
-    	return NULL;
 
     if(IS_EOL(ptr)) {
     	// Check if it fits
-    	if(ptr + len + HEADER_SIZE > HEAP_END)
+    	if(ptr + len + EOL_SIZE > HEAP_END)
     		return NULL;
-
-    	addEOL(ptr + len + HEADER_SIZE);
     }
 
-    addBlock(ptr,len);
     return ptr;
 }
 
@@ -65,11 +65,14 @@ void * mm_malloc(uint32_t len) {
     if(len == 0) 
         return NULL;
 
-    header_t * out = findFree(len + HEADER_SIZE);
+    uint32_t newSize = MASK_LAST_BIT(len + 1); // Alligns the number, rounding it
+
+    header_t * out = findFree(newSize + HEADER_SIZE);
+
     if(out == NULL)
     	return NULL;
 
-    addBlock(out, len + HEADER_SIZE);
+    addBlock(out, newSize + HEADER_SIZE);
 
     // User has a pointer after the header
     return (void *) (out + HEADER_SIZE);
@@ -85,4 +88,10 @@ void mm_free(void * ptr) {
     freeBlock(castedPtr - HEADER_SIZE);
     // Set IS_ALLOCATED to 0 (aka. FALSE)
     *castedPtr = MASK_LAST_BIT(*castedPtr);
+}
+
+void printNum(uint32_t num){
+    char buffer[30];
+    hex_to_string(num, buffer, 30);
+    sys_write(1, buffer, 30);
 }
