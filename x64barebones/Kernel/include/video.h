@@ -6,24 +6,22 @@
 
 
 /* --- CONSTANTS --- */
-// Columna de comienzo en pantalla
-#define START_LEFT 0
-#define START_RIGHT 80
+#define BACKGROUND 0
 
-// Dimensiones de pantalla
-#define NORMAL_MODE_LENGTH 160
-#define SPLIT_MODE_LENGTH 80
+// Entrada estandar
+#define STDIN 1
+#define STDIN_LEFT 3
+#define STDIN_RIGHT 5
 
-#define SCREEN_HEIGHT 25
-#define SCREEN_WIDTH 160
+// Normal mode
+#define STDOUT 1
+#define STDERR 2
 
-// Salto de pantalla
-#define NORMAL_MODE_STEP 0
-#define SPLIT_MODE_STEP 80
-
-// Colores 
-#define STDOUT_COLOR 7
-#define STDERR_COLOR 4
+// Split screen
+#define STDOUT_LEFT 3
+#define STDOUT_RIGHT 5
+#define STDERR_LEFT 4
+#define STDERR_RIGHT 6
 
 /*
  * << write >>

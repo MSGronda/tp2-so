@@ -1,4 +1,3 @@
-
 GLOBAL _cli
 GLOBAL _sti
 GLOBAL picMasterMask
@@ -24,10 +23,18 @@ EXTERN swIntDispatcher
 
 EXTERN getRSP				; multitasking.c
 EXTERN getSS 				; multitasking.c
-EXTERN moveToNextTask		; multitasking.c
+EXTERN next_task		; multitasking.c
+EXTERN multitaskingEnabled
+EXTERN hasTimeLeft
+EXTERN decreaseTimeLeft
+EXTERN has_or_decrease_time 
 
 GLOBAL forceNextTask
 GLOBAL forceCurrentTask
+
+SECTION .data
+
+multi_tasking_enabled db 0
 
 SECTION .text
 
@@ -158,6 +165,14 @@ haltcpu:
 ; = = = = = Interrupts de software = = = = = ;
 
 _swIntHandler:
+	pushState
+
+	push rsp
+
+	mov rax, 0 		; xor rax, rax
+	mov rax, ss
+	push rax
+	mov rax, [rsp + 8 * 16]		; restauro rax
 
 	push r9
 	mov r9, r8
@@ -168,47 +183,67 @@ _swIntHandler:
 	mov rdi, rax 
 
 	call swIntDispatcher 
-	pop r9
+	pop r8
 
+	mov [rsp + 8 * 16], rax  ; valor de retorno
+
+	pop r8
+	pop r8
+
+	popState
 	iretq
 ; = = = = = = = = = = = = = = = = = = = = = ;
 
 ;  = = = = = = Multitasking = = = = = = 
 
-
-forceNextTask:
-	call moveToNextTask		; me muevo al proximo
+; sirve si no queres hacer backup del rsp y ss actual, y solo queres moverte al task
 forceCurrentTask:
-	call getRSP				; rax tiene el RSP del proximo task
+	call getRSP	
 	mov rsp,rax
-	call getSS	
-	mov ss, rax	
-	popState				; popeo los registros para el proximo task
-	iretq					; popeo el IP, CS, RSP, SS, FLAGS, .... para el proximo task	
+	popState
+	iretq
 
+forceNextTask:		
+	call next_task
+	mov rsp,rax
+	popState
+	iretq
+
+
+enable_multi_tasking:
+	mov BYTE [multi_tasking_enabled], 1
+	jmp tickHandle
+	
 ; = = = = = = = = = = = = = = = = = = =
 
 ; = = = = = = Timer Tick = = = = = = = =
 _irq00Handler:
 	pushState
 
+	; check if multitasking is enabled
+	cmp BYTE [multi_tasking_enabled], 1
+	jne enable_multi_tasking
+
+	call has_or_decrease_time
+	cmp eax, 1
+	je tickHandle
+
 	switchTask:
 		mov rdi, rsp 			; pongo los actuales asi despues puedo volver adonde estaba
 		mov rsi, ss
-		call moveToNextTask		
-		call getRSP				; rax tiene el SP del proximo stack
+		call next_task		
 		mov rsp,rax
-		call getSS	
-		mov ss, rax	
 
+
+	tickHandle:
 	mov rdi, 0				
 	call irqDispatcher
 
 	mov al, 20h	
 	out 20h, al 								; signal pic EOI (End of Interrupt)
 
-	popState									
-	iretq										
+	popState				; popeo los registros para el proximo task									
+	iretq					; popeo el IP, CS, RSP, SS, FLAGS, .... para el proximo task											
 
 ; = = = = = = = = = = = = = = = = = = =
 

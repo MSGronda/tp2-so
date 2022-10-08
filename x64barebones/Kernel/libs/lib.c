@@ -50,6 +50,25 @@ void * memcpy(void * destination, const void * source, uint64_t length)
 	return destination;
 }
 
+int num_to_string(uint64_t num, char * buffer)
+{
+    if(num==0) {
+        buffer[0] = '0';
+        buffer[1] = 0;
+        return 2;
+    }
+    int i = 0;
+    while(num > 0) {
+        buffer[i++] = num%10 + '0';
+        num /= 10;
+    }
+    reverseString(buffer, i);
+    buffer[i] = 0;
+
+    return i;
+}
+
+
 
 int str_len(const char * string)
 {

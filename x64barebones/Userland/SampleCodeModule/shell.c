@@ -35,7 +35,7 @@ static uint64_t functions[] = {
                 pos1 = checkCommand(name, commands, TOTAL_COMMANDS);        \
                 if(pos1 >= 0){                                              \
                     sys_clear_screen();                                     \
-                    pid1 = sys_register_process(functions[pos1], screen, (uint64_t) param); \
+                    pid1 = sys_register_child_process(functions[pos1], screen, (uint64_t) param); \
                 }                                                           \
                 else{                                                       \
                     puts(INVALID_COMMAND_MSG);                              \
@@ -48,8 +48,8 @@ static uint64_t functions[] = {
                 pos2 = checkCommand(name2, commands, TOTAL_COMMANDS);       \
                 if(pos2 >= 0 && pos2 >=0){                                  \
                     sys_clear_screen();                                     \
-                    pid1 = sys_register_process(functions[pos1], screen1, (uint64_t) param1); \
-                    pid2 = sys_register_process(functions[pos2], screen2, (uint64_t) param2); \
+                    pid1 = sys_register_child_process(functions[pos1], screen1, (uint64_t) param1); \
+                    pid2 = sys_register_child_process(functions[pos2], screen2, (uint64_t) param2); \
                 }                                                           \
                 else{                                                       \
                     puts(INVALID_COMMAND_MSG);                              \
@@ -155,33 +155,10 @@ void commandsDispatcher(char ** words, unsigned int count){
             return;
         }
 
-    while(finishedExecution==0){                                // el shell sigue corriendo en el fondo, fijandose si se toco una tecla especial
-        size = consume_buffer(buffer, BUFFER_LENGTH-1);
-        buffer[size] = 0;
-        char key = findSpecialKey(buffer, specialKeys, TOTAL_SPECIAL_KEYS);
-
-        switch(key){
-            case ESCAPE_KEY:
-                sys_kill_process(pid1);     
-                sys_kill_process(pid2);                          // en todos estos casos, nos aprovechamos con que si no existe un task con ese
-                sys_clear_screen();                              // pid, no hace nada y listo.
-                finishedExecution = 1;
-                break;
-            case PAUSE_NORMAL_SCREEN:
-                if(pid2<0)
-                sys_pause_process(pid1);
-                break;
-            case PAUSE_LEFT_SCREEN:
-                if(pid2>0)
-                    sys_pause_process(pid1);
-                break;
-            case PAUSE_RIGHT_SCREEN:
-                if(pid2>0)
-                    sys_pause_process(pid2);
-                break;
-        }  
-    }
+    sys_wait_for_children();
+    print("\n",1);
 }
+
 
 void shell(){
     char buffer[BUFFER_LENGTH];

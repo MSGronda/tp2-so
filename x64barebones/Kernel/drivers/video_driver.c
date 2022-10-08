@@ -2,6 +2,25 @@
 #include <multitasking.h>
 #include <video.h>
 
+// Columna de comienzo en pantalla
+#define START_LEFT 0
+#define START_RIGHT 80
+
+// Dimensiones de pantalla
+#define NORMAL_MODE_LENGTH 160
+#define SPLIT_MODE_LENGTH 80
+
+#define SCREEN_HEIGHT 25
+#define SCREEN_WIDTH 160
+
+// Salto de pantalla
+#define NORMAL_MODE_STEP 0
+#define SPLIT_MODE_STEP 80
+
+// Colores 
+#define STDOUT_COLOR 7
+#define STDERR_COLOR 4
+
 // Variables estaticas
 static uint8_t * defaultVideoPos = (uint8_t*)0xB8000;
 
@@ -77,11 +96,6 @@ unsigned int writeDispatcher(unsigned int fd, const char * buf, unsigned int cou
 			write(buf, format, count, &currentVideoPosRightOffset, START_RIGHT, SPLIT_MODE_LENGTH, SPLIT_MODE_STEP);
 			currentVideoPosOffset = 0;		// se resetean el normal mode
 		break;
-		
-		default:			// el default ese la pantalla completa
-			write(buf, format, count, &currentVideoPosOffset, START_LEFT, NORMAL_MODE_LENGTH, NORMAL_MODE_STEP);
-			currentVideoPosRightOffset = 0;		// se resetean las split screen
-			currentVideoPosLeftOffset = 0;
 	}
 
     return 0;
@@ -117,7 +131,6 @@ unsigned int clearScreenDispatcher()
 			break;
 
 		case STDOUT:
-		default:
 			currentVideoPosOffset = currentVideoPosLeftOffset = START_LEFT;		// se resetan las pantallas
 			currentVideoPosRightOffset = START_RIGHT;
 			clearScreen(START_LEFT, NORMAL_MODE_LENGTH, NORMAL_MODE_STEP);

@@ -4,6 +4,7 @@
 /*--------  DEPENDENCIES --------*/
 #include <stdint.h>
 #include <syscalls.h>
+#include <multitasking.h>
 
 /* --- CONSTANTS  --- */
 #define NO_KEY 0
@@ -11,13 +12,6 @@
 #define DELETE_KEY 2
 #define BUFFER_FULL 3
 #define UNMAPPED 4
-
-// --- Caracteres especiales ---
-#define ESCAPE_KEY 27
-#define F1_KEY 17
-#define F2_KEY 18
-#define F3_KEY 19
-#define F5_SCAN_CODE 0x3F
 
 
 /*
