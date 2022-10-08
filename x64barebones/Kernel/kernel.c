@@ -51,31 +51,27 @@ void * initializeKernelBinary()
 
 /* TESTEOS MM -- BORRAR */
 void testFree() {
-	char * ptr1 = mm_malloc(5);
-	char * ptr2 = mm_malloc(5);
+	char * ptr1 = mm_malloc(8);
+	char * ptr2 = mm_malloc(8);
 
-	char buffer1[100];
-	hex_to_string(ptr1, buffer1, 100);
-	char buffer2[100];
-	hex_to_string(ptr2, buffer2, 100);
-
-	sys_write(1, buffer1, 100);
-	sys_write(1, '\n', 1);
-	sys_write(1, buffer2, 100);
-
-	ptr1[0] = 'h';
+	ptr1[0] = 'n';
 	ptr1[1] = 'o';
-	ptr1[2] = 'l';
-	ptr1[3] = 'a';
-	ptr1[4] = 0;
+	ptr1[2] = 'f';
+	ptr1[3] = 'u';
+	ptr1[4] = 'n';
+	ptr1[5] = 'c';
+	ptr1[6] = 'a';
+	ptr1[7] = 0;
 	mm_free(ptr1);
 
-	char * ptr3 = mm_malloc(5);
-	ptr3[0] = 'j';
+	char * ptr3 = mm_malloc(8);
+	ptr3[0] = 'p';
 	ptr3[1] = 'a';
-	ptr3[2] = 'l';
-	ptr3[3] = 'a';
-	ptr3[4] = 0;
+	ptr3[2] = 's';
+	ptr3[3] = 's';
+	ptr3[4] = 'e';
+	ptr3[5] = 'd';
+	ptr3[6] = 0;
 	
 	ptr2[0] = 'c';
 	ptr2[1] = 'h';
@@ -84,37 +80,78 @@ void testFree() {
 	ptr2[4] = 0;
 
 
-	sys_write(1, ptr1, 5);
-	for(int i=0 ; i<500000000 ; i++);
-	sys_write(1, ptr2, 5);
-	for(int i=0 ; i<50000000000 ; i++);
-
-	mm_free(ptr2);
+	sys_write(1, ptr1, 7);
+	sys_write(1, "     ", 5);
 }
 
-void testLimit() {
-	sys_write(1, "ptr", 3);
-	char * ptr = mm_malloc(HEAP_SIZE - HEADER_SIZE - EOL_SIZE);
+void testMerge(){
+
+	//LLEVA HEADER_SIZE/8????
+
+	char * m1 = mm_malloc(10);
+	char * m2 = mm_malloc(10);
+	char * m3 = mm_malloc(10);
+	char * m4 = mm_malloc(10);
+
+	int size = GET_SIZE(m3-HEADER_SIZE);
+
+	mm_free(m4);
+	mm_free(m3);
+
+	if(GET_SIZE(m3-HEADER_SIZE) == size*2)
+		sys_write(1, "test passed   ", 14);
+	else
+		sys_write(1, "test merge 1 failed   ", 22);
+
+	mm_free(m2);
+
+	if(GET_SIZE(m2-HEADER_SIZE) == size*3)
+		sys_write(1, "test passed   ", 14);
+	else
+		sys_write(1, "test merge 2 failed   ", 22);
+
+	mm_free(m1);
+
+	if(GET_SIZE(m1-HEADER_SIZE) == size*4)
+		sys_write(1, "test passed   ", 14);
+	else
+		sys_write(1, "test merge 3 failed   ", 22);
+
+}
+
+void testNoFragmentation(){
+	char * m1 = mm_malloc(30);
+	int size1 = GET_SIZE(m1 - HEADER_SIZE);
+
+	mm_free(m1);
+
+	char * m2 = mm_malloc(28);
+	int size2 = GET_SIZE(m2 - HEADER_SIZE);
+
+	if(size1 == size2)
+		sys_write(1, "test passed   ", 14);
+	else
+		sys_write(1, "test fragmentation failed   ", 28);
+
+
 	
-	sys_write(1, "chc", 3);
+}
+
+
+
+void testLimit() {
+	char * ptr = mm_malloc(HEAP_SIZE - HEADER_SIZE - EOL_SIZE);
 	char * check = mm_malloc(3);
 
-	if(ptr == NULL) 
-		sys_write(1, "ptr null", 8);
+	if(ptr != NULL) 
+		sys_write(1, "test passed   ", 14);
 	else
-		sys_write(1, "ptr no null", 12);
+		sys_write(1, "test limit 1 failed   ", 22);
 
-	sys_write(1, "        ", 8);
 	if(check == NULL) 
-		sys_write(1, "chc null", 8);
+		sys_write(1, "test passed   ", 14);
 	else
-		sys_write(1, "chc no null", 12);
-
-
-	for(int i=0 ; i<50000000000 ; i++);
-	// Lo que se deberia ver es:
-	// ptr no null chc null
-	// pero me esta apareciendo que ambos son no null
+		sys_write(1, "test limit 2 failed   ", 22);
 }
 /* ---------------------- */
 
@@ -124,11 +161,23 @@ int main()
 
 	load_idt();
 
-	mm_init();
+	for(int i = 1 ; i < 10 ; i++){
+		mm_init();
+		switch(i){
+			case 1: testLimit();
+					break;
+			case 2: testNoFragmentation();
+					break;
+			case 3: testMerge();
+					break;
+			case 4: testFree();
+					break;
+			default: break;
+		}
+	}
 	
-	/* Testeos MM */
-	testFree();
-	
+	for(int i=0 ; i<50000000000 ; i++);
+
 	/* --------- */
 
 	addTask((uint64_t)sampleCodeModuleAddress,1,0);	// llamada a userland

@@ -6,6 +6,8 @@ void printNum(uint64_t num);
 // TODO: HACER EL FREE PARA ATRAS TAMBIEN
 void freeBlock(header_t * ptr) {
     *ptr = GET_SIZE(ptr);
+
+    //ojo el tipo de dato aca
     header_t * next = ptr + *ptr;
 
     if(IS_ALLOCATED(next) == FALSE)
@@ -87,7 +89,7 @@ void mm_free(void * ptr) {
     //Free the header just before the user pointer
     freeBlock(castedPtr - HEADER_SIZE);
     // Set IS_ALLOCATED to 0 (aka. FALSE)
-    *castedPtr = MASK_LAST_BIT(*castedPtr);
+    *(castedPtr - HEADER_SIZE) = MASK_LAST_BIT(*(castedPtr - HEADER_SIZE));
 }
 
 void printNum(uint64_t num){
