@@ -1,7 +1,7 @@
 #include <multitasking.h>
 
 // ---- Constantes ----
-#define TOTAL_TASKS 4
+#define TOTAL_TASKS 7
 #define STACK_SIZE 2000
 
 #define MAX_PRIORITY 5
@@ -39,8 +39,11 @@ static uint8_t stack1[STACK_SIZE];
 static uint8_t stack2[STACK_SIZE];
 static uint8_t stack3[STACK_SIZE];
 static uint8_t stack4[STACK_SIZE];
+static uint8_t stack5[STACK_SIZE];
+static uint8_t stack6[STACK_SIZE];
+static uint8_t stack7[STACK_SIZE];
 
-static uint8_t * stacks[TOTAL_TASKS] = {stack1, stack2, stack3, stack4};
+static uint8_t * stacks[TOTAL_TASKS] = {stack1, stack2, stack3, stack4,  stack5,  stack6,  stack7 };
 
 
 // -----Informacion sobre cada task-----

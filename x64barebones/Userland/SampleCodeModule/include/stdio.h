@@ -9,6 +9,7 @@
 #define LEFT_SCREEN 3
 #define RIGHT_SCREEN 5
 #define NORMAL_SCREEN 1
+#define BACKGROUND 0
 
 // --- Caracteres especiales ---
 #define PAUSE_NORMAL_SCREEN 17

@@ -11,59 +11,34 @@ extern void opCodeError();          // exception_test.asm
 
 // --- Dimensiones ---
 #define BUFFER_LENGTH 150
-#define MAX_WORDS 10
-#define TOTAL_COMMANDS 8
+#define MAX_WORDS 30
 
-#define TOTAL_SPECIAL_KEYS 4
-static char specialKeys[] = {
-    PAUSE_RIGHT_SCREEN, PAUSE_LEFT_SCREEN, PAUSE_NORMAL_SCREEN, ESCAPE_KEY
+typedef struct program_info{
+        char * name;
+        uint64_t ptr;
+        uint8_t num_args;
+}program_info;
+
+#define TOTAL_PROGRAMS 9
+static program_info programs[] = {
+    {.name = "fibonacci", .ptr = (uint64_t) &fibonacci, .num_args = 0},
+    {.name = "primos", .ptr = (uint64_t) &primos, .num_args = 0},
+    {.name = "help", .ptr = (uint64_t) &help, .num_args = 0},
+    {.name = "time", .ptr = (uint64_t) &time, .num_args = 0},
+    {.name = "inforeg", .ptr = (uint64_t) &inforeg, .num_args = 0},
+    {.name = "divError", .ptr = (uint64_t) &divError, .num_args = 0},
+    {.name = "opCodeError", .ptr = (uint64_t) &opCodeError, .num_args = 0},
+    {.name = "printmem", .ptr = (uint64_t) &printmem, .num_args = 1},
+    {.name = "ps", .ptr = (uint64_t) &ps, .num_args = 0},
 };
-
-// --- Comandos ---
-static char * commands[] = {
-    "fibonacci", "primos", "help", "time", "inforeg",
-    "div-error", "opcode-error", "printmem"
-};
-
-static uint64_t functions[] = {
-    (uint64_t) &fibonacci, (uint64_t)&primos, (uint64_t)&help, (uint64_t)&time, (uint64_t)&inforeg,
-    (uint64_t) &divError, (uint64_t)&opCodeError, (uint64_t)&printmem
-};
-
-
-#define REGISTER_PROGRAM(name, param, screen) \
-                pos1 = checkCommand(name, commands, TOTAL_COMMANDS);        \
-                if(pos1 >= 0){                                              \
-                    sys_clear_screen();                                     \
-                    pid1 = sys_register_child_process(functions[pos1], screen, (uint64_t) param); \
-                }                                                           \
-                else{                                                       \
-                    puts(INVALID_COMMAND_MSG);                              \
-                    return;                                                 \
-                }                                                           \
-                break;                                                      \
-
-#define REGISTER_DUAL_PROGRAMS(name1, name2, param1, param2, screen1, screen2) \
-                pos1 = checkCommand(name1, commands, TOTAL_COMMANDS);       \
-                pos2 = checkCommand(name2, commands, TOTAL_COMMANDS);       \
-                if(pos2 >= 0 && pos2 >=0){                                  \
-                    sys_clear_screen();                                     \
-                    pid1 = sys_register_child_process(functions[pos1], screen1, (uint64_t) param1); \
-                    pid2 = sys_register_child_process(functions[pos2], screen2, (uint64_t) param2); \
-                }                                                           \
-                else{                                                       \
-                    puts(INVALID_COMMAND_MSG);                              \
-                    return;                                                 \
-                }                                                           \
-                break;                                                      \
 
 
 /* = = = = = = = = = CODIGO = = = = = = = = = */
 
-int parseCommands(char * string, char ** words){         // noto las posiciones de la palabra en words
+int tokenize(char * string, char ** words){         // noto las posiciones de la palabra en words
     int count=0;
     int i=0;
-    for(int postSpace=1; string[i]!=0 && string[i]!='\n'; i++){
+    for(int postSpace=1; string[i]!=0 && string[i]!='\n' && count < MAX_WORDS; i++){
         if(string[i]==' '){
             postSpace = 1;
             string[i] = 0;                         // corto el string original en los espacios
@@ -77,100 +52,58 @@ int parseCommands(char * string, char ** words){         // noto las posiciones 
     return count;                               // cantidad de palabras tokenizadas
 }
 
-
 // devuelve la posicion en el array de punteros a funciones
 // o -1 si no dio ninguno
-unsigned int checkCommand(char * string, char ** array, unsigned int dim){
-    for(int i=0; i<dim; i++){
-        if(strcmp(string, array[i])==0){
+unsigned int check_valid_program(char * string){
+    for(int i=0; i<TOTAL_PROGRAMS; i++){
+        if(strcmp(string, programs[i].name)==0){
             return i;
         }
     }
     return -1;
 }
 
-// retorna la primera key especial que encuentra
-char findSpecialKey(char * string, char * keys, unsigned int size){
-    int i;
-    for(i=0; string[i]!=0; i++){
-        for(int j=0; j<size; j++){
-            if(string[i]==keys[j]){
-                return keys[j];
-            }
-        }
-    }
-    return -1;
-}
-
-
-/*
-    Primero se fija si es una combinacion valida de commands y pipe.
-    Luego registra los procesos y entra un loop donde se fija si
-    el usuario toco una tecla especial para pausar o terminar la ejecucion.
-    Parametros: words: array de strings  | count: cantidad de elementos en array
-*/
-void commandsDispatcher(char ** words, unsigned int count){
-    char finishedExecution = 0;
-    int pos1, pos2, pid1=-1, pid2=-1;
-    char buffer[BUFFER_LENGTH];
-    int size;
-    switch(count){
-        case 0:
-            puts("Too few arguments!");
-            return; 
-        case 1:
-            REGISTER_PROGRAM(words[0], NULL, NORMAL_SCREEN)
-
-        case 2:
-            REGISTER_PROGRAM(words[0], words[1], NORMAL_SCREEN)
-
-        case 3:                                 // caso valido: COMMAND | COMMAND
-           if(strcmp(words[1],PIPE)!=0){
-                puts(INVALID_COMMAND_MSG);
-                return;
-            } 
-            REGISTER_DUAL_PROGRAMS(words[0],words[2],NULL, NULL, LEFT_SCREEN, RIGHT_SCREEN)
-
-        case 4:                                 // casos valido: COMMAND ARG | COMMAND  o  COMMAND | COMMAND ARG
-            if(strcmp(words[1],PIPE)==0){              
-                REGISTER_DUAL_PROGRAMS(words[0],words[2],NULL, words[3], LEFT_SCREEN, RIGHT_SCREEN)
-            }
-            else if(strcmp(words[2],PIPE)==0){
-                REGISTER_DUAL_PROGRAMS(words[0],words[3], words[1], NULL, LEFT_SCREEN, RIGHT_SCREEN)
-            }
-            else{
-                puts(INVALID_COMMAND_MSG);
-                return; 
-            }
-
-        case 5:
-            if(strcmp(words[2],PIPE)!=0){       // caso valido: COMMAND ARG1 | COMMAND ARG2
-                puts(INVALID_COMMAND_MSG);
-                return;
-            }
-            REGISTER_DUAL_PROGRAMS(words[0],words[3],words[1], words[4], LEFT_SCREEN, RIGHT_SCREEN)
-
-         default:
-            puts("Too many arguments!");
-            return;
-        }
-
-    sys_wait_for_children();
-    print("\n",1);
-}
-
-
 void shell(){
     char buffer[BUFFER_LENGTH];
-    char * commands[MAX_WORDS];
+    char * words[MAX_WORDS];
 
-
-    int amount;
     while(1){
         print(SYMBOL, SYMBOL_LENGTH);
+
         read_line(buffer, BUFFER_LENGTH);
 
-        amount = parseCommands(buffer, commands);
-        commandsDispatcher(commands, amount);
+        int amount_of_words = tokenize(buffer, words);
+
+        if(amount_of_words  == 0){
+            puts("Empty string!");
+            continue;                 // mas legible asi, no rompas los huevos
+        }
+
+        unsigned int program_pos = check_valid_program(words[0]);
+
+        if(program_pos == -1){
+            puts("Invalid program!");
+            continue;
+        }
+
+        if(amount_of_words - 1 < programs[program_pos].num_args){
+            puts("Missing arguments!");
+        }
+        else if(amount_of_words - 1 == programs[program_pos].num_args){
+            sys_register_child_process(programs[program_pos].ptr, NORMAL_SCREEN, words + sizeof(char *));   // TODO: alocar espacio y copiar los comandos ahi. Chequear parametros validos
+            sys_wait_for_children();
+        }
+        else{
+            // quiere correr en el fondo
+            if(strcmp("/", words[programs[program_pos].num_args + 1]) == 0){
+                sys_register_process(programs[program_pos].ptr, BACKGROUND, words + sizeof(char *)); // TODO: alocar espacio y copiar los comandos ahi. Chequear parametros validos
+            }
+            // paso argumentos de mas y los ignoramos
+            else{
+                sys_register_child_process(programs[program_pos].ptr, NORMAL_SCREEN, words + sizeof(char *)); // TODO: alocar espacio y copiar los comandos ahi. Chequear parametros validos
+                sys_wait_for_children();
+            }
+        }
+        puts("");
     }
 }
