@@ -93,26 +93,26 @@ void testMerge(){
 	char * m3 = mm_malloc(10);
 	char * m4 = mm_malloc(10);
 
-	int size = GET_SIZE(m3-HEADER_SIZE);
+	int size = GET_SIZE(m3-HEADER_SIZE / 8);
 
 	mm_free(m4);
 	mm_free(m3);
 
-	if(GET_SIZE(m3-HEADER_SIZE) == size*2)
+	if(GET_SIZE(m3-HEADER_SIZE / 8) == size*2)
 		sys_write(1, "test passed   ", 14);
 	else
 		sys_write(1, "test merge 1 failed   ", 22);
 
 	mm_free(m2);
 
-	if(GET_SIZE(m2-HEADER_SIZE) == size*3)
+	if(GET_SIZE(m2-HEADER_SIZE / 8) == size*3)
 		sys_write(1, "test passed   ", 14);
 	else
 		sys_write(1, "test merge 2 failed   ", 22);
 
 	mm_free(m1);
 
-	if(GET_SIZE(m1-HEADER_SIZE) == size*4)
+	if(GET_SIZE(m1-HEADER_SIZE/ 8) == size*4)
 		sys_write(1, "test passed   ", 14);
 	else
 		sys_write(1, "test merge 3 failed   ", 22);
