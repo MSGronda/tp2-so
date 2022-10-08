@@ -23,7 +23,7 @@ typedef size_t header_t;
 //Como los size (real) son par, transforma el valor en par mas cercano para abajo
 //No tiene en cuenta el bit de IsAllocated
 // -2 = 1111 .... 1110
-#define GET_SIZE(ptr) (*ptr & -2)
+#define GET_SIZE(ptr) (*(ptr) & -2)
 
 //Es impar = allocated?
 #define IS_ALLOCATED(ptr) ((header_t)*(ptr) & 1)
