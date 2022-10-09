@@ -16,10 +16,20 @@
 #define SYS_NICE 15
 #define SYS_GET_PID 16
 #define SYS_LIST_PROCESS 17
+#define SYS_ALLOC 18
+#define SYS_FREE 19
 
 #define NULL 0
 
 extern uint64_t syscaller(uint64_t syscallID, uint64_t param1, uint64_t param2, uint64_t param3);
+
+
+unsigned int sys_free(void * ptr){
+    return syscaller(SYS_FREE, (uint64_t) ptr, NULL, NULL );
+}
+unsigned int sys_alloc(void ** ptr, uint64_t len){
+    return syscaller(SYS_ALLOC, (uint64_t) ptr, (uint64_t)len,  NULL );
+}
 
 unsigned int sys_list_process(){
     return syscaller(SYS_LIST_PROCESS, NULL, NULL, NULL);

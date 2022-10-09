@@ -5,6 +5,7 @@
 #include <string.h>
 #include <multitasking.h>
 #include <syscalls.h>
+#include <mm_imp.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -53,6 +54,8 @@ int main()
 	sys_clear_screen();
 
 	load_idt();
+
+	mm_init();
 
     add_task((uint64_t)sampleCodeModuleAddress, 1,1, 1,0);	// llamada a userland
 	

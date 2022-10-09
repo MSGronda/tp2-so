@@ -12,8 +12,8 @@ typedef size_t header_t;
 #define TRUE 1
 #define FALSE (!TRUE)
 
-#define HEAP_SIZE 4096 // in bytes!!!!
-#define HEAP_START (header_t *) 0x100000
+#define HEAP_SIZE 0x100000 // 1Mb (in bytes!!!!)    
+#define HEAP_START (header_t *) 0xA00000  // 10 Mb  (TODO: habria que calcular el fin del userland y meterlo ahi)
 #define HEAP_END (HEAP_START + HEAP_SIZE / BITS_IN_BYTE)
 
 

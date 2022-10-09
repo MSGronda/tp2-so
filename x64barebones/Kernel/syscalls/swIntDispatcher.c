@@ -47,6 +47,12 @@ unsigned int swIntDispatcher(uint64_t mode, uint64_t arg0, uint64_t arg1,
 			return sys_get_pid();
 
 		// Otros
+		case SYS_ALLOC:
+			return sys_alloc(arg0, arg1);
+
+		case SYS_FREE:
+			return sys_free(arg0);
+
 		case SYS_RTC:
 			return sys_rtc((unsigned int) arg0);
 

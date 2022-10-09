@@ -23,9 +23,15 @@
 #define SYS_NICE 15
 #define SYS_GET_PID 16
 #define SYS_LIST_PROCESS 17
+#define SYS_ALLOC 18
+#define SYS_FREE 19
 
 // Return values
 #define INVALID_SCREEN -1
+
+unsigned int sys_free(void * ptr);
+
+unsigned int sys_alloc(void ** ptr, uint64_t len);
 
 unsigned int sys_list_process();
 
