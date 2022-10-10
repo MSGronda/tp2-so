@@ -81,7 +81,7 @@ void removeEnter(char * string);
  * Devuelve: 
  *      (char*) new string
  */
-char * strncpy(char * dest, const char * src, unsigned int n);
+int strncpy(char * dest, const char * src, unsigned int n);
 
 /*
  * << isNum >>

@@ -44,6 +44,7 @@ typedef struct process_control_block{
 		uint8_t priority;			// cuantos ticks puede tener por rafaga 
 		uint8_t immortal;			// si se puede matar o no
 		void * stackStart;
+		char ** params;
 }process_control_block;
 
 // ------ Queue de tasks -------
@@ -185,6 +186,7 @@ int add_task(uint64_t entrypoint, uint8_t screen, uint8_t priority, uint8_t immo
 	tasks[pos].priority = priority;
 	tasks[pos].immortal = immortal;
 	tasks[pos].stackStart = stackStart;
+	tasks[pos].params = arg0;
 
 	return tasks[pos].pid;
 }
@@ -222,9 +224,22 @@ void kill_screen_processes(){
 	}
 }
 
+
+// params are null terminated array of pointers to strings
+void free_params(char ** params){
+	if(params==NULL)
+		return;
+
+	for(int i=0; params[i]!=NULL; i++){
+		mm_free(params[i]);
+	}
+	mm_free(params);
+}
+
 void removeCurrentTask(){
 	signal_process_finished(tasks[currentTask].pid);
 	mm_free(tasks[currentTask].stackStart);
+	free_params(tasks[currentTask].params);
 
 	tasks[currentTask].state = DEAD_PROCESS;
 	currentDimTasks--;
@@ -244,8 +259,8 @@ int removeTask(unsigned int pid){
 		return NO_TASK_FOUND;
 
 	signal_process_finished(pid);
-
 	mm_free(tasks[currentTask].stackStart);
+	free_params(tasks[currentTask].params);
 
 	tasks[pos].state = DEAD_PROCESS;
 	currentDimTasks--;
@@ -333,7 +348,13 @@ void list_process(){
 
 	for(int i=0; i<TOTAL_TASKS -1 ; i++){
 		if(tasks[i].state != DEAD_PROCESS){
-			writeDispatcher(tasks[currentTask].screen, "                  ", 18);
+
+			int len = 0;
+			if(tasks[i].params !=NULL){
+				len = str_len(tasks[i].params[0]);
+				writeDispatcher(tasks[currentTask].screen, tasks[i].params[0], len );
+			}
+			writeDispatcher(tasks[currentTask].screen, "                  ", 18 - len);
 
 			len = num_to_string(tasks[i].pid, buffer);
 			writeDispatcher(tasks[currentTask].screen, buffer, len);

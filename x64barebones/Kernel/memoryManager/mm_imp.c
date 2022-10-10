@@ -77,13 +77,14 @@ void addBlock(header_t * ptr, uint64_t len) {
 header_t * findFree(uint64_t len) {
     header_t * ptr = HEAP_START;
 
-    while( !IS_EOL(ptr) && (IS_ALLOCATED(ptr) || (*ptr < len)) )
+    while( !IS_EOL(ptr) && (IS_ALLOCATED(ptr) || (GET_SIZE(ptr) < len)) ){
         ptr = ptr + GET_SIZE(ptr) / BITS_IN_BYTE;
+    }
 
-        if(IS_EOL(ptr)) {
-            // Check if it fits
-            if((ptr + (len + EOL_SIZE) / BITS_IN_BYTE) > HEAP_END)
-                return NULL;
+    if(IS_EOL(ptr)) {
+        // Check if it fits
+        if((ptr + (len + EOL_SIZE) / BITS_IN_BYTE) > HEAP_END)
+            return NULL;
     }
 
     return ptr;

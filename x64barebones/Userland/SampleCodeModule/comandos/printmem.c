@@ -3,21 +3,24 @@
 
 #define INVALID_POS 0xDEAD
 
-void printmem(char * arg)
+void printmem(char ** args)
 {
-    if(!isNum(arg)) {                                            // recibe un string que puede o no ser un numero
-        puts("Invalid argument!\nArgument must be number!");
-        return;
+    for(int i=0; args[i]!=NULL; i++){
+        puts(args[i]);
     }
-    uint64_t position = atoi(arg);
+    // if(!isNum(arg)) {                                            // recibe un string que puede o no ser un numero
+    //     puts("Invalid argument!\nArgument must be number!");
+    //     return;
+    // }
+    // uint64_t position = atoi(arg);
 
 
-    char buffer[BUFFER_LENGTH];
+    // char buffer[BUFFER_LENGTH];
 
-    if(sys_printmem(position, buffer) == INVALID_POS){
-        puts("Invalid memory address!");
-        puts("Valid memory address range: [ 4,194,304d - 34,359,738,367d )");
-    }
-    else
-        puts(buffer);
+    // if(sys_printmem(position, buffer) == INVALID_POS){
+    //     puts("Invalid memory address!");
+    //     puts("Valid memory address range: [ 4,194,304d - 34,359,738,367d )");
+    // }
+    // else
+    //     puts(buffer);
 }

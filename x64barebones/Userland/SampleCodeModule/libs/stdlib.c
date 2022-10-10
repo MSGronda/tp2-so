@@ -88,19 +88,14 @@ uint64_t atoi(const char * string)
 }
 
 
-char * strncpy(char * dest, const char * src, unsigned int n)
+int strncpy(char * dest, const char * src, unsigned int n)
 {
-        if(dest == NULL)
-                return NULL;
-
-        char * out = dest;
-        while(*src && n--) {
-                *dest = *src;
-                dest++; src++;
-        }
-        *dest = '\0';
-
-        return out;
+    int i=0;
+    for(; src[i]!=0 && i<n; i++){
+        dest[i] = src[i];
+    }
+    dest[i] = 0;
+    return i;
 }
 int strContainsChar(char * string, char c){                    // #### REMOVE? #####
     int i;

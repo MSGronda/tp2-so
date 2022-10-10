@@ -19,7 +19,7 @@ void ps();
  *      (uint64_t) starting position
  * Devuelve: -- 
  */
-void printmem(char * arg);
+void printmem(char ** args);
 
 /*
  * << primos >>
