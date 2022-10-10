@@ -1,7 +1,7 @@
 #include <multitasking.h>
 
 // ---- Constantes ----
-#define TOTAL_TASKS 7
+#define TOTAL_TASKS 20
 #define STACK_SIZE 2000
 
 #define MAX_PRIORITY 5
@@ -32,19 +32,7 @@
 #define RET_POS 	8 					/*  	|	 RET	  |		*/
 										/*   	 -------------		*/
 
-#define STACK_POS(POS) (uint64_t *) (stacks[pos] + STACK_SIZE - (POS))
-
-// -----El stack que usa cada task-----
-static uint8_t stack1[STACK_SIZE];
-static uint8_t stack2[STACK_SIZE];
-static uint8_t stack3[STACK_SIZE];
-static uint8_t stack4[STACK_SIZE];
-static uint8_t stack5[STACK_SIZE];
-static uint8_t stack6[STACK_SIZE];
-static uint8_t stack7[STACK_SIZE];
-
-static uint8_t * stacks[TOTAL_TASKS] = {stack1, stack2, stack3, stack4,  stack5,  stack6,  stack7 };
-
+#define STACK_POS(POS) (uint64_t *) (stackStart + STACK_SIZE - (POS))
 
 // -----Informacion sobre cada task-----
 typedef struct process_control_block{
@@ -55,6 +43,7 @@ typedef struct process_control_block{
 		uint8_t state;				// si el proceso es uno activo o ya se elimino
 		uint8_t priority;			// cuantos ticks puede tener por rafaga 
 		uint8_t immortal;			// si se puede matar o no
+		void * stackStart;
 }process_control_block;
 
 // ------ Queue de tasks -------
@@ -119,6 +108,7 @@ void idleTask(){
 }
 
 void enableMultiTasking(){
+
 	add_task((uint64_t)&idleTask, BACKGROUND, 1, IMMORTAL,0);
 	forceCurrentTask();
 }
@@ -159,9 +149,14 @@ int add_task(uint64_t entrypoint, uint8_t screen, uint8_t priority, uint8_t immo
 	int pos;
 	for(pos=0; tasks[pos].state==ACTIVE_PROCESS;pos++);											// encuentro posicion libre en el array de tasks
 
+	uint8_t * stackStart = mm_malloc(STACK_SIZE);
+
+	if(stackStart == NULL)
+		return ERROR_NO_SPACE_FOR_TASK;
+
+
 	// --- Parametros de funcion ---
 	*(STACK_POS(RDI_POS)) = arg0;
-
 
 	// --- Pongo todos los registros que no se usan en 0 ---
 	for(int i=7 ; i<21 ; i++){
@@ -169,26 +164,27 @@ int add_task(uint64_t entrypoint, uint8_t screen, uint8_t priority, uint8_t immo
 			*(STACK_POS(i * 8)) = 0;
 	}
 
-	
 	// --- "Stack frame" minimo para la funcion ---
+
 	*(STACK_POS(IP_POS)) = entrypoint;							// puntero al proceso que se va a correr
 	*(STACK_POS(CS_POS)) = CS_VALUE;				
 	
 	*(STACK_POS(FLAGS_POS)) = FLAG_VALUES;						// tenemos que poner el flag de interrupcion en 1 y otros obligatorios
 	
-	*(STACK_POS(SP_POS)) = (uint64_t) stacks[pos] + STACK_SIZE - RET_POS;	// agarro el comienzo del stack
+	*(STACK_POS(SP_POS)) = (uint64_t) stackStart + STACK_SIZE - RET_POS;	// agarro el comienzo del stack
 	*(STACK_POS(SS_POS)) = SS_VALUE;
 	
 	*(STACK_POS(RET_POS)) = (uint64_t) &removeCurrentTask;		// para el RET que vaya y se remueva automaticamente de los tasks
 
 	// --- Datos de task ---
-	tasks[pos].stackPointer = (uint64_t) stacks[pos] + STACK_SIZE - STACK_POINT_OF_ENTRY;					// comienzo del stack
+	tasks[pos].stackPointer = (uint64_t) stackStart + STACK_SIZE - STACK_POINT_OF_ENTRY;					// comienzo del stack
 	tasks[pos].stackSegment = SS_VALUE;				// se mantiene constante
 	tasks[pos].screen = screen;
 	tasks[pos].pid = newPidValue++;
 	tasks[pos].state = ACTIVE_PROCESS;
 	tasks[pos].priority = priority;
 	tasks[pos].immortal = immortal;
+	tasks[pos].stackStart = stackStart;
 
 	return tasks[pos].pid;
 }
@@ -227,10 +223,12 @@ void kill_screen_processes(){
 }
 
 void removeCurrentTask(){
+	signal_process_finished(tasks[currentTask].pid);
+	mm_free(tasks[currentTask].stackStart);
+
 	tasks[currentTask].state = DEAD_PROCESS;
 	currentDimTasks--;
 
-	signal_process_finished(tasks[currentTask].pid);
 
 	// There's no need to reset currentRemainingTicks, eventually next_task will do so
 
@@ -246,6 +244,8 @@ int removeTask(unsigned int pid){
 		return NO_TASK_FOUND;
 
 	signal_process_finished(pid);
+
+	mm_free(tasks[currentTask].stackStart);
 
 	tasks[pos].state = DEAD_PROCESS;
 	currentDimTasks--;
@@ -326,6 +326,8 @@ void list_process(){
 	int len;
 	char buffer[100];
 
+	//TODO: RBP????
+
 	writeDispatcher(tasks[currentTask].screen, "Name           |  ID  |  State  |  Priority   |   RSP   |   Screen\n", 67);
 	writeDispatcher(tasks[currentTask].screen, "------------------------------------------------------------------\n", 67);
 
@@ -356,7 +358,7 @@ void list_process(){
 			writeDispatcher(tasks[currentTask].screen, "        ", 8);
 
 
-			len = num_to_string(tasks[i].stackPointer, buffer);
+			len = num_to_string(tasks[i].stackStart, buffer);
 			writeDispatcher(tasks[currentTask].screen, buffer, len);
 			writeDispatcher(tasks[currentTask].screen, "   ",3);
 
