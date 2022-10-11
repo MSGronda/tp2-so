@@ -69,7 +69,7 @@ int strcmp(const char * s1, const char * s2)
 
 int strlen(const char * string){
     int i = 0;
-    while(string[i])
+    while(string[i] != 0)
         i++;
 
     return i;

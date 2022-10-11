@@ -28,7 +28,7 @@ static program_info programs[] = {
     {.name = "inforeg", .ptr = (uint64_t) &inforeg, .num_args = 0},
     {.name = "div-error", .ptr = (uint64_t) &divError, .num_args = 0},
     {.name = "opcode-error", .ptr = (uint64_t) &opCodeError, .num_args = 0},
-    {.name = "printmem", .ptr = (uint64_t) &printmem, .num_args = 1},
+    {.name = "printmem", .ptr = (uint64_t) &printmem, .num_args = 4},
     {.name = "ps", .ptr = (uint64_t) &ps, .num_args = 0},
 };
 
@@ -82,7 +82,7 @@ char ** make_params(char ** words, unsigned int len){
 
     int i=0;
     for(; i<len + 1; i++){
-        paramLen = strlen(words[i]) + 15;
+        paramLen = strlen(words[i]) + 1;
         sys_alloc(&param, paramLen);
 
          if(param == NULL){
@@ -92,7 +92,7 @@ char ** make_params(char ** words, unsigned int len){
 
         char * param2 = (char *) param;
 
-        strncpy(param2, words[i], 100);
+        strncpy(param2, words[i], paramLen);
         params[i] = param2;
     }
     params[i] = NULL;
