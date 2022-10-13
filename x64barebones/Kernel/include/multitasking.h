@@ -5,6 +5,8 @@
 #include <interrupts.h>
 #include <stdint.h>
 #include <video.h>
+#include <child_process.h>
+
 
 /* --- CONSTANTS  --- */
 // Return values

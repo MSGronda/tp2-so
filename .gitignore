@@ -43,6 +43,7 @@
 *.vmdk
 .bash_history
 .vscode/
+*.sys
 
 # Debug files
 *.dSYM/
