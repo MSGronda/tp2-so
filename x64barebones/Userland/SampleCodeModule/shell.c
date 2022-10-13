@@ -22,7 +22,7 @@ typedef struct program_info{
         uint8_t max_args;
 }program_info;
 
-#define TOTAL_PROGRAMS 10
+#define TOTAL_PROGRAMS 12
 static program_info programs[] = {
     {.name = "fibonacci", .ptr = (uint64_t) &fibonacci, .min_args = 0, .max_args = 0},
     {.name = "primos", .ptr = (uint64_t) &primos, .min_args = 0, .max_args = 0},
@@ -34,9 +34,9 @@ static program_info programs[] = {
     {.name = "printmem", .ptr = (uint64_t) &printmem, .min_args = 1, .max_args = 1},
     {.name = "ps", .ptr = (uint64_t) &ps, .min_args = 0, .max_args = 0},
     {.name = "printargs", .ptr = (uint64_t) &printargs, .min_args = 0, .max_args = MAX_WORDS},
+    {.name = "kill", .ptr = (uint64_t) &kill, .min_args = 1, .max_args = 1},
+    {.name = "pause", .ptr = (uint64_t) &pause, .min_args = 1, .max_args = 1},
 };
-
-// built ins are programs but the shell calls without creating a new process to execute them
 
 /* = = = = = = = = = CODIGO = = = = = = = = = */
 
@@ -128,7 +128,6 @@ void shell(){
             puts("Invalid program!");
             continue;
         }
-
         if(amount_of_words - 1 < programs[program_pos].min_args){
             puts("Missing arguments!");
         }

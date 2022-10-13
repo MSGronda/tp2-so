@@ -93,9 +93,10 @@ void idleTask(){
 		_hlt();
 }
 
+char * idleArg[] = {"idle", NULL};
 void enableMultiTasking(){
 
-	add_task((uint64_t)&idleTask, BACKGROUND, 1, IMMORTAL,0);
+	add_task((uint64_t)&idleTask, BACKGROUND, 1, IMMORTAL,idleArg);
 	forceCurrentTask();
 }
 
@@ -133,7 +134,7 @@ int add_task(uint64_t entrypoint, uint8_t screen, uint8_t priority, uint8_t immo
 	currentDimTasks++;
 
 	int pos;
-	for(pos=0; tasks[pos].state==ACTIVE_PROCESS;pos++);											// encuentro posicion libre en el array de tasks
+	for(pos=0; tasks[pos].state!=DEAD_PROCESS ;pos++);											// encuentro posicion libre en el array de tasks
 
 	uint8_t * stackStart = mm_malloc(STACK_SIZE);
 
@@ -191,7 +192,11 @@ int pauseOrUnpauseProcess(unsigned int pid){
 	if(pos < 0)					// se quiere pausar task que no existe
 		return NO_TASK_FOUND;
 
+	if(tasks[pos].immortal)
+		return -1;
+
 	tasks[pos].state = tasks[pos].state==PAUSED_PROCESS ? ACTIVE_PROCESS : PAUSED_PROCESS; 	// pausado -> despausado  | despausado -> pausado
+
 	return TASK_ALTERED;
 }
 
@@ -243,9 +248,12 @@ int removeTask(unsigned int pid){
 	if(pos < 0)					// se quiere remover task que no existe
 		return NO_TASK_FOUND;
 
+	if(tasks[pos].immortal)
+		return -1;
+
 	signal_process_finished(pid);
-	mm_free(tasks[currentTask].stackStart);
-	free_params(tasks[currentTask].params);
+	mm_free(tasks[pos].stackStart);
+	free_params(tasks[pos].params);
 
 	tasks[pos].state = DEAD_PROCESS;
 	currentDimTasks--;
@@ -285,6 +293,7 @@ uint8_t has_or_decrease_time(){
 	Pasa al proximo task que se tiene que ejecutar. 
 	Parametros:  stackPointer: puntero al stack del task anterior  |  stackSegment: valor del stack segment del task anterior  
 */
+
 uint64_t next_task(uint64_t stackPointer, uint64_t stackSegment){
 
 	tasks[currentTask].stackPointer = stackPointer;			// updateo el current
@@ -328,7 +337,7 @@ void list_process(){
 
 	//TODO: RBP????
 
-	writeDispatcher(tasks[currentTask].screen, "Name           |  ID  |  State  |  Priority   |   RSP   |   Screen\n", 67);
+	writeDispatcher(tasks[currentTask].screen, "Name     |  ID  |  State  |  Prty  |  Stack  |   Rsp   |  Screen\n", 65);
 	writeDispatcher(tasks[currentTask].screen, "------------------------------------------------------------------\n", 67);
 
 	for(int i=0; i<TOTAL_TASKS -1 ; i++){
@@ -339,11 +348,11 @@ void list_process(){
 				len = str_len(tasks[i].params[0]);
 				writeDispatcher(tasks[currentTask].screen, tasks[i].params[0], len );
 			}
-			writeDispatcher(tasks[currentTask].screen, "                  ", 18 - len);
+			writeDispatcher(tasks[currentTask].screen, "                  ", 12 - len);
 
 			len = num_to_string(tasks[i].pid, buffer);
 			writeDispatcher(tasks[currentTask].screen, buffer, len);
-			writeDispatcher(tasks[currentTask].screen, "     ", 5);
+			writeDispatcher(tasks[currentTask].screen, "                  ", 5);
 
 			switch(tasks[i].state){
 				case ACTIVE_PROCESS: 
@@ -356,17 +365,21 @@ void list_process(){
 					writeDispatcher(tasks[currentTask].screen, "Blocked", 7);
 					break;
 			}
-			writeDispatcher(tasks[currentTask].screen, "        ", 8);
+			writeDispatcher(tasks[currentTask].screen, "                  ", 6);
 
 
 			len = num_to_string(tasks[i].priority, buffer);
 			writeDispatcher(tasks[currentTask].screen, buffer, len);
-			writeDispatcher(tasks[currentTask].screen, "        ", 8);
+			writeDispatcher(tasks[currentTask].screen, "                  ", 4);
 
 
 			len = num_to_string(tasks[i].stackStart, buffer);
 			writeDispatcher(tasks[currentTask].screen, buffer, len);
-			writeDispatcher(tasks[currentTask].screen, "   ",3);
+			writeDispatcher(tasks[currentTask].screen, "                  ",3);
+
+			len = num_to_string(tasks[i].stackPointer, buffer);
+			writeDispatcher(tasks[currentTask].screen, buffer, len);
+			writeDispatcher(tasks[currentTask].screen, "                  ",3);
 
 			switch(tasks[i].screen){
 				case BACKGROUND:

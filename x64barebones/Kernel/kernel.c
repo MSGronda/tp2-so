@@ -49,6 +49,8 @@ void * initializeKernelBinary()
 	return getStackBase();
 }
 
+char * shellArg[] = {"shell", NULL};
+
 int main()
 {	
 	sys_clear_screen();
@@ -57,7 +59,7 @@ int main()
 
 	mm_init();
 
-    add_task((uint64_t)sampleCodeModuleAddress, 1,1, 1,0);	// llamada a userland
+    add_task((uint64_t)sampleCodeModuleAddress, 1,1, 1,shellArg);	// llamada a userland
 	
 	enableMultiTasking();
 	
