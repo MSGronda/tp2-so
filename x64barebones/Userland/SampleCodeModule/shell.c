@@ -13,25 +13,30 @@ extern void opCodeError();          // exception_test.asm
 #define BUFFER_LENGTH 150
 #define MAX_WORDS 30
 
+#define MIN(a,b) ((a) <= (b) ? (a) : (b))
+
 typedef struct program_info{
         char * name;
         uint64_t ptr;
-        uint8_t num_args;
+        uint8_t min_args;
+        uint8_t max_args;
 }program_info;
 
-#define TOTAL_PROGRAMS 9
+#define TOTAL_PROGRAMS 10
 static program_info programs[] = {
-    {.name = "fibonacci", .ptr = (uint64_t) &fibonacci, .num_args = 0},
-    {.name = "primos", .ptr = (uint64_t) &primos, .num_args = 0},
-    {.name = "help", .ptr = (uint64_t) &help, .num_args = 0},
-    {.name = "time", .ptr = (uint64_t) &time, .num_args = 0},
-    {.name = "inforeg", .ptr = (uint64_t) &inforeg, .num_args = 0},
-    {.name = "div-error", .ptr = (uint64_t) &divError, .num_args = 0},
-    {.name = "opcode-error", .ptr = (uint64_t) &opCodeError, .num_args = 0},
-    {.name = "printmem", .ptr = (uint64_t) &printmem, .num_args = 4},
-    {.name = "ps", .ptr = (uint64_t) &ps, .num_args = 0},
+    {.name = "fibonacci", .ptr = (uint64_t) &fibonacci, .min_args = 0, .max_args = 0},
+    {.name = "primos", .ptr = (uint64_t) &primos, .min_args = 0, .max_args = 0},
+    {.name = "help", .ptr = (uint64_t) &help, .min_args = 0, .max_args = 0},
+    {.name = "time", .ptr = (uint64_t) &time, .min_args = 0, .max_args = 0},
+    {.name = "inforeg", .ptr = (uint64_t) &inforeg, .min_args = 0, .max_args = 0},
+    {.name = "div-error", .ptr = (uint64_t) &divError, .min_args = 0, .max_args = 0},
+    {.name = "opcode-error", .ptr = (uint64_t) &opCodeError, .min_args = 0, .max_args = 0},
+    {.name = "printmem", .ptr = (uint64_t) &printmem, .min_args = 1, .max_args = 1},
+    {.name = "ps", .ptr = (uint64_t) &ps, .min_args = 0, .max_args = 0},
+    {.name = "printargs", .ptr = (uint64_t) &printargs, .min_args = 0, .max_args = MAX_WORDS},
 };
 
+// built ins are programs but the shell calls without creating a new process to execute them
 
 /* = = = = = = = = = CODIGO = = = = = = = = = */
 
@@ -124,26 +129,30 @@ void shell(){
             continue;
         }
 
-        if(amount_of_words - 1 < programs[program_pos].num_args){
+        if(amount_of_words - 1 < programs[program_pos].min_args){
             puts("Missing arguments!");
         }
-        else if(amount_of_words - 1 == programs[program_pos].num_args){
-            sys_register_child_process(programs[program_pos].ptr, NORMAL_SCREEN, (uint64_t) make_params(words, programs[program_pos].num_args));   // TODO: alocar espacio y copiar los comandos ahi. Chequear parametros validos
-            
-            sys_wait_for_children();
-        }
         else{
-            // quiere correr en el fondo
-            if(strcmp("/", words[programs[program_pos].num_args + 1]) == 0){
-                sys_register_process(programs[program_pos].ptr, BACKGROUND, (uint64_t) make_params(words, programs[program_pos].num_args));   // TODO: alocar espacio y copiar los comandos ahi. Chequear parametros validos
+            // Check if user wants to run program in background
+            int i, backgroud_indiaction = 0;
+            for(i=programs[program_pos].min_args + 1; !backgroud_indiaction && i<amount_of_words; i++){
+                if(strcmp("/", words[i]) == 0){         // We consider the symbol as the last argument. All subsequent arguments will be ignored
+                    backgroud_indiaction = 1;       
+                }
             }
-            // paso argumentos de mas y los ignoramos
+
+            // Run in background
+            if(backgroud_indiaction){
+                sys_register_process(programs[program_pos].ptr, BACKGROUND, (uint64_t) make_params(words, MIN(i-1,programs[program_pos].max_args))); 
+            }
+
+            // Run on screen
             else{
-                sys_register_child_process(programs[program_pos].ptr, NORMAL_SCREEN, (uint64_t) make_params(words, programs[program_pos].num_args));   // TODO: alocar espacio y copiar los comandos ahi. Chequear parametros validos
-                
+                sys_register_child_process(programs[program_pos].ptr, NORMAL_SCREEN, (uint64_t) make_params(words, MIN(amount_of_words-1, programs[program_pos].max_args))); 
+            
                 sys_wait_for_children();
             }
-        }
         puts("");
+        }
     }
 }

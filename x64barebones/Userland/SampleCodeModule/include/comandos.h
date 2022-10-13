@@ -8,6 +8,7 @@
 #define BUFF_SIZE 20
 #define BUFFER_LENGTH 150
 
+void printargs(char ** args);
 void ps();
 
 /*
