@@ -12,7 +12,8 @@
 #define DEAD_PROCESS 0
 #define ACTIVE_PROCESS 1 
 #define PAUSED_PROCESS 2
-#define WAITING_PROCESS 3
+#define WAITING_FOR_CHILD 3
+#define WAITING_FOR_SEM 4
 
 // ---- Valores default para el armado del stack ----
 #define FLAG_VALUES 0x202
@@ -180,7 +181,7 @@ int add_task(uint64_t entrypoint, uint8_t screen, uint8_t priority, uint8_t immo
 
 void pauseScreenProcess(unsigned int screen){
 	for(int i=0; i<TOTAL_TASKS; i++){
-		if(tasks[i].state != WAITING_PROCESS && tasks[i].state != DEAD_PROCESS && tasks[i].screen == screen){
+		if(tasks[i].state != WAITING_FOR_CHILD && tasks[i].state != DEAD_PROCESS && tasks[i].screen == screen){
 			tasks[i].state = tasks[i].state==PAUSED_PROCESS ? ACTIVE_PROCESS : PAUSED_PROCESS; 	// pausado -> despausado  | despausado -> pausado
 		}
 	}
@@ -310,7 +311,7 @@ uint64_t next_task(uint64_t stackPointer, uint64_t stackSegment){
 				found = 1;
 				break;
 
-			case WAITING_PROCESS:
+			case WAITING_FOR_CHILD:
 				if(children_finished(tasks[i].pid)){
 					
 					remove_children(tasks[i].pid);
@@ -321,6 +322,8 @@ uint64_t next_task(uint64_t stackPointer, uint64_t stackSegment){
 					found = 1;
 				}
 				break;
+			case WAITING_FOR_SEM:
+				// TODO: COMPLETAR!!!!!
 		}
 	}
 
@@ -361,7 +364,7 @@ void list_process(){
 				case PAUSED_PROCESS:
 					writeDispatcher(tasks[currentTask].screen, "Paused ", 7);
 					break;
-				case WAITING_PROCESS:
+				case WAITING_FOR_CHILD:
 					writeDispatcher(tasks[currentTask].screen, "Blocked", 7);
 					break;
 			}
@@ -408,7 +411,7 @@ void wait_for_children(uint64_t rsp, uint64_t ss){
 		return;
 	}
 
-	tasks[currentTask].state = WAITING_PROCESS;
+	tasks[currentTask].state = WAITING_FOR_CHILD;
 
 	forceNextTask(rsp, ss); 		//	ya tiene en rdi y rsi los parametros para next_task
 }
@@ -420,6 +423,30 @@ unsigned int add_child_task(uint64_t entrypoint, int screen, uint64_t arg0){
 	add_child(get_current_pid(), child_pid);
 
 	return child_pid;
+}
+
+
+/* --- Semaphore --- */
+
+unsigned int wait_sem(unsigned int sem_id, uint64_t rsp, uint64_t ss){
+	_cli();
+	int resp = update_sem_table(sem_id);
+
+	switch(resp){
+		case INVALID_SEM_ID:
+			_sti();
+			return INVALID_SEM_ID;
+
+		case SEM_CONTINUE:
+			_sti();
+			return 0;
+
+		case SEM_BLOCK:
+			tasks[currentTask].state = WAITING_FOR_SEM;
+			_sti();
+			forceNextTask(rsp,ss);
+			return 0;
+	}
 }
 
 

@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <video.h>
 #include <child_process.h>
-
+#include <semaphore.h>
 
 /* --- CONSTANTS  --- */
 // Return values
