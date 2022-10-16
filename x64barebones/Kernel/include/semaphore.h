@@ -13,5 +13,7 @@
 
 unsigned int create_sem(unsigned int sem_id);
 int update_sem_table(unsigned int sem_id);
+int can_continue(unsigned int pid);
+unsigned int signal_sem(unsigned int sem_id);
 
 #endif

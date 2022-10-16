@@ -8,6 +8,7 @@
 #define BUFF_SIZE 20
 #define BUFFER_LENGTH 150
 
+void semtest();
 void pause(char ** args);
 void kill(char ** args);
 void printargs(char ** args);

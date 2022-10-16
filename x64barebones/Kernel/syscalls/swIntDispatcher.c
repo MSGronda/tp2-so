@@ -46,13 +46,22 @@ unsigned int swIntDispatcher(uint64_t mode, uint64_t arg0, uint64_t arg1,
 		case SYS_GET_PID:
 			return sys_get_pid();
 
-		// Otros
+		// Semaphore
+		case SYS_REGISTER_SEM:
+			return sys_register_sem((unsigned int) arg0);
+		case SYS_WAIT_SEM:
+			return sys_wait_sem((unsigned int) arg0,  rsp,  ss);
+		case SYS_SIGNAL_SEM:
+			return sys_signal_sem((unsigned int) arg0);
+
+		// MM
 		case SYS_ALLOC:
 			return sys_alloc(arg0, arg1);
 
 		case SYS_FREE:
 			return sys_free(arg0);
 
+		// Otros
 		case SYS_RTC:
 			return sys_rtc((unsigned int) arg0);
 

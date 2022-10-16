@@ -323,7 +323,13 @@ uint64_t next_task(uint64_t stackPointer, uint64_t stackSegment){
 				}
 				break;
 			case WAITING_FOR_SEM:
-				// TODO: COMPLETAR!!!!!
+				if(can_continue(tasks[i].pid)){
+					tasks[i].state = ACTIVE_PROCESS;
+
+					currentTask = i;
+					found = 1;
+				}
+				break;
 		}
 	}
 

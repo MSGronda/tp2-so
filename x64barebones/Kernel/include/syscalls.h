@@ -25,9 +25,16 @@
 #define SYS_LIST_PROCESS 17
 #define SYS_ALLOC 18
 #define SYS_FREE 19
+#define SYS_WAIT_SEM 20
+#define SYS_REGISTER_SEM 21
+#define SYS_SIGNAL_SEM 22
 
 // Return values
 #define INVALID_SCREEN -1
+
+unsigned int sys_signal_sem(unsigned int sem_id);
+unsigned int sys_register_sem(unsigned int sem_id);
+unsigned int sys_wait_sem(unsigned int sem_id, uint64_t rsp, uint64_t ss);
 
 unsigned int sys_free(void * ptr);
 

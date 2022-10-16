@@ -18,10 +18,26 @@
 #define SYS_LIST_PROCESS 17
 #define SYS_ALLOC 18
 #define SYS_FREE 19
+#define SYS_WAIT_SEM 20
+#define SYS_REGISTER_SEM 21
+#define SYS_SIGNAL_SEM 22
 
 #define NULL 0
 
 extern uint64_t syscaller(uint64_t syscallID, uint64_t param1, uint64_t param2, uint64_t param3);
+
+unsigned int sys_signal_sem(unsigned int sem_id){
+    return syscaller(SYS_SIGNAL_SEM, (uint64_t) sem_id, NULL, NULL );
+}
+
+unsigned int sys_wait_sem(unsigned int sem_id){
+    return syscaller(SYS_WAIT_SEM, (uint64_t) sem_id, NULL, NULL );
+}
+
+unsigned int sys_register_sem(unsigned int sem_id){
+    return syscaller(SYS_REGISTER_SEM, (uint64_t) sem_id, NULL, NULL );
+}
+
 
 
 unsigned int sys_free(void * ptr){

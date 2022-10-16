@@ -33,9 +33,9 @@ unsigned int create_sem(unsigned int sem_id){
 	if(active_sem == MAX_SEMAPHORES)
 		return ERROR_NO_MORE_SPACE;
 
-	int freePos;
+	int freePos = -1;
 	for(int i=0; i<MAX_SEMAPHORES; i++){
-		if(sem_info[i].sem_id == 0){
+		if(freePos == -1 && sem_info[i].sem_id == 0){
 			freePos = i;
 		}
 		if(sem_info[i].sem_id == sem_id){
@@ -68,3 +68,27 @@ int update_sem_table(unsigned int sem_id){
 	}
 }
 
+int can_continue(unsigned int pid){
+	for(int i=0; i<MAX_SEMAPHORES; i++){
+		if(waiting[i].pid == pid){
+			int pos = find_sem(waiting[i].sem_id);
+
+			if(sem_info[pos].value > 0){
+				sem_info[pos].value--;
+				return 1;
+			}
+			else{
+				return 0;
+			}
+		}
+	}
+	return 1;
+}
+
+unsigned int signal_sem(unsigned int sem_id){
+	int pos = find_sem(sem_id);
+	if(pos == -1){
+		return INVALID_SEM_ID;
+	}
+	return ++sem_info[pos].value;
+}
