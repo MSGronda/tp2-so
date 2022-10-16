@@ -12,8 +12,12 @@
 #include <multitasking.h>
 
 unsigned int create_sem(unsigned int sem_id);
-int update_sem_table(unsigned int sem_id);
-int can_continue(unsigned int pid);
+void sem_decrease_semid(unsigned int sem_id);
+void sem_decrease_pid(unsigned int pid);
 unsigned int signal_sem(unsigned int sem_id);
+void add_waiting(unsigned int sem_id, unsigned int pid);
+void remove_waiting(unsigned int pid);
+uint8_t can_continue_semid(unsigned int sem_id);
+uint8_t can_continue_pid(unsigned int pid);
 
 #endif

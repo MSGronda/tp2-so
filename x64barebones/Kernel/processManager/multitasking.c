@@ -124,6 +124,13 @@ int findTask(unsigned int pid){
 	return NO_TASK_FOUND;			// no existe task con ese pid
 }
 
+uint8_t get_state(unsigned int pid){
+	int pos = findTask(pid);
+	if(pos==NO_TASK_FOUND)
+		return NO_TASK_FOUND;
+	
+	return tasks[pos].state;
+}
 
 
 /* --- Process Management --- */
@@ -323,7 +330,9 @@ uint64_t next_task(uint64_t stackPointer, uint64_t stackSegment){
 				}
 				break;
 			case WAITING_FOR_SEM:
-				if(can_continue(tasks[i].pid)){
+				if(can_continue_pid(tasks[i].pid)){
+					sem_decrease_pid(tasks[i].pid);
+					remove_waiting(tasks[i].pid);
 					tasks[i].state = ACTIVE_PROCESS;
 
 					currentTask = i;
@@ -358,7 +367,6 @@ void list_process(){
 				writeDispatcher(tasks[currentTask].screen, tasks[i].params[0], len );
 			}
 			writeDispatcher(tasks[currentTask].screen, "                  ", 12 - len);
-
 			len = num_to_string(tasks[i].pid, buffer);
 			writeDispatcher(tasks[currentTask].screen, buffer, len);
 			writeDispatcher(tasks[currentTask].screen, "                  ", 5 - ((tasks[i].pid >= 10) ? 1 : 0));
@@ -436,23 +444,15 @@ unsigned int add_child_task(uint64_t entrypoint, int screen, uint64_t arg0){
 
 unsigned int wait_sem(unsigned int sem_id, uint64_t rsp, uint64_t ss){
 	_cli();
-	int resp = update_sem_table(sem_id);
-
-	switch(resp){
-		case INVALID_SEM_ID:
-			_sti();
-			return INVALID_SEM_ID;
-
-		case SEM_CONTINUE:
-			_sti();
-			return 0;
-
-		case SEM_BLOCK:
-			tasks[currentTask].state = WAITING_FOR_SEM;
-			_sti();
-			forceNextTask(rsp,ss);
-			return 0;
+	if(!can_continue_semid(sem_id)){
+		tasks[currentTask].state = WAITING_FOR_SEM;
+		add_waiting(sem_id, tasks[currentTask].pid);
+		_sti();
+		forceNextTask(rsp,ss);
+		return 0;
 	}
+	sem_decrease_semid(sem_id);
+	_sti();
+	return 1;
 }
-
 
