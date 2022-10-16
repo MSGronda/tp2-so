@@ -7,6 +7,8 @@
 /* --- CONSTANTS  --- */
 #define NULL 0
 
+long long atosi(const char * string);
+
 /*
  * << num_to_string >>
  * ----------------------------------------------------------------------

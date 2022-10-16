@@ -22,7 +22,7 @@ typedef struct program_info{
         uint8_t max_args;
 }program_info;
 
-#define TOTAL_PROGRAMS 13
+#define TOTAL_PROGRAMS 14
 static program_info programs[] = {
     {.name = "fibonacci", .ptr = (uint64_t) &fibonacci, .min_args = 0, .max_args = 0},
     {.name = "primos", .ptr = (uint64_t) &primos, .min_args = 0, .max_args = 0},
@@ -36,6 +36,7 @@ static program_info programs[] = {
     {.name = "printargs", .ptr = (uint64_t) &printargs, .min_args = 0, .max_args = MAX_WORDS},
     {.name = "kill", .ptr = (uint64_t) &kill, .min_args = 1, .max_args = 1},
     {.name = "pause", .ptr = (uint64_t) &pause, .min_args = 1, .max_args = 1},
+    {.name = "nice", .ptr = (uint64_t) &nice, .min_args = 2, .max_args = 2},
     {.name = "semtest", .ptr = (uint64_t) &semtest, .min_args = 0, .max_args = 0},
 };
 

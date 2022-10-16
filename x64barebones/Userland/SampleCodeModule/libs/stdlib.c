@@ -87,6 +87,26 @@ uint64_t atoi(const char * string)
     return result;
 }
 
+// signed integer
+long long atosi(const char * string) 
+{
+    long long result = 0;
+
+    uint8_t isSigned = 0;
+    if(string[0] == '-'){
+        isSigned = 1;
+    }
+
+    for(int i = isSigned ; string[i] ; i++)
+        result = result*10 + string[i] - '0';
+
+    if(isSigned){
+        return -result;
+    }
+    return result;
+}
+
+
 
 int strncpy(char * dest, const char * src, unsigned int n)
 {
@@ -123,11 +143,15 @@ void removeEnter(char * string)          // #### REMOVE #####
 
 uint8_t isNum(const char * string)
 {
-    for(int i=0; string[i]!=0; i++) {
+    int negative = 0;
+    if(string[0] == '-'){
+        negative = 1;
+    }
+    for(int i=negative; string[i]!=0; i++) {
         if(string[i]>'9' || string[i]<'0') {
             return 0;
         }
     }
-    return 1;
+    return 1 + negative;        // returns 2 if negative, 1 if positive
 }
 

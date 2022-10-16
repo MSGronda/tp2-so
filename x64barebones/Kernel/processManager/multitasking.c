@@ -361,7 +361,7 @@ void list_process(){
 
 			len = num_to_string(tasks[i].pid, buffer);
 			writeDispatcher(tasks[currentTask].screen, buffer, len);
-			writeDispatcher(tasks[currentTask].screen, "                  ", 5);
+			writeDispatcher(tasks[currentTask].screen, "                  ", 5 - ((tasks[i].pid >= 10) ? 1 : 0));
 
 			switch(tasks[i].state){
 				case ACTIVE_PROCESS: 
