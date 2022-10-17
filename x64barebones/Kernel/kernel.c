@@ -5,7 +5,7 @@
 #include <string.h>
 #include <multitasking.h>
 #include <syscalls.h>
-#include <mm_imp.h>
+#include <memoryManager.h>
 
 extern uint8_t text;
 extern uint8_t rodata;

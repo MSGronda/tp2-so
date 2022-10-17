@@ -12,10 +12,11 @@
 #include <memoryManager.h>
 
 #define EOL_SIZE HEADER_SIZE
+#define SUM_PTR(ptr, num) ((uint64_t) (ptr) + (num)) 
 
 // last bit == 1 => allocated  or
 // *ptr % 2 != 0 => allocated
-#define IS_ALLOCATED(ptr) ((header_t)*(ptr) & 1)
+#define IS_ALLOCATED(ptr) (*(ptr) & 1)
 #define SET_ALLOCATED(size) ((size) | 1)
 
 // *ptr % 2 == 0 => not allocated / free
@@ -27,7 +28,7 @@
 
 // size == 0 && allocated == 1 => EOL
 // so we can check if *ptr == 1 bc 1 = 000...001
-#define IS_EOL(ptr) ((header_t)*(ptr) == 1)
+#define IS_EOL(ptr) (*(ptr) == 1)
 
 /*
  * << freeBlock >>
