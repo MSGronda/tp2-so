@@ -14,6 +14,7 @@ all: $(MODULE)
 
 $(MODULE): $(ASMOBJECTS) $(COBJECTS) $(COMANDOS_OBJECTS) $(LIBS_OBJECTS)
 	$(LD) -T sampleCodeModule.ld _loader.o $(COBJECTS) $(ASMOBJECTS) $(COMANDOS_OBJECTS) $(LIBS_OBJECTS) -o ../$(MODULE)
+	$(LD) -T sampleCodeModule.ld _loader.o $(COBJECTS) $(ASMOBJECTS) $(COMANDOS_OBJECTS) $(LIBS_OBJECTS) --oformat=elf64-x86-64 -o ../0000-sampleCodeModule.elf
 
 %.o: %.c
 	$(GCC) $(GCCFLAGS) -I./include -c _loader.c $(SOURCES) 
