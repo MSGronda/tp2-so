@@ -34,6 +34,7 @@ unsigned int remove_next_blocked(unsigned int pos){
 			int pid = sem_info[pos].blocked_pids[sem_info[pos].currentBlocked];
 			sem_info[pos].blocked_pids[sem_info[pos].currentBlocked] = 0;
 			sem_info[pos].num_blocked--;
+			sem_info[pos].currentBlocked = (sem_info[pos].currentBlocked + 1) % MAX_WAITING_PROCESS;
 			return pid;
 		}
 		sem_info[pos].currentBlocked = (sem_info[pos].currentBlocked + 1) % MAX_WAITING_PROCESS;
