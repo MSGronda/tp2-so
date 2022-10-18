@@ -21,6 +21,7 @@
 #define SYS_WAIT_SEM 20
 #define SYS_REGISTER_SEM 21
 #define SYS_SIGNAL_SEM 22
+#define SYS_PRINT_SEM 23
 
 #define NULL 0
 
@@ -36,6 +37,9 @@ unsigned int sys_wait_sem(unsigned int sem_id){
 
 unsigned int sys_register_sem(unsigned int sem_id){
     return syscaller(SYS_REGISTER_SEM, (uint64_t) sem_id, NULL, NULL );
+}
+unsigned int sys_print_sem(){
+    return syscaller(SYS_PRINT_SEM, NULL, NULL, NULL );
 }
 
 

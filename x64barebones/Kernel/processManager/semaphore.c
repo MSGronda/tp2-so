@@ -9,9 +9,10 @@
 
 typedef struct sem_record{
 	unsigned int sem_id;
-	unsigned int value;
+	unsigned int sem_value;
 	unsigned int blocked_pids[MAX_WAITING_PROCESS]; 
 	unsigned int currentBlocked;
+	unsigned int num_blocked; 
 }sem_record;
 
 static sem_record sem_info[MAX_SEMAPHORES] = {0};
@@ -27,19 +28,27 @@ int find_sem(unsigned int sem_id){
 	return -1;
 }
 
-int find_sem_pid(unsigned int pid){
-	for(int i=0; i<MAX_SEMAPHORES; i++){
-		if(sem_info[i].sem_id != 0){
-
-			for(int j=0;j<MAX_WAITING_PROCESS; j++){
-				if(sem_info[i].blocked_pids[j] = pid){
-					return i;
-				}
-			}
-
+unsigned int remove_next_blocked(unsigned int pos){
+	for(int i=0; i<MAX_WAITING_PROCESS ; i++){
+		if(sem_info[pos].blocked_pids[sem_info[pos].currentBlocked] != 0){
+			int pid = sem_info[pos].blocked_pids[sem_info[pos].currentBlocked];
+			sem_info[pos].blocked_pids[sem_info[pos].currentBlocked] = 0;
+			sem_info[pos].num_blocked--;
+			return pid;
 		}
+		sem_info[pos].currentBlocked = (sem_info[pos].currentBlocked + 1) % MAX_WAITING_PROCESS;
 	}
-	return -1;
+}
+
+void add_blocked(unsigned int pos, unsigned int pid){
+	for(int i=sem_info[pos].currentBlocked, count=0; count<MAX_WAITING_PROCESS; count++){
+		if(sem_info[pos].blocked_pids[i] == 0){
+			sem_info[pos].blocked_pids[i] = pid;
+			sem_info[pos].num_blocked++;
+			return;
+		}
+		i = (i+1) % MAX_WAITING_PROCESS;
+	}
 }
 
 unsigned int create_sem(unsigned int sem_id){
@@ -59,27 +68,50 @@ unsigned int create_sem(unsigned int sem_id){
 	}
 
 	sem_info[freePos].sem_id = sem_id;
-	sem_info[freePos].value = 1;			// default start is always 1
+	sem_info[freePos].sem_value = 1;
 
 	active_sem++;
 
 	return SUCCESS;
 }
 
-
-// searches (using the sem_id) and decreases the semaphore
-void sem_decrease_semid(unsigned int sem_id){
+void destroy_sem(unsigned int sem_id){
 	int pos = find_sem(sem_id);
-	if(pos==-1)
+	if(pos == -1)
 		return;
-	sem_info[pos].value--;
+	sem_info[pos].sem_id = 0;
+	sem_info[pos].sem_value = 0;
+	sem_info[pos].num_blocked = 0;
+	sem_info[pos].currentBlocked = 0;
+	for(int i=0; i<MAX_WAITING_PROCESS; i++){
+		sem_info[pos].blocked_pids[i] = 0;
+	}
 }
-// searches (using the pid of a blocked process) and decreases the semaphore
-void sem_decrease_pid(unsigned int pid){
-	int pos = find_sem_pid(pid);
-	if(pos==-1)
-		return;
-	sem_info[pos].value--;
+
+unsigned int wait_sem(unsigned int sem_id, uint64_t rsp, uint64_t ss){
+	int pos = find_sem(sem_id);
+	if(pos == -1)
+		return -1;
+
+	// LOCK
+	if(sem_info[pos].sem_value > 0){
+		int sem = sem_info[pos].sem_value;
+		sem_info[pos].sem_value--;
+	}
+	else{
+		int pid = get_current_pid();
+		add_blocked(pos, pid);
+		alter_process_state(pid, WAITING_FOR_SEM);
+
+		// UNLOCK
+		forceNextTask(rsp,ss);
+		return 0;
+	}
+
+
+	// UNLOCK
+
+	return 1;
 }
 
 unsigned int signal_sem(unsigned int sem_id){
@@ -87,68 +119,49 @@ unsigned int signal_sem(unsigned int sem_id){
 	if(pos == -1){
 		return INVALID_SEM_ID;
 	}
-	return ++sem_info[pos].value;
+
+	// LOCK
+	if(sem_info[pos].num_blocked > 0){			// prevent process being eternally blocked
+		int blocked_pid = remove_next_blocked(pos);
+		alter_process_state(blocked_pid, ACTIVE_PROCESS);
+	}
+	else{
+		int sem = sem_info[pos].sem_value;
+		sem_info[pos].sem_value++;
+	}
+
+	// UNLOCK
+	return 0;
 }
 
 
-// add the waiting proces to en END OF THE QUEUE
-void add_waiting(unsigned int sem_id, unsigned int pid){
-	int pos = find_sem(sem_id);
-	if(pos == -1)
-		return;
-	for(int i=sem_info[pos].currentBlocked, counter=0; counter<MAX_WAITING_PROCESS; counter++){
-		if(sem_info[pos].blocked_pids[i] == 0){
-			sem_info[pos].blocked_pids[i] = pid;
-			return;
-		}
-		i = (i + 1) % MAX_WAITING_PROCESS;
-	}
-}
-
-void remove_waiting(unsigned int pid){
-	int pos = find_sem_pid(pid);
-	if(pos == -1)
-		return;
-	for(int i=0; i<MAX_WAITING_PROCESS; i++ ){
-		if(sem_info[pos].blocked_pids[i] == pid){
-			sem_info[pos].blocked_pids[i] = 0;
-			return;
-		}
-	}
-}
 
 
-// checks sem > 0 and if there are any other process waiting for this sem
-// using the sem id
-uint8_t can_continue_semid(unsigned int sem_id){
-	int pos = find_sem(sem_id);
-	if(pos==-1)
-		return -1;
-	for(int i=0; i<MAX_WAITING_PROCESS; i++){
-		if(sem_info[pos].blocked_pids[i] != 0){
-			return 0;		// si hay cualquier otro proceso esperando, no puedo continuar
-		}
-	}
-	return sem_info[pos].value > 0;
-}
-// checks sem > 0 and if the process is the next in the round robin queue for this sem
-// using the pid of a blocked process
-uint8_t can_continue_pid(unsigned int pid){
-	int pos = find_sem_pid(pid);
-	if(sem_info[pos].value == 0){
-		return 0;
-	}
+void print_sem(){
+	int len;
+	char buffer[20];
 
 	for(int i=0; i<MAX_SEMAPHORES; i++){
-		if(sem_info[pos].blocked_pids[sem_info[pos].currentBlocked] != 0){
-			if(sem_info[pos].blocked_pids[sem_info[pos].currentBlocked] != pid){
-				return 0;
+		if(sem_info[i].sem_id != 0){
+			writeDispatcher(getCurrentScreen(),"Sem Id: ",8);
+			len = num_to_string(sem_info[i].sem_id, buffer);
+			writeDispatcher(getCurrentScreen(), buffer, len);
+
+			writeDispatcher(getCurrentScreen()," | Value: ",10);
+
+			len = num_to_string(sem_info[i].sem_value, buffer);
+			writeDispatcher(getCurrentScreen(), buffer, len);
+
+			writeDispatcher(getCurrentScreen(),"\nBlocked processes: \n", 21);
+			for(int j=0; j<MAX_SEMAPHORES; j++){
+				if(sem_info[i].blocked_pids[j] != 0){
+					writeDispatcher(getCurrentScreen(),"     -Pid: ", 11);
+					len = num_to_string(sem_info[i].blocked_pids[j], buffer);
+					writeDispatcher(getCurrentScreen(), buffer, len);
+					writeDispatcher(getCurrentScreen(),"\n",1);
+				}
 			}
-			else{
-				return 1;
-			}
-		} 	
-		sem_info[pos].currentBlocked = (sem_info[pos].currentBlocked + 1) % MAX_WAITING_PROCESS;
+			writeDispatcher(getCurrentScreen(),"\n",1);
+		}
 	}
-	return 1;
 }

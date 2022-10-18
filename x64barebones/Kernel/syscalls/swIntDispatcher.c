@@ -53,6 +53,8 @@ unsigned int swIntDispatcher(uint64_t mode, uint64_t arg0, uint64_t arg1,
 			return sys_wait_sem((unsigned int) arg0,  rsp,  ss);
 		case SYS_SIGNAL_SEM:
 			return sys_signal_sem((unsigned int) arg0);
+		case SYS_PRINT_SEM:
+			return sys_print_sem();
 
 		// MM
 		case SYS_ALLOC:

@@ -8,13 +8,6 @@
 
 #define NULL 0 // !!!! REMOVE !!!!
 
-// ----- Estado de task -----
-#define DEAD_PROCESS 0
-#define ACTIVE_PROCESS 1 
-#define PAUSED_PROCESS 2
-#define WAITING_FOR_CHILD 3
-#define WAITING_FOR_SEM 4
-
 // ---- Valores default para el armado del stack ----
 #define FLAG_VALUES 0x202
 #define SS_VALUE 0x0				// en nuestro caso se mantiene constante
@@ -55,7 +48,7 @@ static unsigned int newPidValue = 1;					// identificador para cada proceso
 	
 static unsigned int currentTask = 0;				// posicion en el array
 static unsigned int currentRemainingTicks = 0;			// How many timer ticks are remaining for the current process.
-static unsigned int currentDimTasks = NO_TASKS;
+static unsigned int currentDimTasks = 0;
 
 
 /* =========== PROTOYPES =========== */
@@ -185,6 +178,13 @@ int add_task(uint64_t entrypoint, uint8_t screen, uint8_t priority, uint8_t immo
 	return tasks[pos].pid;
 }
 
+void alter_process_state(unsigned int pid, uint8_t new_state){
+	int pos = findTask(pid);
+	if(pos == -1)
+		return;
+
+	tasks[pos].state = new_state;
+}
 
 void pauseScreenProcess(unsigned int screen){
 	for(int i=0; i<TOTAL_TASKS; i++){
@@ -211,7 +211,7 @@ int pauseOrUnpauseProcess(unsigned int pid){
 
 void kill_screen_processes(){
 	for(int i=0; i< TOTAL_TASKS; i++){
-		if(tasks[i].state == ACTIVE_PROCESS && tasks[i].immortal != IMMORTAL && tasks[i].screen != BACKGROUND){
+		if(tasks[i].state != DEAD_PROCESS &&  tasks[i].immortal != IMMORTAL ){
 			tasks[i].state = DEAD_PROCESS;
 			currentDimTasks--;
 
@@ -308,37 +308,28 @@ uint64_t next_task(uint64_t stackPointer, uint64_t stackSegment){
 	tasks[currentTask].stackSegment = stackSegment;
 	
 	char found=0;
-	for(unsigned int i=currentTask; !found ; ){			// busco el proximo stack
-		i = (i +  1) % TOTAL_TASKS;
+	while( !found  ){			// busco el proximo stack
+		currentTask = (currentTask +  1) % TOTAL_TASKS;
 
-		switch(tasks[i].state){
+		switch(tasks[currentTask].state){
 
 			case ACTIVE_PROCESS:
-				currentTask = i;
 				found = 1;
 				break;
 
 			case WAITING_FOR_CHILD:
-				if(children_finished(tasks[i].pid)){
+				if(children_finished(tasks[currentTask].pid)){
 					
-					remove_children(tasks[i].pid);
+					remove_children(tasks[currentTask].pid);
 
-					tasks[i].state = ACTIVE_PROCESS;
+					tasks[currentTask].state = ACTIVE_PROCESS;
 
-					currentTask = i;
 					found = 1;
 				}
 				break;
-			case WAITING_FOR_SEM:
-				if(can_continue_pid(tasks[i].pid)){
-					sem_decrease_pid(tasks[i].pid);
-					remove_waiting(tasks[i].pid);
-					tasks[i].state = ACTIVE_PROCESS;
-
-					currentTask = i;
-					found = 1;
-				}
-				break;
+			// case WAITING_FOR_SEM:
+			// 	// logic for blocked state transfered to signal_sem
+			// 	break;
 		}
 	}
 
@@ -439,20 +430,4 @@ unsigned int add_child_task(uint64_t entrypoint, int screen, uint64_t arg0){
 	return child_pid;
 }
 
-
-/* --- Semaphore --- */
-
-unsigned int wait_sem(unsigned int sem_id, uint64_t rsp, uint64_t ss){
-	_cli();
-	if(!can_continue_semid(sem_id)){
-		tasks[currentTask].state = WAITING_FOR_SEM;
-		add_waiting(sem_id, tasks[currentTask].pid);
-		_sti();
-		forceNextTask(rsp,ss);
-		return 0;
-	}
-	sem_decrease_semid(sem_id);
-	_sti();
-	return 1;
-}
 

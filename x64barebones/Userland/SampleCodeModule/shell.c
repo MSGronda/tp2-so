@@ -149,9 +149,11 @@ void shell(){
 
             // Run on screen
             else{
+                time();
                 sys_register_child_process(programs[program_pos].ptr, NORMAL_SCREEN, (uint64_t) make_params(words, MIN(amount_of_words-1, programs[program_pos].max_args))); 
             
                 sys_wait_for_children();
+                time();
             }
         puts("");
         }

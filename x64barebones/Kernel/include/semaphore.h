@@ -10,14 +10,14 @@
 #define SEM_BLOCK 1
 
 #include <multitasking.h>
+#include <video.h>
+#include <interrupts.h>
 
 unsigned int create_sem(unsigned int sem_id);
-void sem_decrease_semid(unsigned int sem_id);
-void sem_decrease_pid(unsigned int pid);
-unsigned int signal_sem(unsigned int sem_id);
-void add_waiting(unsigned int sem_id, unsigned int pid);
-void remove_waiting(unsigned int pid);
-uint8_t can_continue_semid(unsigned int sem_id);
-uint8_t can_continue_pid(unsigned int pid);
+void destroy_sem(unsigned int sem_id);
 
+unsigned int signal_sem(unsigned int sem_id);
+unsigned int wait_sem(unsigned int sem_id, uint64_t rsp, uint64_t ss);
+
+void print_sem();
 #endif

@@ -14,13 +14,20 @@
 #define NO_TASK_FOUND -1
 #define TASK_ALTERED 1
 
-#define ERROR_NO_SPACE_FOR_TASK 1 
+#define ERROR_NO_SPACE_FOR_TASK -1
 #define ERROR_SCREEN_NOT_AVAILABLE 2
 
 // Common constantes
 #define DEFAULT_PRIORITY 1
 #define IMMORTAL 1
 #define MORTAL 0
+
+// ----- Estado de task -----
+#define DEAD_PROCESS 0
+#define ACTIVE_PROCESS 1 
+#define PAUSED_PROCESS 2
+#define WAITING_FOR_CHILD 3
+#define WAITING_FOR_SEM 4
 
 
 void list_process();
@@ -39,6 +46,8 @@ unsigned int  get_current_pid();
 
 /* --- Process Management --- */
 int add_task(uint64_t entrypoint, uint8_t screen, uint8_t priority, uint8_t immortal ,uint64_t arg0);
+
+void alter_process_state(unsigned int pid, uint8_t new_state);
 
 void pauseScreenProcess(unsigned int screen);
 int pauseOrUnpauseProcess(unsigned int pid);
