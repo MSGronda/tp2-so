@@ -33,26 +33,26 @@
 // Return values
 #define INVALID_SCREEN -1
 
-unsigned int sys_print_sem();
-unsigned int sys_signal_sem(unsigned int sem_id);
-unsigned int sys_register_sem(unsigned int sem_id);
-unsigned int sys_wait_sem(unsigned int sem_id, uint64_t rsp, uint64_t ss);
+uint64_t sys_print_sem();
+uint64_t sys_signal_sem(unsigned int sem_id);
+uint64_t sys_register_sem(unsigned int sem_id);
+uint64_t sys_wait_sem(unsigned int sem_id, uint64_t rsp, uint64_t ss);
 
-unsigned int sys_free(void * ptr);
+uint64_t sys_free(void * ptr);
 
-unsigned int sys_alloc(void ** ptr, uint64_t len);
+uint64_t sys_alloc(void ** ptr, uint64_t len);
 
-unsigned int sys_list_process();
+uint64_t sys_list_process();
 
-unsigned int sys_get_pid();
+uint64_t sys_get_pid();
 
-unsigned int sys_nice(uint8_t pid, int delta);
+uint64_t sys_nice(uint8_t pid, int delta);
 
-unsigned int sys_renounce_cpu(uint64_t rsp, uint64_t ss);
+uint64_t sys_renounce_cpu(uint64_t rsp, uint64_t ss);
 
-unsigned int sys_wait_for_children(uint64_t rsp, uint64_t ss);
+uint64_t sys_wait_for_children(uint64_t rsp, uint64_t ss);
 
-unsigned int sys_register_child_process(uint64_t entryPoint, int screen, uint64_t arg0);
+uint64_t sys_register_child_process(uint64_t entryPoint, int screen, uint64_t arg0);
 
 /*
  * << sys_write >>
@@ -68,7 +68,7 @@ unsigned int sys_register_child_process(uint64_t entryPoint, int screen, uint64_
  *      (uint) bytes written
  *      
  */
-unsigned int sys_write(unsigned int fd, const char *buf, unsigned int count);
+uint64_t sys_write(unsigned int fd, const char *buf, unsigned int count);
 
 
 /*
@@ -83,7 +83,7 @@ unsigned int sys_write(unsigned int fd, const char *buf, unsigned int count);
  * Devuelve: 
  *      (uint) bytes read
  */
-unsigned int sys_read(unsigned int fd, char * buf, unsigned int count);
+uint64_t sys_read(unsigned int fd, char * buf, unsigned int count);
 
 /*
  * << sys_clear_screen >>
@@ -94,7 +94,7 @@ unsigned int sys_read(unsigned int fd, char * buf, unsigned int count);
  * Returns: 
  *      0 if successful 
  */
-unsigned int sys_clear_screen();
+uint64_t sys_clear_screen();
 
 /*
  * << sys_rtc >>
@@ -109,7 +109,7 @@ unsigned int sys_clear_screen();
  *      current day DDMMYY
  *      0 other option
  */
-unsigned int sys_rtc(unsigned int option);
+uint64_t sys_rtc(unsigned int option);
 
 /*
  * << sys_write_to_screen >>
@@ -122,7 +122,7 @@ unsigned int sys_rtc(unsigned int option);
  * Returns: 
  *      (uint) bytes written
  */
-unsigned int sys_write_to_screen(const char *buf, unsigned int count);
+uint64_t sys_write_to_screen(const char *buf, unsigned int count);
 
 /*
  * << sys_read_from_screen >>
@@ -136,7 +136,7 @@ unsigned int sys_write_to_screen(const char *buf, unsigned int count);
  *      (uint) bytes read
  */
 
-unsigned int sys_read_from_screen(char *buf, unsigned int count);
+uint64_t sys_read_from_screen(char *buf, unsigned int count);
 
 
 /*
@@ -151,7 +151,7 @@ unsigned int sys_read_from_screen(char *buf, unsigned int count);
  * Returns: 
  *      (uint) pid
  */
-unsigned int sys_register_process(uint64_t entryPoint, int screen, uint64_t arg0);
+uint64_t sys_register_process(uint64_t entryPoint, int screen, uint64_t arg0);
 
 /*
  * << sys_kill_process >>
@@ -164,7 +164,7 @@ unsigned int sys_register_process(uint64_t entryPoint, int screen, uint64_t arg0
  *      (uint) 1 if it was killed
  *             -1 if no task was found
  */
-unsigned int sys_kill_process(unsigned int pid);
+uint64_t sys_kill_process(unsigned int pid);
 
 /*
  * << sys_pause_process >>
@@ -177,7 +177,7 @@ unsigned int sys_kill_process(unsigned int pid);
  *      (uint) 1 if it was killed
  *             -1 if no task was found
  */
-unsigned int sys_pause_process(unsigned int pid);
+uint64_t sys_pause_process(unsigned int pid);
 
 
 /*
@@ -191,7 +191,7 @@ unsigned int sys_pause_process(unsigned int pid);
  * Returns: 
  *      (uint) amount of keys consumed
  */
-unsigned int sys_consume_stdin(char * buf, unsigned int count);    
+uint64_t sys_consume_stdin(char * buf, unsigned int count);    
 
 /*
  * << saveInfoReg >>
@@ -214,7 +214,7 @@ void saveInfoReg(uint64_t * regDumpPos);
  *      (char*) buffer to leave register values
  * Returns: --
  */
-unsigned int sys_inforeg(uint64_t * buffer);
+uint64_t sys_inforeg(uint64_t * buffer);
 
 /*
  * << sys_printmem >>
@@ -226,7 +226,7 @@ unsigned int sys_inforeg(uint64_t * buffer);
  *      (char*) buffer to leave data
  * Returns: --
  */
-unsigned int sys_printmem(uint64_t position, char * buffer);
+uint64_t sys_printmem(uint64_t position, char * buffer);
 
 
 #endif

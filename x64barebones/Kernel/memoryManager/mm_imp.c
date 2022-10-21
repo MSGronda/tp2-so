@@ -2,13 +2,6 @@
 #include <mm_imp.h>
 
  // WE ALWAYS WANT BYTES!!!!
- /* 
-  * As an operation between * and num will multiply num * 8
-  * we have to divide num by 8, as we are assuming num are bytes
-  * i.e.  ptr + byte = ptr + (num / 8) * 8 
-  * 
-  * More info on this implementation in Kernel/include/mm_imp.h
- */
  void mm_init() {
      addEOL(HEAP_START);
  }
