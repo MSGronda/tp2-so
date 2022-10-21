@@ -13,6 +13,7 @@ typedef struct sem_record{
 	unsigned int blocked_pids[MAX_WAITING_PROCESS]; 
 	unsigned int currentBlocked;
 	unsigned int num_blocked; 
+	unsigned int lock;
 }sem_record;
 
 static sem_record sem_info[MAX_SEMAPHORES] = {0};
@@ -80,6 +81,8 @@ void destroy_sem(unsigned int sem_id){
 	int pos = find_sem(sem_id);
 	if(pos == -1)
 		return;
+
+	lock(&(sem_info[pos].lock));
 	sem_info[pos].sem_id = 0;
 	sem_info[pos].sem_value = 0;
 	sem_info[pos].num_blocked = 0;
@@ -87,6 +90,7 @@ void destroy_sem(unsigned int sem_id){
 	for(int i=0; i<MAX_WAITING_PROCESS; i++){
 		sem_info[pos].blocked_pids[i] = 0;
 	}
+	unlock(&(sem_info[pos].lock));
 }
 
 unsigned int wait_sem(unsigned int sem_id, uint64_t rsp, uint64_t ss){
@@ -94,7 +98,7 @@ unsigned int wait_sem(unsigned int sem_id, uint64_t rsp, uint64_t ss){
 	if(pos == -1)
 		return -1;
 
-	// LOCK
+	lock(&(sem_info[pos].lock));
 	if(sem_info[pos].sem_value > 0){
 		int sem = sem_info[pos].sem_value;
 		sem_info[pos].sem_value--;
@@ -104,13 +108,13 @@ unsigned int wait_sem(unsigned int sem_id, uint64_t rsp, uint64_t ss){
 		add_blocked(pos, pid);
 		alter_process_state(pid, WAITING_FOR_SEM);
 
-		// UNLOCK
+		unlock(&(sem_info[pos].lock));
 		forceNextTask(rsp,ss);
 		return 0;
 	}
 
 
-	// UNLOCK
+	unlock(&(sem_info[pos].lock));
 
 	return 1;
 }
@@ -121,7 +125,7 @@ unsigned int signal_sem(unsigned int sem_id){
 		return INVALID_SEM_ID;
 	}
 
-	// LOCK
+	lock(&(sem_info[pos].lock));
 	if(sem_info[pos].num_blocked > 0){			// prevent process being eternally blocked
 		int blocked_pid = remove_next_blocked(pos);
 		alter_process_state(blocked_pid, ACTIVE_PROCESS);
@@ -131,7 +135,7 @@ unsigned int signal_sem(unsigned int sem_id){
 		sem_info[pos].sem_value++;
 	}
 
-	// UNLOCK
+	unlock(&(sem_info[pos].lock));
 	return 0;
 }
 

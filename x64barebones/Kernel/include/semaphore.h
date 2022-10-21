@@ -12,6 +12,7 @@
 #include <multitasking.h>
 #include <video.h>
 #include <interrupts.h>
+#include <locks.h>
 
 unsigned int create_sem(unsigned int sem_id);
 void destroy_sem(unsigned int sem_id);

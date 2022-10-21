@@ -22,10 +22,15 @@
 #define SYS_REGISTER_SEM 21
 #define SYS_SIGNAL_SEM 22
 #define SYS_PRINT_SEM 23
+#define SYS_DESTROY_SEM 24
 
 #define NULL 0
 
 extern uint64_t syscaller(uint64_t syscallID, uint64_t param1, uint64_t param2, uint64_t param3);
+
+unsigned int sys_destroy_sem(unsigned int sem_id){
+    return syscaller(SYS_DESTROY_SEM, (uint64_t) sem_id, NULL, NULL );
+}
 
 unsigned int sys_signal_sem(unsigned int sem_id){
     return syscaller(SYS_SIGNAL_SEM, (uint64_t) sem_id, NULL, NULL );

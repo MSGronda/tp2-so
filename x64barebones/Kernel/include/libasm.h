@@ -3,6 +3,10 @@
 
 #include <stdint.h>
 
+int _xadd(int * lock, int value);
+
+int _xchg(int * lock, int value);
+
 /*
  * << readKeyboard >>
  * ----------------------------------------------------------------------

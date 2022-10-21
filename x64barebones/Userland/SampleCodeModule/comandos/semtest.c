@@ -3,23 +3,19 @@
 
 
 static unsigned int a = 0;
-static char b = 'a';
-
 #define ADD 13000
 #define PROCESS_AMOUNT 5
 
 void slowInc(int * a, int inc){
     int b;
-        b = *a;
-        b += inc;
-        for(int i=0; i<450; i++);
-        *a = b;
+    b = *a;
+    b += inc;
+    for(int i=0; i<450; i++);
+    *a = b;
 }
 
 
 void semtest1(){
-    print(&b,1);
-    b+=1;
     int inc = 1;
     for(int i=0; i<ADD; i++){
         sys_wait_sem(555);
@@ -32,13 +28,14 @@ void semtest1(){
 
 void semtest(){
     a = 0;
-    b = 'a';
     sys_register_sem(555);
     for(int i=0; i<PROCESS_AMOUNT; i++){
         sys_register_child_process(&semtest1, NORMAL_SCREEN, NULL);
     }
 
     sys_wait_for_children();
+    sys_destroy_sem(555);
+
 
     char buff[29];
     puts("");
@@ -47,7 +44,7 @@ void semtest(){
     print(" ?= ",4);
     len = num_to_string(ADD * PROCESS_AMOUNT, buff);
     print(buff, len);
-    puts("");
+    puts("\n");
 
     sys_print_sem();
 }

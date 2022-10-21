@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+unsigned int sys_destroy_sem(unsigned int sem_id);
 unsigned int sys_print_sem();
 unsigned int sys_free(void * ptr);
 unsigned int sys_alloc(void ** ptr, uint64_t len);

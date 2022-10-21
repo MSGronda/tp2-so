@@ -29,10 +29,13 @@
 #define SYS_REGISTER_SEM 21
 #define SYS_SIGNAL_SEM 22
 #define SYS_PRINT_SEM 23
+#define SYS_DESTROY_SEM 24
 
 // Return values
 #define INVALID_SCREEN -1
 
+
+unsigned int sys_destroy_sem(unsigned int sem_id);
 unsigned int sys_print_sem();
 unsigned int sys_signal_sem(unsigned int sem_id);
 unsigned int sys_register_sem(unsigned int sem_id);

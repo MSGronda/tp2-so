@@ -1,7 +1,22 @@
 GLOBAL readKeyboard
 GLOBAL getRTC
+GLOBAL _xadd
+GLOBAL _xchg
+
 
 section .text
+
+
+_xadd:
+	mov rax, rdi
+	lock xadd [rsi], rax
+	ret
+
+_xchg:
+	mov rax, rsi
+	xchg [rdi], rax
+	ret
+
 
 readKeyboard:
 	push rbp
