@@ -3,10 +3,11 @@
 
 /*--------  DEPENDENCIES --------*/
 #include <stdint.h>
-
+#include "syscalls.h"
 /* --- CONSTANTS  --- */
 #define NULL 0
-
+void * malloc(uint64_t size);
+void free(void * ptr);
 long long atosi(const char * string);
 
 /*

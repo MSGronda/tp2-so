@@ -14,6 +14,7 @@ void pause(char ** args);
 void kill(char ** args);
 void printargs(char ** args);
 void ps();
+uint64_t test_mm(uint64_t argc, char *argv[]);
 
 /*
  * << printmem >>

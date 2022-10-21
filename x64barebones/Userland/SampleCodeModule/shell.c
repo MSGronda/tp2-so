@@ -38,6 +38,7 @@ static program_info programs[] = {
     {.name = "pause", .ptr = (uint64_t) &pause, .min_args = 1, .max_args = 1},
     {.name = "nice", .ptr = (uint64_t) &nice, .min_args = 2, .max_args = 2},
     {.name = "semtest", .ptr = (uint64_t) &semtest, .min_args = 0, .max_args = 0},
+    {.name = "test-mm", .ptr = (uint64_t) &test_mm, .min_args = 0, .max_args = 0},
 };
 
 /* = = = = = = = = = CODIGO = = = = = = = = = */
@@ -74,8 +75,7 @@ unsigned int check_valid_program(char * string){
 // printmem abc NULL
 
 char ** make_params(char ** words, unsigned int len){
-    void * coso;
-    sys_alloc(&coso, (2 + len) * sizeof(char *)); // + 1 for name, + 1 por null termination
+    void * coso = sys_alloc((2 + len) * sizeof(char *)); // + 1 for name, + 1 por null termination
 
     if(coso == NULL){
         puts("error!");     //TODO: replace
@@ -90,7 +90,7 @@ char ** make_params(char ** words, unsigned int len){
     int i=0;
     for(; i<len + 1; i++){
         paramLen = strlen(words[i]) + 1;
-        sys_alloc(&param, paramLen);
+        param = sys_alloc(paramLen);
 
          if(param == NULL){
             puts("error!");     //TODO: replace

@@ -47,8 +47,8 @@ uint64_t sys_print_sem(){
 uint64_t sys_free(void * ptr){
     return syscaller(SYS_FREE, (uint64_t) ptr, NULL, NULL );
 }
-uint64_t sys_alloc(void ** ptr, uint64_t len){
-    return syscaller(SYS_ALLOC, (uint64_t) ptr, (uint64_t)len,  NULL );
+uint64_t sys_alloc(uint64_t len){
+    return syscaller(SYS_ALLOC, (uint64_t)len, NULL, NULL );
 }
 
 uint64_t sys_list_process(){

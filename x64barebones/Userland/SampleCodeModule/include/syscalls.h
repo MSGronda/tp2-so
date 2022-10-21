@@ -5,7 +5,7 @@
 
 uint64_t sys_print_sem();
 uint64_t sys_free(void * ptr);
-uint64_t sys_alloc(void ** ptr, uint64_t len);
+uint64_t sys_alloc(uint64_t len);
 uint64_t sys_list_process();
 uint64_t sys_get_pid();
 uint64_t sys_nice(uint8_t pid, int delta);
