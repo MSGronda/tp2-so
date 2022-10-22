@@ -112,7 +112,7 @@ void shell(){
     char * words[MAX_WORDS];
 
     while(1){
-
+        puts("");
         print(SYMBOL, SYMBOL_LENGTH);
 
         read_line(buffer, BUFFER_LENGTH);

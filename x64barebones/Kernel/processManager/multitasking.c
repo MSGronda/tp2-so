@@ -292,10 +292,8 @@ unsigned int change_priority(unsigned int pid, int delta){
 
 // se fija si le queda tiempo, si le queda, decrementa esa cantidad y
 uint8_t has_or_decrease_time(){
-
-	tasks[currentTask].ticks++;
-
 	if(currentRemainingTicks < tasks[currentTask].priority - 1){
+		tasks[currentTask].ticks++;
 		currentRemainingTicks++;
 		return 1;
 	}
@@ -320,6 +318,7 @@ uint64_t next_task(uint64_t stackPointer, uint64_t stackSegment){
 
 			case ACTIVE_PROCESS:
 				found = 1;
+				tasks[currentTask].ticks++;
 				break;
 
 			case WAITING_FOR_CHILD:
@@ -351,7 +350,7 @@ void list_process(){
 
 	//TODO: RBP????
 
-	writeDispatcher(tasks[currentTask].screen, "Name     |  ID  |  State  |  Prty  |  Stack  |   RSP   |   Tck   |  Screen\n", 75);
+	writeDispatcher(tasks[currentTask].screen, "Name     |  ID  |  State  |  Prty  |  Stack  |   RSP   |  Pickd  |  Screen\n", 75);
 	writeDispatcher(tasks[currentTask].screen, "---------------------------------------------------------------------------\n", 76);
 
 	for(int i=0; i<TOTAL_TASKS -1 ; i++){
@@ -374,9 +373,11 @@ void list_process(){
 				case PAUSED_PROCESS:
 					writeDispatcher(tasks[currentTask].screen, "Paused ", 7);
 					break;
-				case WAITING_FOR_CHILD:
+
+				default:
 					writeDispatcher(tasks[currentTask].screen, "Blocked", 7);
 					break;
+
 			}
 			writeDispatcher(tasks[currentTask].screen, "                  ", 6);
 
@@ -392,11 +393,11 @@ void list_process(){
 
 			len = num_to_string(tasks[i].stackPointer, buffer);
 			writeDispatcher(tasks[currentTask].screen, buffer, len);
-			writeDispatcher(tasks[currentTask].screen, "                  ",5);
+			writeDispatcher(tasks[currentTask].screen, "                  ",4);
 
 			len = num_to_string(tasks[i].ticks, buffer);
 			writeDispatcher(tasks[currentTask].screen, buffer, len);
-			writeDispatcher(tasks[currentTask].screen, "                  ",7 - len);
+			writeDispatcher(tasks[currentTask].screen, "                  ",8 - len);
 
 			switch(tasks[i].screen){
 				case BACKGROUND:
