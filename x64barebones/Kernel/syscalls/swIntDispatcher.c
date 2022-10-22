@@ -58,7 +58,7 @@ uint64_t swIntDispatcher(uint64_t mode, uint64_t arg0, uint64_t arg1,
 
 		// MM
 		case SYS_ALLOC:
-			return sys_alloc(arg0, arg1);
+			return sys_alloc(arg0);
 
 		case SYS_FREE:
 			return sys_free(arg0);

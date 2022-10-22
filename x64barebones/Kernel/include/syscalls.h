@@ -40,7 +40,7 @@ uint64_t sys_wait_sem(unsigned int sem_id, uint64_t rsp, uint64_t ss);
 
 uint64_t sys_free(void * ptr);
 
-uint64_t sys_alloc(void ** ptr, uint64_t len);
+uint64_t sys_alloc(uint64_t len);
 
 uint64_t sys_list_process();
 

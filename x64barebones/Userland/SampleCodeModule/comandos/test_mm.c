@@ -1,8 +1,8 @@
-#include "../../include/comandos.h"
-#include "../../include/stdio.h"
-#include "../../include/test_util.h"
-#include "../../include/stdlib.h"
-#include "../../include/syscalls.h"
+#include "../include/comandos.h"
+#include "../include/stdio.h"
+#include "../include/test_util.h"
+#include "../include/stdlib.h"
+#include "../include/syscalls.h"
 
 #define MAX_BLOCKS 128
 
@@ -11,16 +11,12 @@ typedef struct MM_rq{
   uint32_t size;
 }mm_rq;
 
-uint64_t test_mm(uint64_t argc, char *argv[]){
+void test_mm(){
 
   mm_rq mm_rqs[MAX_BLOCKS];
   uint8_t rq;
   uint32_t total;
-  uint64_t max_memory;
-
-  if (argc != 1) return -1;
-
-  if ((max_memory = satoi(argv[0])) <= 0) return -1;
+  uint64_t max_memory = 1024;
 
   while (1){
     rq = 0;
@@ -29,7 +25,7 @@ uint64_t test_mm(uint64_t argc, char *argv[]){
     // Request as many blocks as we can
     while(rq < MAX_BLOCKS && total < max_memory){
       mm_rqs[rq].size = GetUniform(max_memory - total - 1) + 1;
-      mm_rqs[rq].address = mm_malloc(mm_rqs[rq].size);
+      mm_rqs[rq].address = malloc(mm_rqs[rq].size);
 
       if(mm_rqs[rq].address){
         total += mm_rqs[rq].size;
