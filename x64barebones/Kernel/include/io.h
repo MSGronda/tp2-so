@@ -1,6 +1,7 @@
 #ifndef IO_H_
 #define IO_H_
 
+#include <stdint.h>
 /*
  * << read_stdin >>
  * ----------------------------------------------------------------------
@@ -13,7 +14,7 @@
  * Devuelve: 
  *      (uint) bytes read
  */
-unsigned int read_stdin(unsigned int fd, char * buf, unsigned int count);
+unsigned int read_stdin(unsigned int fd, char * buf, unsigned int count, uint64_t rsp, uint64_t ss);
 
 
 /*
@@ -28,6 +29,6 @@ unsigned int read_stdin(unsigned int fd, char * buf, unsigned int count);
  * Devuelve: 
  *      (uint) bytes read
  */
-unsigned int readDispatcher(unsigned int fd, char * buf, unsigned int count);
+unsigned int readDispatcher(unsigned int fd, char * buf, unsigned int count, uint64_t rsp, uint64_t ss);
 
 #endif

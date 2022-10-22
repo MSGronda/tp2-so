@@ -13,10 +13,6 @@
 #define BUFFER_FULL 3
 #define UNMAPPED 4
 
-
-int * enable_screen_write_through(unsigned int screen_fd);
-void disable_screen_write_through();
-
 /*
  * << keyboard_handler >>
  * ----------------------------------------------------------------------

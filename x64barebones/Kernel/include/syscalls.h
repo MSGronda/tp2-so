@@ -86,7 +86,7 @@ unsigned int sys_write(unsigned int fd, const char *buf, unsigned int count);
  * Devuelve: 
  *      (uint) bytes read
  */
-unsigned int sys_read(unsigned int fd, char * buf, unsigned int count);
+unsigned int sys_read(unsigned int fd, char * buf, unsigned int count, uint64_t rsp, uint64_t ss);
 
 /*
  * << sys_clear_screen >>
@@ -139,7 +139,7 @@ unsigned int sys_write_to_screen(const char *buf, unsigned int count);
  *      (uint) bytes read
  */
 
-unsigned int sys_read_from_screen(char *buf, unsigned int count);
+unsigned int sys_read_from_screen(char *buf, unsigned int count, uint64_t rsp, uint64_t ss);
 
 
 /*

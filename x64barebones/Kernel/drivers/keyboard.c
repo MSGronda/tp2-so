@@ -55,9 +55,6 @@ char get_key()
 	if(!checkIfAvailableKey())
 		return 0;
 
-	if(peekPos == readPos)          	// para que el peek no quede apuntando a nada
-		INCREASE_MOD(peekPos,BUFFER_SIZE)	
-
 	char c = keyBuffer[readPos];		// consumo letra 
 	keyBuffer[readPos] = 0;
 
@@ -65,19 +62,6 @@ char get_key()
 	
 	return c;
 }
-
-
-/* Como el get_key pero no lo consumo, es decir, no pone en 0 sino que lo deja. */
-char peek_key()
-{
-	if(keyBuffer[peekPos]==0)		// corto sin aumentar
-		return 0;
-
-	char c = keyBuffer[peekPos];
-	INCREASE_MOD(peekPos,BUFFER_SIZE)	
-	return c;
-}
-
 
 unsigned int consume_kb_buffer(char * buf, unsigned int count) 
 {
@@ -128,19 +112,16 @@ void keyboard_handler() {
 	// ------ Caracteres especiales ------
 
 	if(c=='\b'){
-		DECREASE_MOD(writePos,BUFFER_SIZE)
-
-		if(keyBuffer[writePos]!=0){
-			keyBuffer[writePos] = 0; 			// elimino del buffer
-			if(writePos + 1 == peekPos)			// me muevo para atras en el peek 
-				DECREASE_MOD(peekPos, BUFFER_SIZE)
+		int previous = writePos;
+		DECREASE_MOD(previous,BUFFER_SIZE)
+		if(keyBuffer[previous] != 0){
+			writePos = previous;
+			keyBuffer[writePos] = 0; 			
 		}
-		else
-			INCREASE_MOD(writePos,BUFFER_SIZE)		// no habia nada en el buffer, vuelvo adonde estaba
 	}
 
 	// ------ Caracteres normales -------
-	if(c != UNMAPPED){
+	else if(c != UNMAPPED){
 		keyBuffer[writePos] = c;					// se agraga al buffer
 		INCREASE_MOD(writePos,BUFFER_SIZE);
 	}

@@ -175,7 +175,7 @@ int add_task(uint64_t entrypoint, uint8_t screen, uint8_t priority, uint8_t immo
 	tasks[pos].immortal = immortal;
 	tasks[pos].stackStart = stackStart;
 	tasks[pos].params = arg0;
-	tasks[pos].ticks = 0;
+	tasks[pos].ticks = 1;
 
 	return tasks[pos].pid;
 }

@@ -14,7 +14,7 @@ unsigned int swIntDispatcher(uint64_t mode, uint64_t arg0, uint64_t arg1,
 		case SYS_WRITE_TO_SCREEN:
 			return sys_write_to_screen((const char *) arg0,(unsigned int) arg1);
 		case SYS_READ_FROM_SCREEN:
-			return sys_read_from_screen((char *) arg0, (unsigned int) arg1);
+			return sys_read_from_screen((char *) arg0, (unsigned int) arg1, rsp, ss);
 		case SYS_CONSUME_STDIN:
 			return sys_consume_stdin((char *) arg0 , (unsigned int) arg1);
 		case SYS_CLEAR_SCREEN:

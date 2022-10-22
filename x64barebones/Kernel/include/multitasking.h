@@ -28,6 +28,7 @@
 #define PAUSED_PROCESS 2
 #define WAITING_FOR_CHILD 3
 #define WAITING_FOR_SEM 4
+#define WAITING_FOR_INPUT 5
 
 
 void list_process();
