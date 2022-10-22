@@ -137,14 +137,20 @@ void shell(){
             // Check if user wants to run program in background
             int i, backgroud_indiaction = 0;
             for(i=programs[program_pos].min_args + 1; !backgroud_indiaction && i<amount_of_words; i++){
-                if(strcmp("/", words[i]) == 0){         // We consider the symbol as the last argument. All subsequent arguments will be ignored
+                if(strcmp("//", words[i]) == 0){         // We consider the symbol as the last argument. All subsequent arguments will be ignored
+                    backgroud_indiaction = 2;       
+                }
+                else if(strcmp("/", words[i]) == 0){         // We consider the symbol as the last argument. All subsequent arguments will be ignored
                     backgroud_indiaction = 1;       
                 }
             }
 
             // Run in background
-            if(backgroud_indiaction){
+            if(backgroud_indiaction == 2){
                 sys_register_process(programs[program_pos].ptr, BACKGROUND, (uint64_t) make_params(words, MIN(i-1,programs[program_pos].max_args))); 
+            }
+            else if(backgroud_indiaction == 1){
+                sys_register_process(programs[program_pos].ptr, NORMAL_SCREEN, (uint64_t) make_params(words, MIN(i-1,programs[program_pos].max_args))); 
             }
 
             // Run on screen

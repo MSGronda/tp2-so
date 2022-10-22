@@ -2,35 +2,71 @@
 #include <keyboard.h>
 #include <video.h>
 
-unsigned int read_stdin(unsigned int fd, char * buf, unsigned int count) 
-{
-	char c=0, keyboardResp=0; 
-	int i=0;
-	unsigned int initialPos = getFdOffSet(fd);
 
-	while(c!='\n' && keyboardResp != BUFFER_FULL) {		
-		keyboardResp = keyboard_handler();
+/* - - - Screen write through - - - */
 
-		if(keyboardResp==VALID_KEY) {
-			c = peek_key();
+// Handling printing to screen directly during keyboard interruption 
+// Which allows interruption to be momentary and not continuos
+static uint8_t screenWriteThrough = 0;
+static unsigned int initialPos;					// position on screen
+static unsigned int finished = 0;				// denotes if there has been a new line
+static unsigned int fd;
+
+// IDEA: en vez de un initial pos, tene un counter
+
+
+void screen_write_through(char c){
+	if(screenWriteThrough){
+		if(c!='\b') {
 			writeDispatcher(fd,&c, 1);
-		
-			if(i<count) 
-				i++;
+
+			if(c=='\n')
+				finished = 1;
+
 		}
-		else if(keyboardResp == DELETE_KEY) {
+		else{
 			if(getFdOffSet(fd) > initialPos) {  // no dejo que borre lo que ya habia
 				writeDispatcher(fd,"\b",1);
-				if(i>0)
-					i--;
 			}
 		}
-	}	
+	}
+}
 
-	for(int j=0 ; j<i;j++)				// consumo el buffer de una, hasta el \n o fin de caracteres
+int * enable_screen_write_through(unsigned int screen_fd){
+	screenWriteThrough = 1;
+	initialPos = getFdOffSet(fd);
+	fd = screen_fd;
+	finished = 0;
+	return &finished;
+}
+
+void disable_screen_write_through(){
+	screenWriteThrough = 0;
+	initialPos = 0;
+	fd = 0;
+}
+
+
+
+
+/* - - - IO - - - */
+
+unsigned int read_stdin(unsigned int fd, char * buf, unsigned int count) 
+{
+	_sti();
+	int * finished = enable_screen_write_through(fd);
+
+	while(*finished == 0){
+		//
+	}
+
+	disable_screen_write_through();
+
+	int j=0;
+	for(; checkIfAvailableKey();j++)				// consumo el buffer de una, hasta el \n o fin de caracteres
 		buf[j] = get_key();
 
-	return i;
+	return j;
 }
 
 

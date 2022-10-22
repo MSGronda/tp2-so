@@ -26,5 +26,5 @@ void int_20() {
 
 /* Handler del keyboard */
 void int_21(uint64_t arg0){
-	keyboard_handler(arg0);
+	keyboard_handler();
 }
