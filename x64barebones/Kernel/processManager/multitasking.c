@@ -39,6 +39,7 @@ typedef struct process_control_block{
 		uint8_t immortal;			// si se puede matar o no
 		void * stackStart;
 		char ** params;
+		uint64_t ticks;
 }process_control_block;
 
 // ------ Queue de tasks -------
@@ -174,6 +175,7 @@ int add_task(uint64_t entrypoint, uint8_t screen, uint8_t priority, uint8_t immo
 	tasks[pos].immortal = immortal;
 	tasks[pos].stackStart = stackStart;
 	tasks[pos].params = arg0;
+	tasks[pos].ticks = 0;
 
 	return tasks[pos].pid;
 }
@@ -290,6 +292,9 @@ unsigned int change_priority(unsigned int pid, int delta){
 
 // se fija si le queda tiempo, si le queda, decrementa esa cantidad y
 uint8_t has_or_decrease_time(){
+
+	tasks[currentTask].ticks++;
+
 	if(currentRemainingTicks < tasks[currentTask].priority - 1){
 		currentRemainingTicks++;
 		return 1;
@@ -346,8 +351,8 @@ void list_process(){
 
 	//TODO: RBP????
 
-	writeDispatcher(tasks[currentTask].screen, "Name     |  ID  |  State  |  Prty  |  Stack  |   Rsp   |  Screen\n", 65);
-	writeDispatcher(tasks[currentTask].screen, "------------------------------------------------------------------\n", 67);
+	writeDispatcher(tasks[currentTask].screen, "Name     |  ID  |  State  |  Prty  |  Stack  |   RSP   |   Tck   |  Screen\n", 75);
+	writeDispatcher(tasks[currentTask].screen, "---------------------------------------------------------------------------\n", 76);
 
 	for(int i=0; i<TOTAL_TASKS -1 ; i++){
 		if(tasks[i].state != DEAD_PROCESS){
@@ -387,7 +392,11 @@ void list_process(){
 
 			len = num_to_string(tasks[i].stackPointer, buffer);
 			writeDispatcher(tasks[currentTask].screen, buffer, len);
-			writeDispatcher(tasks[currentTask].screen, "                  ",3);
+			writeDispatcher(tasks[currentTask].screen, "                  ",5);
+
+			len = num_to_string(tasks[i].ticks, buffer);
+			writeDispatcher(tasks[currentTask].screen, buffer, len);
+			writeDispatcher(tasks[currentTask].screen, "                  ",7 - len);
 
 			switch(tasks[i].screen){
 				case BACKGROUND:
