@@ -30,7 +30,10 @@ void semtest(){
     a = 0;
     sys_register_sem(555);
     for(int i=0; i<PROCESS_AMOUNT; i++){
-        sys_register_child_process(&semtest1, NORMAL_SCREEN, NULL);
+        int error = sys_register_child_process(&semtest1, BACKGROUND, NULL);
+        if(error <= 0){
+            puts("error creating children");
+        }
     }
 
     sys_wait_for_children();

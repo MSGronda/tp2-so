@@ -17,14 +17,6 @@ extern char readKeyboard();		// en libasm.asm
 #define F3_SCAN_CODE 0x3D
 #define F5_SCAN_CODE 0x3F
 
-/*--------- MACROS ----------*/
-#define INCREASE_MOD(x,total)	(x) = ((x) + 1) % total;
-#define DECREASE_MOD(x, total) 	x--;\
-				if((x)<0)\
-    					x=((total) + (x)) % (total);\
-				else\
-   					x = (x) % (total);
-
 /*-------- STATIC FILE VARIABLES --------*/
 static char keyBuffer[BUFFER_SIZE];             // Buffer de caracters de teclado
 static int writePos;				// Posicion a escribir en el buffer

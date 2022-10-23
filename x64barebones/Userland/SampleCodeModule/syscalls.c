@@ -24,9 +24,32 @@
 #define SYS_PRINT_SEM 23
 #define SYS_DESTROY_SEM 24
 
+#define SYS_WRITE_PIPE 25
+#define SYS_REGISTER_PIPE 26
+#define SYS_READ_PIPE 27
+#define SYS_PRINT_PIPE 28
+#define SYS_DESTROY_PIPE 29
+
 #define NULL 0
 
 extern uint64_t syscaller(uint64_t syscallID, uint64_t param1, uint64_t param2, uint64_t param3);
+
+
+uint64_t sys_print_pipe(){
+    return syscaller(SYS_PRINT_PIPE, NULL, NULL, NULL );
+}
+uint64_t sys_destroy_pipe(unsigned int pipe_id){
+    return syscaller(SYS_DESTROY_PIPE, (uint64_t) pipe_id, NULL, NULL );
+}
+uint64_t sys_read_pipe(unsigned int pipe_id, uint8_t * dest, unsigned int count){
+    return syscaller(SYS_READ_PIPE, (uint64_t) pipe_id, (uint64_t) dest, (uint64_t) count );
+}
+uint64_t sys_write_pipe(unsigned int pipe_id, uint8_t * src, unsigned int count){
+    return syscaller(SYS_WRITE_PIPE, (uint64_t) pipe_id, (uint64_t) src, (uint64_t) count );
+}
+uint64_t sys_register_pipe(unsigned int pipe_id){
+    return syscaller(SYS_REGISTER_PIPE, (uint64_t) pipe_id, NULL, NULL );    
+}
 
 unsigned int sys_destroy_sem(unsigned int sem_id){
     return syscaller(SYS_DESTROY_SEM, (uint64_t) sem_id, NULL, NULL );

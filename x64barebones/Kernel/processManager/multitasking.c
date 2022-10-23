@@ -433,7 +433,7 @@ void wait_for_children(uint64_t rsp, uint64_t ss){
 
 
 unsigned int add_child_task(uint64_t entrypoint, int screen, uint64_t arg0){
-	uint8_t child_pid = add_task(entrypoint, screen, DEFAULT_PRIORITY, MORTAL , arg0);
+	unsigned int child_pid = add_task(entrypoint, screen, DEFAULT_PRIORITY, MORTAL , arg0);
 
 	add_child(get_current_pid(), child_pid);
 

@@ -3,6 +3,13 @@
 
 #include <stdint.h>
 
+
+uint64_t sys_print_pipe();
+uint64_t sys_destroy_pipe(unsigned int pipe_id);
+uint64_t sys_read_pipe(unsigned int pipe_id, uint8_t * dest, unsigned int count);
+uint64_t sys_write_pipe(unsigned int pipe_id, uint8_t * src, unsigned int count);
+uint64_t sys_register_pipe(unsigned int pipe_id);
+
 unsigned int sys_destroy_sem(unsigned int sem_id);
 unsigned int sys_print_sem();
 unsigned int sys_free(void * ptr);

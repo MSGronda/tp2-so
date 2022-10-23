@@ -58,6 +58,18 @@ unsigned int swIntDispatcher(uint64_t mode, uint64_t arg0, uint64_t arg1,
 		case SYS_DESTROY_SEM:
 			return sys_destroy_sem((unsigned int) arg0);
 
+		// Pipes
+		case SYS_REGISTER_PIPE:
+				return sys_register_pipe((unsigned int) arg0);
+		case SYS_WRITE_PIPE:
+			return sys_write_pipe((unsigned int) arg0, (uint8_t *)arg1, (unsigned int) arg2,  rsp,  ss);
+		case SYS_READ_PIPE:
+			return sys_read_pipe((unsigned int) arg0, (uint8_t *)arg1, (unsigned int) arg2,  rsp,  ss);
+		case SYS_PRINT_PIPE:
+			return sys_print_pipe();
+		case SYS_DESTROY_PIPE:
+			return sys_destroy_pipe((unsigned int) arg0);
+
 		// MM
 		case SYS_ALLOC:
 			return sys_alloc(arg0, arg1);

@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <syscalls.h>
 #include <multitasking.h>
+#include <lib.h>
 
 /* --- CONSTANTS  --- */
 #define NO_KEY 0

@@ -13,27 +13,44 @@
 #define SYS_REGISTER_PROCESS 3 
 #define SYS_RTC 4
 #define SYS_CONSUME_STDIN 7
+
 #define SYS_KILL_PROCESS 8
 #define SYS_PAUSE_PROCESS 9
+
 #define SYS_INFOREG 10
 #define SYS_PRINTMEM 11
+
 #define SYS_REGISTER_CHILD_PROCESS 12
 #define SYS_WAIT_FOR_CHILDREN 13
 #define SYS_RENOUNCE_CPU 14
+
 #define SYS_NICE 15
 #define SYS_GET_PID 16
 #define SYS_LIST_PROCESS 17
+
 #define SYS_ALLOC 18
 #define SYS_FREE 19
+
 #define SYS_WAIT_SEM 20
 #define SYS_REGISTER_SEM 21
 #define SYS_SIGNAL_SEM 22
 #define SYS_PRINT_SEM 23
 #define SYS_DESTROY_SEM 24
 
+#define SYS_WRITE_PIPE 25
+#define SYS_REGISTER_PIPE 26
+#define SYS_READ_PIPE 27
+#define SYS_PRINT_PIPE 28
+#define SYS_DESTROY_PIPE 29
+
 // Return values
 #define INVALID_SCREEN -1
 
+uint64_t sys_print_pipe();
+uint64_t sys_destroy_pipe(unsigned int pipe_id);
+uint64_t sys_read_pipe(unsigned int pipe_id, uint8_t * dest, unsigned int count, uint64_t rsp, uint64_t ss);
+uint64_t sys_write_pipe(unsigned int pipe_id, uint8_t * src, unsigned int count, uint64_t rsp, uint64_t ss);
+uint64_t sys_register_pipe(unsigned int pipe_id);
 
 unsigned int sys_destroy_sem(unsigned int sem_id);
 unsigned int sys_print_sem();

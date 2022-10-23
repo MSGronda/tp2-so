@@ -2,7 +2,16 @@
 #define LIB_H
 
 #include <stdint.h>
+/*--------- MACROS ----------*/
+#define INCREASE_MOD(x,total)   (x) = ((x) + 1) % total;
+#define DECREASE_MOD(x, total)  x--;\
+                if((x)<0)\
+                        x=((total) + (x)) % (total);\
+                else\
+                    x = (x) % (total);
 
+
+/*--------- FUNCTIONS ----------*/
 int num_to_string(uint64_t num, char * buffer);
 
 void * memset(void * destination, int32_t character, uint64_t length);
