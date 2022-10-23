@@ -4,8 +4,8 @@
 #include "../include/stdlib.h"
 #include "../include/syscalls.h"
 
-#define MAX_BLOCKS 50
-#define MAX_MEMORY 30000
+#define MAX_BLOCKS 500
+#define MAX_MEMORY 3000
 typedef struct MM_rq{
   void *address;
   uint32_t size;
@@ -36,8 +36,17 @@ void test_mm(){
 
         // Request as many blocks as we can
         while (rq < MAX_BLOCKS && total < max_memory) {
-            mm_rqs[rq].size = GetUniform(max_memory - total - 1) + 1;
+            mm_rqs[rq].size = 1;
             mm_rqs[rq].address = malloc(mm_rqs[rq].size);
+            puts("allocated");
+            char buffer[20];
+            num_to_string(rq, buffer);
+            puts(buffer);
+            for(int j = 0 ; j<5000000 ; j++);
+            if(mm_rqs[rq].address == NULL){
+                puts("NO MORE MEM AVAILABLE");
+                return;
+            }
 
             if (mm_rqs[rq].address) {
                 total += mm_rqs[rq].size;

@@ -23,16 +23,18 @@
      if(castedPtr == NULL || castedPtr < HEAP_START || castedPtr >= HEAP_END)
          return;
   
+     header_t * head = SUM_PTR(castedPtr, -HEADER_SIZE);
      //Free the header just before the user pointer
-     freeBlock((header_t *) SUM_PTR(castedPtr, -HEADER_SIZE));
+     freeBlock(head);
      // Set IS_ALLOCATED to 0 (aka. FALSE)
-     *((header_t*) SUM_PTR(castedPtr, -HEADER_SIZE)) = MASK_LAST_BIT(*((header_t*) SUM_PTR(castedPtr, -HEADER_SIZE)));
+     *(head) = MASK_LAST_BIT(*head);
  }
 
  // TODO: CHEQUEO DE ERRORES
  // TODO: HACER EL FREE PARA ATRAS TAMBIEN
  void freeBlock(header_t * ptr) {
      *ptr = GET_SIZE(ptr);
+     sys_write(1, "free", 4);
      header_t * next = SUM_PTR(ptr, *ptr);
      if(IS_ALLOCATED(next) == FALSE)
          *ptr = *ptr + *next;
