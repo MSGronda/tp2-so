@@ -11,24 +11,21 @@
 
 #include <memoryManager.h>
 
-#define EOL_SIZE HEADER_SIZE
-#define SUM_PTR(ptr, num) ((uint64_t) (ptr) + (num)) 
+typedef union header_t {
+    uint64_t size;
+    uint8_t allocated : 1;  // bit_0
+} header_t;
 
-// last bit == 1 => allocated  or
-// *ptr % 2 != 0 => allocated
-#define IS_ALLOCATED(ptr) (*(ptr) & 1)
-#define SET_ALLOCATED(size) ((size) | 1)
+#define HEADER_SIZE (sizeof(header_t))
+#define EOL_SIZE HEADER_SIZE
 
 // *ptr % 2 == 0 => not allocated / free
-#define MASK_LAST_BIT(num) (((num) >> 1) << 1)
-
-// As last bit can be 1 or 0, we do not have to take it into account
 // -2 = 111...1110
-#define GET_SIZE(ptr) (*(ptr) & -2)
+#define MASK_LAST_BIT(num) ((num) & ~0x1)
 
 // size == 0 && allocated == 1 => EOL
 // so we can check if *ptr == 1 bc 1 = 000...001
-#define IS_EOL(ptr) (*(ptr) == 1)
+#define IS_EOL(size) ( !(MASK_LAST_BIT(size) > 0) )
 
 /*
  * << freeBlock >>

@@ -42,7 +42,6 @@ void test_mm(){
             char buffer[20];
             num_to_string(rq, buffer);
             puts(buffer);
-            for(int j = 0 ; j<5000000 ; j++);
             if(mm_rqs[rq].address == NULL){
                 puts("NO MORE MEM AVAILABLE");
                 return;
@@ -75,3 +74,4 @@ void test_mm(){
         puts("Test passed!");   
     }
 }
+
