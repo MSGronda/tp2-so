@@ -3,14 +3,14 @@
 
 
 static unsigned int a = 0;
-#define ADD 13000
-#define PROCESS_AMOUNT 5
+#define ADD 500
+#define PROCESS_AMOUNT 2
 
 void slowInc(int * a, int inc){
     int b;
     b = *a;
     b += inc;
-    for(int i=0; i<450; i++);
+    for(int i=0; i<30000; i++);
     *a = b;
 }
 

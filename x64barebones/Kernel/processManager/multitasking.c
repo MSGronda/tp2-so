@@ -214,12 +214,16 @@ int pauseOrUnpauseProcess(unsigned int pid){
 void kill_screen_processes(){
 	for(int i=0; i< TOTAL_TASKS; i++){
 		if(tasks[i].state != DEAD_PROCESS &&  tasks[i].immortal != IMMORTAL ){
-			tasks[i].state = DEAD_PROCESS;
-			currentDimTasks--;
 
 			signal_process_finished(tasks[i].pid);
 
+			mm_free(tasks[currentTask].stackStart);
+			free_params(tasks[currentTask].params);
+
+			tasks[i].state = DEAD_PROCESS;
+			currentDimTasks--;
 			// TODO: quizas sigue corriendo por lo que queda del tick?
+
 		}
 	}
 }
