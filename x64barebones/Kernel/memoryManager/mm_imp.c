@@ -1,7 +1,9 @@
 #include <memoryManager.h>
+#include <naiveConsole.h>
 #include <mm_imp.h>
 #include <stddef.h>
 
+#define MIN_REQUEST (HEADER_SIZE + 2)
 
  // WE ALWAYS WANT BYTES!!!!
  void mm_init() {
@@ -9,66 +11,75 @@
  }
 
  void * mm_malloc(uint64_t len) {
-     if(len == 0) 
-         return NULL;
-     uint64_t newSize = MASK_LAST_BIT(len + 1 + HEADER_SIZE); // Alligns the number
-     header_t * out = findFree(newSize);
+    if(len <= 0) 
+        return NULL;
 
-     if(out == NULL)
-     	return NULL;
+    uint64_t newSize = MASK_LAST_BIT(len + 1 + HEADER_SIZE); // Rounds number
+    header_t * out = findFree(newSize);
 
-     addBlock(out, newSize);
-     // User has a pointer after the header
-     return (void *)  (SUM_PTR(out, HEADER_SIZE));
+    if(out == NULL)
+        return NULL;
+
+    addBlock(out, newSize);
+
+/*
+    ncClear();
+    dump_mem();
+*/
+    // User has a pointer after the header
+    return (void *)  (SUM_PTR(out, HEADER_SIZE));
  }
 
  void mm_free(void * ptr) {
  	header_t * castedPtr = (header_t *) ptr;
-     if(castedPtr == NULL || castedPtr < HEAP_START || castedPtr >= HEAP_END)
-         return;
+    if(castedPtr == NULL || castedPtr < HEAP_START || castedPtr >= HEAP_END)
+        return;
   
-     header_t * head = SUM_PTR(castedPtr, -HEADER_SIZE);
-     //Free the header just before the user pointer
-     freeBlock(head);
+    header_t * head = SUM_PTR(castedPtr, -HEADER_SIZE);
+    //Free the header just before the user pointer
+    freeBlock(head);
  }
 
  // TODO: CHEQUEO DE ERRORES
  // TODO: HACER EL FREE PARA ATRAS TAMBIEN
- void freeBlock(header_t * ptr) {
-    ptr->size = MASK_LAST_BIT(ptr->size);
+void freeBlock(header_t * ptr) {
+    ptr->allocated = FALSE;
+
     header_t * next = SUM_PTR(ptr, ptr->size);
     if(!next->allocated)
         ptr->size += next->size;
-
-    ptr->allocated = FALSE;
- }
+}
 
  // Allocate in a free block, split if needed
- void addBlock(header_t * ptr, uint64_t len) {
+ void addBlock(header_t * ptr, uint64_t newSize) {
     uint64_t oldSize = MASK_LAST_BIT(ptr->size);
 
     if(IS_EOL(ptr->size)) { 
         // last block
-        addEOL( SUM_PTR(ptr, len));
+        addEOL(SUM_PTR(ptr, newSize));
 
-        ptr->size = len;
+        ptr->size = newSize;
+        ptr->allocated = TRUE;
     }
-    else if(len + HEADER_SIZE >= oldSize) {
+    else if(newSize + MIN_REQUEST < oldSize) { // split
+        ptr->size = newSize;
+        ptr->allocated = TRUE;
+
+        ptr = SUM_PTR(ptr, newSize); // next block
+
+        ptr->size = oldSize - newSize;
+        ptr->allocated = FALSE; // for coherence
+    }
+    else { 
         // normal case
         ptr->size = oldSize;
+        ptr->allocated = TRUE;
     }
-    else { // split
-        ptr->size = len;
-
-        ptr = SUM_PTR(ptr, len);
-        ptr->size = oldSize - len; // no need to mask last bit bc its an even operation
-    }
-
-    ptr->allocated = TRUE;
  }
 
  header_t * findFree(uint64_t len) {
      header_t * ptr = HEAP_START;
+
      while( !IS_EOL(ptr->size) && (ptr->allocated || MASK_LAST_BIT(ptr->size) < len) )
          ptr = SUM_PTR(ptr, MASK_LAST_BIT(ptr->size));
 
@@ -85,3 +96,32 @@
     ptr->size = 0;
     ptr->allocated = TRUE;
  }
+
+ void dump_mem() {
+
+    header_t *current_header = HEAP_START;
+
+    while ((current_header->size & ~0x1) > 0) {
+        ncPrint("[ ");
+        ncPrintHex(current_header);
+        ncPrintChar(' ');
+        ncPrintHex(current_header->size & ~0x1);
+        ncPrintChar(' ');
+        ncPrintDec(current_header->allocated);
+        ncPrint(" ] ");
+
+        current_header = (uint64_t)current_header +
+                         ((current_header->size & ~0x1));
+    }
+
+    /**
+     * print end header
+     */
+    ncPrint("[ ");
+    ncPrintHex(current_header);
+    ncPrintChar(' ');
+    ncPrintHex(current_header->size & ~0x1);
+    ncPrintChar(' ');
+    ncPrintDec(current_header->allocated);
+    ncPrint(" ] ");
+}

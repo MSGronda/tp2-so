@@ -11,13 +11,13 @@ typedef struct MM_rq{
   uint32_t size;
 }mm_rq;
 
-void* setmem(void* destiation, int32_t c, uint64_t length) {
+void* setmem(void* destination, int32_t c, uint64_t length) {
     uint8_t chr = (uint8_t)c;
-    char* dst = (char*)destiation;
+    char* dst = (char*)destination;
     while (length--) {
         dst[length] = chr;
     }
-    return destiation;
+    return destination;
 }
 
 void test_mm(){
