@@ -1,9 +1,6 @@
 #include <memoryManager.h>
-#include <naiveConsole.h>
 #include <mm_imp.h>
 #include <stddef.h>
-
-#define MIN_REQUEST (HEADER_SIZE + 2)
 
  // WE ALWAYS WANT BYTES!!!!
  void mm_init() {
@@ -96,32 +93,3 @@ void freeBlock(header_t * ptr) {
     ptr->size = 0;
     ptr->allocated = TRUE;
  }
-
- void dump_mem() {
-
-    header_t *current_header = HEAP_START;
-
-    while ((current_header->size & ~0x1) > 0) {
-        ncPrint("[ ");
-        ncPrintHex(current_header);
-        ncPrintChar(' ');
-        ncPrintHex(current_header->size & ~0x1);
-        ncPrintChar(' ');
-        ncPrintDec(current_header->allocated);
-        ncPrint(" ] ");
-
-        current_header = (uint64_t)current_header +
-                         ((current_header->size & ~0x1));
-    }
-
-    /**
-     * print end header
-     */
-    ncPrint("[ ");
-    ncPrintHex(current_header);
-    ncPrintChar(' ');
-    ncPrintHex(current_header->size & ~0x1);
-    ncPrintChar(' ');
-    ncPrintDec(current_header->allocated);
-    ncPrint(" ] ");
-}

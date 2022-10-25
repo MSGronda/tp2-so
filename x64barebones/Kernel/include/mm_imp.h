@@ -18,6 +18,7 @@ typedef union header_t {
 
 #define HEADER_SIZE (sizeof(header_t))
 #define EOL_SIZE HEADER_SIZE
+#define MIN_REQUEST (HEADER_SIZE + 2)
 
 // *ptr % 2 == 0 => not allocated / free
 // -2 = 111...1110

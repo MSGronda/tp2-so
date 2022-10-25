@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#define SUM_PTR(ptr, num) ( (header_t*) ((uint64_t) (ptr) + (num)) )
+#define SUM_PTR(ptr, num) ( (header_t *) ((uint64_t) (ptr) + (num)) )
 
 #define TRUE 1
 #define FALSE (!TRUE)
