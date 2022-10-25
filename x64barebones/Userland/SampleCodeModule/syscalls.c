@@ -28,93 +28,89 @@
 
 extern uint64_t syscaller(uint64_t syscallID, uint64_t param1, uint64_t param2, uint64_t param3);
 
-unsigned int sys_destroy_sem(unsigned int sem_id){
-    return syscaller(SYS_DESTROY_SEM, (uint64_t) sem_id, NULL, NULL );
-}
-
-unsigned int sys_signal_sem(unsigned int sem_id){
+uint64_t sys_signal_sem(unsigned int sem_id){
     return syscaller(SYS_SIGNAL_SEM, (uint64_t) sem_id, NULL, NULL );
 }
 
-unsigned int sys_wait_sem(unsigned int sem_id){
+uint64_t sys_wait_sem(unsigned int sem_id){
     return syscaller(SYS_WAIT_SEM, (uint64_t) sem_id, NULL, NULL );
 }
 
-unsigned int sys_register_sem(unsigned int sem_id){
+uint64_t sys_register_sem(unsigned int sem_id){
     return syscaller(SYS_REGISTER_SEM, (uint64_t) sem_id, NULL, NULL );
 }
-unsigned int sys_print_sem(){
+uint64_t sys_print_sem(){
     return syscaller(SYS_PRINT_SEM, NULL, NULL, NULL );
 }
 
 
 
-unsigned int sys_free(void * ptr){
+uint64_t sys_free(void * ptr){
     return syscaller(SYS_FREE, (uint64_t) ptr, NULL, NULL );
 }
-unsigned int sys_alloc(void ** ptr, uint64_t len){
-    return syscaller(SYS_ALLOC, (uint64_t) ptr, (uint64_t)len,  NULL );
+uint64_t sys_alloc(uint64_t len){
+    return syscaller(SYS_ALLOC, (uint64_t)len, NULL, NULL );
 }
 
-unsigned int sys_list_process(){
+uint64_t sys_list_process(){
     return syscaller(SYS_LIST_PROCESS, NULL, NULL, NULL);
 }
 
 
-unsigned int sys_write(const char * string, unsigned int length){
+uint64_t sys_write(const char * string, unsigned int length){
     return syscaller(SYS_WRITE_TO_SCREEN, (uint64_t) string, (uint64_t) length, NULL);        // feo arreglar
 }   
 
-unsigned int sys_read(char * buf, unsigned int length){
+uint64_t sys_read(char * buf, unsigned int length){
     return syscaller(SYS_READ_FROM_SCREEN, (uint64_t) buf, (uint64_t) length, NULL);        // feo arreglar
 }
 
-unsigned int sys_clear_screen(){
+uint64_t sys_clear_screen(){
     return syscaller(SYS_CLEAR_SCREEN, NULL, NULL, NULL );        // feo arreglar
 }
 
-unsigned int sys_register_process(uint64_t entryPoint, int screen, uint64_t arg0){
+uint64_t sys_register_process(uint64_t entryPoint, int screen, uint64_t arg0){
     return syscaller(SYS_REGISTER_PROCESS, (uint64_t) entryPoint, (uint64_t) screen, arg0);        // feo arreglar
 }
 
-unsigned int sys_register_child_process(uint64_t entryPoint, int screen, uint64_t arg0){
+uint64_t sys_register_child_process(uint64_t entryPoint, int screen, uint64_t arg0){
     return syscaller(SYS_REGISTER_CHILD_PROCESS, (uint64_t) entryPoint, (uint64_t) screen, arg0);        // feo arreglar
 }
 
-unsigned int sys_wait_for_children(){
+uint64_t sys_wait_for_children(){
     return syscaller(SYS_WAIT_FOR_CHILDREN, NULL, NULL, NULL);
 }
 
-unsigned int sys_renounce_cpu(){
+uint64_t sys_renounce_cpu(){
     return syscaller(SYS_RENOUNCE_CPU, NULL, NULL, NULL);
 }
 
-unsigned int sys_nice(uint8_t pid, int delta){
+uint64_t sys_nice(uint8_t pid, int delta){
     return syscaller(SYS_NICE, pid, delta, NULL);
 }
 
-unsigned int sys_get_pid(){
+uint64_t sys_get_pid(){
     return syscaller(SYS_GET_PID, NULL, NULL, NULL);
 }
 
 
 
-unsigned int sys_rtc(unsigned int  mode){
+uint64_t sys_rtc(unsigned int  mode){
     return syscaller(SYS_RTC, (uint64_t)mode, NULL, NULL);        // feo arreglar
 }
-unsigned int sys_consume_stdin(char * buf, unsigned int count){
+uint64_t sys_consume_stdin(char * buf, unsigned int count){
     return syscaller(SYS_CONSUME_STDIN, (uint64_t)buf, (uint64_t)count, NULL);
 }
-unsigned int sys_kill_process(unsigned int pid){
+uint64_t sys_kill_process(unsigned int pid){
     return syscaller(SYS_KILL_PROCESS,(uint64_t) pid,NULL,NULL);
 }
-unsigned int sys_pause_process(unsigned int pid){
+uint64_t sys_pause_process(unsigned int pid){
     return syscaller(SYS_PAUSE_PROCESS,(uint64_t) pid,NULL,NULL);
 }
-unsigned int sys_inforeg(uint64_t * buffer){
+uint64_t sys_inforeg(uint64_t * buffer){
     return syscaller(SYS_INFOREG,(uint64_t) buffer,NULL,NULL);
 }
 
-unsigned int sys_printmem(uint64_t position, char * buffer){
+uint64_t sys_printmem(uint64_t position, char * buffer){
     return syscaller(SYS_PRINTMEM, position, (uint64_t) buffer, NULL);
 }

@@ -2,6 +2,6 @@
 #include <syscalls.h>
 
 
-unsigned int sys_signal_sem(unsigned int sem_id){
+uint64_t sys_signal_sem(unsigned int sem_id){
 	return signal_sem(sem_id);
 }

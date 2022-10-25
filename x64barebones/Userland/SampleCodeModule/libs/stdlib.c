@@ -1,6 +1,14 @@
 #include "../include/stdlib.h"
 
 
+void * malloc(uint64_t size){
+    return sys_alloc(size);
+}
+
+void free(void * ptr){
+    sys_free(ptr);
+}
+
 void reverseString(char * string, int length)
 {
     char aux;
@@ -117,6 +125,7 @@ int strncpy(char * dest, const char * src, unsigned int n)
     dest[i] = 0;
     return i;
 }
+
 int strContainsChar(char * string, char c){                    // #### REMOVE? #####
     int i;
     for(i=0; string[i]!=0; i++){

@@ -4,17 +4,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-typedef uint64_t header_t;
+#define SUM_PTR(ptr, num) ( (header_t *) ((uint64_t) (ptr) + (num)) )
 
-#define BITS_IN_BYTE 8
-
-#define HEADER_SIZE (sizeof(header_t))
 #define TRUE 1
 #define FALSE (!TRUE)
 
-#define HEAP_SIZE 0x100000  // 1Mb (in bytes!!!!)    
-#define HEAP_START (header_t *) 0xA00000  // 10 Mb  (TODO: habria que calcular el fin del userland y meterlo ahi)
-#define HEAP_END (HEAP_START + HEAP_SIZE / BITS_IN_BYTE)
+#define HEAP_SIZE ((uint64_t) 0x100000)  // 1Mb (in bytes!!!!)    
+#define HEAP_START ((header_t *) 0xA00000)  // 10 Mb  (TODO: habria que calcular el fin del userland y meterlo ahi)
+#define HEAP_END ((header_t *) (SUM_PTR(HEAP_START, HEAP_SIZE)))
 
 
 /*

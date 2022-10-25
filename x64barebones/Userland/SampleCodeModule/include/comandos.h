@@ -14,6 +14,7 @@ void pause(char ** args);
 void kill(char ** args);
 void printargs(char ** args);
 void ps();
+void test_mm();
 
 /*
  * << printmem >>

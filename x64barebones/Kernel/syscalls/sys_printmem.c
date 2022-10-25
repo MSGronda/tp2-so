@@ -7,7 +7,7 @@
 #define MIN_MEM_POS 0x400000		/* Aca arranca Userland */
 #define INVALID_POS 0xDEAD
 
-unsigned int sys_printmem(uint64_t position, char * buffer)
+uint64_t sys_printmem(uint64_t position, char * buffer)
 {
 	if( !(position >= MIN_MEM_POS && position < MAX_MEM_POS) )		// restringimos tmb que no pueda leer memoria de kernel
 		return INVALID_POS;

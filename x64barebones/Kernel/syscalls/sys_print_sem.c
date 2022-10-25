@@ -2,7 +2,7 @@
 #include <syscalls.h>
 
 
-unsigned int sys_print_sem(){
+uint64_t sys_print_sem(){
 	 print_sem();
 	 return 1;
 }

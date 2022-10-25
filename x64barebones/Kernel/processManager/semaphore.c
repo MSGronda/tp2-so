@@ -40,6 +40,7 @@ unsigned int remove_next_blocked(unsigned int pos){
 		}
 		sem_info[pos].currentBlocked = (sem_info[pos].currentBlocked + 1) % MAX_WAITING_PROCESS;
 	}
+	return 0;
 }
 
 void add_blocked(unsigned int pos, unsigned int pid){
