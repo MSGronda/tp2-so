@@ -42,6 +42,7 @@
 *.qcow2
 *.vmdk
 .bash_history
+.gdb_history
 .vscode/
 *.sys
 

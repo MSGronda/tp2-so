@@ -37,7 +37,6 @@
     freeBlock(head);
  }
 
- // TODO: CHEQUEO DE ERRORES
  // TODO: HACER EL FREE PARA ATRAS TAMBIEN
 void freeBlock(header_t * ptr) {
     ptr->allocated = FALSE;
