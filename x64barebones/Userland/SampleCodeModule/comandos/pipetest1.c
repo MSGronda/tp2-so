@@ -8,8 +8,16 @@
 #define PIPE_ID 555
 
 
-void child(){
+void producer(){
+	sys_write_pipe(PIPE_ID, "01234567899876543210", 20);
+}
 
+
+void consumer(){
+	char buffer[50] = {0};
+	sys_read_pipe(PIPE_ID, buffer, 20);
+
+	puts(buffer);
 }
 
 void pipetest1(){
@@ -22,26 +30,11 @@ void pipetest1(){
 		puts("Error creating pipe");
 		return;
 	}
-    // for(int i=0; i<PROCESS_AMOUNT; i++){
-    //     int error = sys_register_child_process(&child, BACKGROUND, NULL);
-    //     if(error <= 0){
-    //         puts("error creating children");
-    //     }
-    // }
-    // sys_wait_for_children();
 
-	uint64_t a = 123123123123;
+	sys_register_child_process(&consumer, NORMAL_SCREEN, NULL);
+	sys_register_child_process(&producer, NORMAL_SCREEN, NULL);
 
-	sys_write_pipe(PIPE_ID, &a,sizeof(uint64_t));
-
-	uint64_t b = 456456456456;
-
-	sys_read_pipe(PIPE_ID, &b,sizeof(uint64_t));
-
-	if(a == b)
-		puts("success");
-	else
-		puts("fail");
+	sys_wait_for_children();
 
     sys_destroy_pipe(PIPE_ID);
 }

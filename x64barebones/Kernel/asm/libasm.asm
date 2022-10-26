@@ -6,15 +6,24 @@ GLOBAL _xchg
 
 section .text
 
+; returns rsp value before the function call
+_rsp:	
+	mov rax, rsp
+	add rax, 8
+	ret
+
+
+
+; IMPORTANTE: usar eax y no rax al ser un unsigned int 
 
 _xadd:
 	mov rax, rdi
-	lock xadd [rsi], rax
+	lock xadd [rsi], eax
 	ret
 
 _xchg:
 	mov rax, rsi
-	xchg [rdi], rax
+	xchg [rdi], eax
 	ret
 
 

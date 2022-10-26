@@ -109,7 +109,7 @@ unsigned int wait_sem(unsigned int sem_id, uint64_t rsp, uint64_t ss){
 		alter_process_state(pid, WAITING_FOR_SEM);
 
 		unlock(&(sem_info[pos].lock));
-		forceNextTask(rsp,ss);
+		forceTimerTick();
 		return 0;
 	}
 
@@ -169,4 +169,5 @@ void print_sem(){
 			writeDispatcher(getCurrentScreen(),"\n",1);
 		}
 	}
+	writeDispatcher(getCurrentScreen(),"--------------------\n",21);
 }

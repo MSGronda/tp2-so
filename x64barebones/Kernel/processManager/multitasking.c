@@ -2,7 +2,7 @@
 
 // ---- Constantes ----
 #define TOTAL_TASKS 20
-#define STACK_SIZE 2000
+#define STACK_SIZE 4096
 
 #define MAX_PRIORITY 5
 
