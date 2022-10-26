@@ -14,7 +14,7 @@ unsigned int swIntDispatcher(uint64_t mode, uint64_t arg0, uint64_t arg1,
 		case SYS_WRITE_TO_SCREEN:
 			return sys_write_to_screen((const char *) arg0,(unsigned int) arg1);
 		case SYS_READ_FROM_SCREEN:
-			return sys_read_from_screen((char *) arg0, (unsigned int) arg1, rsp, ss);
+			return sys_read_from_screen((char *) arg0, (unsigned int) arg1);
 		case SYS_CONSUME_STDIN:
 			return sys_consume_stdin((char *) arg0 , (unsigned int) arg1);
 		case SYS_CLEAR_SCREEN:
@@ -29,7 +29,7 @@ unsigned int swIntDispatcher(uint64_t mode, uint64_t arg0, uint64_t arg1,
 			return sys_register_child_process(arg0, (int) arg1, arg2);
 
 		case SYS_WAIT_FOR_CHILDREN:
-			return sys_wait_for_children(rsp, ss);
+			return sys_wait_for_children();
 
 		case SYS_PAUSE_PROCESS:
 			return sys_pause_process((unsigned int) arg0);
@@ -38,7 +38,7 @@ unsigned int swIntDispatcher(uint64_t mode, uint64_t arg0, uint64_t arg1,
 			return sys_kill_process((unsigned int) arg0);
 
 		case SYS_RENOUNCE_CPU:
-			return sys_renounce_cpu(rsp, ss);
+			return sys_renounce_cpu();
 
 		case SYS_NICE:
 			return sys_nice(arg0, arg1);
@@ -50,7 +50,7 @@ unsigned int swIntDispatcher(uint64_t mode, uint64_t arg0, uint64_t arg1,
 		case SYS_REGISTER_SEM:
 			return sys_register_sem((unsigned int) arg0, (unsigned int) arg1);
 		case SYS_WAIT_SEM:
-			return sys_wait_sem((unsigned int) arg0,  rsp,  ss);
+			return sys_wait_sem((unsigned int) arg0);
 		case SYS_SIGNAL_SEM:
 			return sys_signal_sem((unsigned int) arg0);
 		case SYS_PRINT_SEM:
@@ -62,9 +62,9 @@ unsigned int swIntDispatcher(uint64_t mode, uint64_t arg0, uint64_t arg1,
 		case SYS_REGISTER_PIPE:
 				return sys_register_pipe((unsigned int) arg0);
 		case SYS_WRITE_PIPE:
-			return sys_write_pipe((unsigned int) arg0, (uint8_t *)arg1, (unsigned int) arg2,  rsp,  ss);
+			return sys_write_pipe((unsigned int) arg0, (uint8_t *)arg1, (unsigned int) arg2);
 		case SYS_READ_PIPE:
-			return sys_read_pipe((unsigned int) arg0, (uint8_t *)arg1, (unsigned int) arg2,  rsp,  ss);
+			return sys_read_pipe((unsigned int) arg0, (uint8_t *)arg1, (unsigned int) arg2);
 		case SYS_PRINT_PIPE:
 			return sys_print_pipe();
 		case SYS_DESTROY_PIPE:

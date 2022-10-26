@@ -14,7 +14,7 @@
  * Devuelve: 
  *      (uint) bytes read
  */
-unsigned int read_stdin(unsigned int fd, char * buf, unsigned int count, uint64_t rsp, uint64_t ss);
+unsigned int read_stdin(unsigned int fd, char * buf, unsigned int count);
 
 
 /*
@@ -29,6 +29,6 @@ unsigned int read_stdin(unsigned int fd, char * buf, unsigned int count, uint64_
  * Devuelve: 
  *      (uint) bytes read
  */
-unsigned int readDispatcher(unsigned int fd, char * buf, unsigned int count, uint64_t rsp, uint64_t ss);
+unsigned int readDispatcher(unsigned int fd, char * buf, unsigned int count);
 
 #endif

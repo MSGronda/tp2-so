@@ -2,7 +2,7 @@
 #include <syscalls.h>
 
 
-unsigned int sys_wait_for_children(uint64_t rsp, uint64_t ss){
-	wait_for_children(rsp,  ss);
+unsigned int sys_wait_for_children(){
+	wait_for_children();
 	return 1;
 }

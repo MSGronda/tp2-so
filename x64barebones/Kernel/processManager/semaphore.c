@@ -93,7 +93,7 @@ void destroy_sem(unsigned int sem_id){
 	unlock(&(sem_info[pos].lock));
 }
 
-unsigned int wait_sem(unsigned int sem_id, uint64_t rsp, uint64_t ss){
+unsigned int wait_sem(unsigned int sem_id){
 	int pos = find_sem(sem_id);
 	if(pos == -1)
 		return -1;

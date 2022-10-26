@@ -48,15 +48,15 @@
 
 uint64_t sys_print_pipe();
 uint64_t sys_destroy_pipe(unsigned int pipe_id);
-uint64_t sys_read_pipe(unsigned int pipe_id, uint8_t * dest, unsigned int count, uint64_t rsp, uint64_t ss);
-uint64_t sys_write_pipe(unsigned int pipe_id, uint8_t * src, unsigned int count, uint64_t rsp, uint64_t ss);
+uint64_t sys_read_pipe(unsigned int pipe_id, uint8_t * dest, unsigned int count);
+uint64_t sys_write_pipe(unsigned int pipe_id, uint8_t * src, unsigned int count);
 uint64_t sys_register_pipe(unsigned int pipe_id);
 
 unsigned int sys_destroy_sem(unsigned int sem_id);
 unsigned int sys_print_sem();
 unsigned int sys_signal_sem(unsigned int sem_id);
 unsigned int sys_register_sem(unsigned int sem_id, unsigned int value);
-unsigned int sys_wait_sem(unsigned int sem_id, uint64_t rsp, uint64_t ss);
+unsigned int sys_wait_sem(unsigned int sem_id);
 
 unsigned int sys_free(void * ptr);
 
@@ -68,9 +68,9 @@ unsigned int sys_get_pid();
 
 unsigned int sys_nice(uint8_t pid, int delta);
 
-unsigned int sys_renounce_cpu(uint64_t rsp, uint64_t ss);
+unsigned int sys_renounce_cpu();
 
-unsigned int sys_wait_for_children(uint64_t rsp, uint64_t ss);
+unsigned int sys_wait_for_children();
 
 unsigned int sys_register_child_process(uint64_t entryPoint, int screen, uint64_t arg0);
 
@@ -103,7 +103,7 @@ unsigned int sys_write(unsigned int fd, const char *buf, unsigned int count);
  * Devuelve: 
  *      (uint) bytes read
  */
-unsigned int sys_read(unsigned int fd, char * buf, unsigned int count, uint64_t rsp, uint64_t ss);
+unsigned int sys_read(unsigned int fd, char * buf, unsigned int count);
 
 /*
  * << sys_clear_screen >>
@@ -156,7 +156,7 @@ unsigned int sys_write_to_screen(const char *buf, unsigned int count);
  *      (uint) bytes read
  */
 
-unsigned int sys_read_from_screen(char *buf, unsigned int count, uint64_t rsp, uint64_t ss);
+unsigned int sys_read_from_screen(char *buf, unsigned int count);
 
 
 /*

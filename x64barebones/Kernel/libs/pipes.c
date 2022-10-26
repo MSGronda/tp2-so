@@ -1,7 +1,7 @@
 #include <pipes.h>
 
 #define MAX_PIPES 30
-#define PIPE_SIZE 1024
+#define PIPE_SIZE 10
 
 /* 
 	A clear example of producers and consumers.
@@ -109,14 +109,13 @@ void destroy_pipe(unsigned int pipe_id){
 }
 
 
-// TODO: void *, uint8_t * (???)
-void write_to_pipe(unsigned int pipe_id, uint8_t * src, unsigned int count, uint64_t rsp, uint64_t ss){
+void write_to_pipe(unsigned int pipe_id, uint8_t * src, unsigned int count){
 	int pos = find_pipe(pipe_id);
 	if(pos == -1)
 		return;
 	
 	for(int i=0; i<count; i++){
-		wait_sem(pipe_info[pos].write_sem_id, rsp, 0);
+		wait_sem(pipe_info[pos].write_sem_id);
 
 		pipe_info[pos].pipe[pipe_info[pos].write_pos] = src[i];
 		INCREASE_MOD(pipe_info[pos].write_pos, PIPE_SIZE);
@@ -126,13 +125,13 @@ void write_to_pipe(unsigned int pipe_id, uint8_t * src, unsigned int count, uint
 	}
 }
 
-void read_from_pipe(unsigned int pipe_id, uint8_t * dest, unsigned int count, uint64_t rsp, uint64_t ss){
+void read_from_pipe(unsigned int pipe_id, uint8_t * dest, unsigned int count){
 	int pos = find_pipe(pipe_id);
 	if(pos == -1)
 		return;
 		
 	for(int i=0; i<count; i++){
-		wait_sem(pipe_info[pos].read_sem_id, rsp, 0);
+		wait_sem(pipe_info[pos].read_sem_id);
 
 		dest[i] = pipe_info[pos].pipe[pipe_info[pos].read_pos];
 		INCREASE_MOD(pipe_info[pos].read_pos, PIPE_SIZE);

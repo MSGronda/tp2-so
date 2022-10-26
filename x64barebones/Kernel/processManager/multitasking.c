@@ -71,7 +71,7 @@ int removeTask(unsigned int pid);
 uint8_t has_or_decrease_time();
 uint64_t next_task(uint64_t stackPointer, uint64_t stackSegment);
 uint8_t has_children(unsigned int pid);
-void wait_for_children(uint64_t rsp, uint64_t ss);
+void wait_for_children();
 void signal_process_finished(unsigned int pid);
 void remove_children(unsigned int fatherPid);
 void add_child(unsigned int fatherPid, unsigned int childPid);
@@ -425,14 +425,14 @@ void list_process(){
 
 /* --- Child processes --- */
 
-void wait_for_children(uint64_t rsp, uint64_t ss){
+void wait_for_children(){
 	if(!has_children(get_current_pid())){
 		return;
 	}
 
 	tasks[currentTask].state = WAITING_FOR_CHILD;
 
-	forceNextTask(rsp, ss); 		//	ya tiene en rdi y rsi los parametros para next_task
+	forceTimerTick(); 		//	ya tiene en rdi y rsi los parametros para next_task
 }
 
 

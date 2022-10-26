@@ -65,10 +65,8 @@ uint64_t next_task(uint64_t stackPointer, uint64_t stackSegment);
 
 
 /* --- Child processes --- */
-void wait_for_children(uint64_t rsp, uint64_t ss);
+void wait_for_children();
 unsigned int add_child_task(uint64_t entrypoint, int screen, uint64_t arg0);
 
-/* --- Semaphore --- */
-unsigned int wait_sem(unsigned int sem_id, uint64_t rsp, uint64_t ss);
 
 #endif

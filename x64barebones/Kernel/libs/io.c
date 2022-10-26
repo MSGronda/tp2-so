@@ -61,7 +61,7 @@ void screen_write_through(char c){
 
 /* - - - IO - - - */
 
-unsigned int read_stdin(unsigned int fd, char * buf, unsigned int count, uint64_t rsp, uint64_t ss) 
+unsigned int read_stdin(unsigned int fd, char * buf, unsigned int count) 
 {
 	if(screenWriteThrough)
 		return 0;				// only 1 process can read from screen at one time
@@ -69,14 +69,14 @@ unsigned int read_stdin(unsigned int fd, char * buf, unsigned int count, uint64_
 	enable_screen_write_through(fd, buf, count);
 
 	alter_process_state(pid, WAITING_FOR_INPUT);
-	forceNextTask(rsp,ss);
+	forceTimerTick();
 
 	return 1;
 }
 
 
 /* Decides how to proceed depending on where to read */
-unsigned int readDispatcher(unsigned int fd, char * buf, unsigned int count, uint64_t rsp, uint64_t ss) 
+unsigned int readDispatcher(unsigned int fd, char * buf, unsigned int count) 
 {
 	switch(fd) {										// Eligimos posicion de donde leer. Tambien lo podriamos hacer con una funcion/tabla
 		case STDIN:
@@ -84,7 +84,7 @@ unsigned int readDispatcher(unsigned int fd, char * buf, unsigned int count, uin
 		case STDIN_RIGHT:
 			if(checkIfAvailableKey())
 				return consume_kb_buffer(buf,count);		// Si el key buffer no esta vacio, primero tengo que consumirlo
-			return read_stdin(fd, buf, count,rsp,ss);				// El buffer esta vacio, puedo leer de pantalla
+			return read_stdin(fd, buf, count);				// El buffer esta vacio, puedo leer de pantalla
 
 		default:
 			return 0;	// Seria error?
