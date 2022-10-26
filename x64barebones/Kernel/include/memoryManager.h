@@ -9,8 +9,8 @@
 #define FALSE (!TRUE)
 
 #define HEAP_SIZE ((uint64_t) 0x100000)  // 1Mb (in bytes!!!!)    
-#define HEAP_START ((uint64_t *) 0xA00000)  // 10 Mb  (TODO: habria que calcular el fin del userland y meterlo ahi)
-#define HEAP_END ((uint64_t *) (SUM_PTR(HEAP_START, HEAP_SIZE)))
+#define HEAP_START ((header_t *) 0xA00000)  // 10 Mb  (TODO: habria que calcular el fin del userland y meterlo ahi)
+#define HEAP_END ((header_t *) (SUM_PTR(HEAP_START, HEAP_SIZE)))
 
 
 /*
