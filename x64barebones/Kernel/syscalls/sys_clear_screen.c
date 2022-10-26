@@ -4,6 +4,6 @@
 
 
 /* Decides which screen to clear */
-unsigned int sys_clear_screen() {
+uint64_t sys_clear_screen() {
 	return clearScreenDispatcher();
 }

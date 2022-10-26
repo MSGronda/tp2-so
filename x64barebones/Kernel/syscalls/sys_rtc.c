@@ -5,7 +5,7 @@
 #define HOUR 1
 #define DATE 2
 
-unsigned int sys_rtc(unsigned int option) 
+uint64_t sys_rtc(unsigned int option) 
 {
         int hour, min, sec;
         int day, month, year;

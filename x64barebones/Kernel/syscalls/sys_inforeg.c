@@ -12,7 +12,7 @@ void saveInfoReg(uint64_t * regDumpPos)
 }
 
 
-unsigned int sys_inforeg(uint64_t * buffer) // recibo buffer y le escribo, NUNCA devuelvo puntero a algo que esta en kernel
+uint64_t sys_inforeg(uint64_t * buffer) // recibo buffer y le escribo, NUNCA devuelvo puntero a algo que esta en kernel
 {			 
 	for(int i=0; i<TOTAL_REGISTERS; i++)
 		buffer[i] = inforegData[i];
