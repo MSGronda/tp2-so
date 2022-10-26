@@ -5,7 +5,10 @@
 
 typedef struct pipe_record{
 	unsigned int pipe_id;
-	unsigned int sem_id;
+
+	unsigned int read_sem_id;
+	unsigned int write_sem_id;
+
 
 	unsigned int write_pos;
 	unsigned int read_pos;
@@ -44,26 +47,33 @@ int create_pipe(unsigned int pipe_id){
 	}
 
 	// create semaphore
-	unsigned int sem_resp = create_sem(sem_id);
-	while(sem_resp == INVALID_SEM_ID){
-		sem_id++;
-		sem_resp = create_sem(sem_id);
+	unsigned int sem_resp1 = INVALID_SEM_ID, sem_resp2 =INVALID_SEM_ID;
+	int sem_id1 = 1, sem_id2 = 2;
+	for( ; sem_resp1 == INVALID_SEM_ID || sem_resp2 == INVALID_SEM_ID; ){
+		if(sem_resp1 == INVALID_SEM_ID){
+			sem_resp1 = create_sem(sem_id1++, 0);
+		}
+		if(sem_resp2 == INVALID_SEM_ID){
+			sem_resp2 = create_sem(sem_id2++, 0);
+		}
 	}
-	if(sem_resp == ERROR_NO_MORE_SPACE){
+	if(sem_resp1 == ERROR_NO_MORE_SPACE || sem_resp2 == ERROR_NO_MORE_SPACE){
 		return ERROR_NO_MORE_SPACE;
 	}
-
+	
 	// create pipe
 	pipe_info[freePos].pipe = mm_malloc(PIPE_SIZE);
 	if(pipe_info[freePos].pipe == NULL){
-		destroy_sem(pipe_info[freePos].sem_id);
+		destroy_sem(pipe_info[freePos].read_sem_id);
+		destroy_sem(pipe_info[freePos].write_sem_id);
 		return ERROR_NO_MORE_SPACE;
 	}
 
-	pipe_info[freePos].sem_id  = sem_id;
+	pipe_info[freePos].read_sem_id  = sem_id1;
+	pipe_info[freePos].write_sem_id  = sem_id2;
 	pipe_info[freePos].pipe_id = pipe_id;
 	pipe_info[freePos].write_pos = 0;
-	pipe_info[freePos].write_pos = 0;
+	pipe_info[freePos].read_pos = 0;
 	pipe_info[freePos].amount = 0;
 	
 	num_pipes++;
@@ -76,17 +86,18 @@ void destroy_pipe(unsigned int pipe_id){
 	int pos = find_pipe(pipe_id);
 	if(pos == -1)
 		return;
-	destroy_sem(pipe_info[pos].sem_id);	
+	destroy_sem(pipe_info[pos].write_sem_id);	
+	destroy_sem(pipe_info[pos].read_sem_id);
 	mm_free(pipe_info[pos].pipe);
 
-	pipe_info[pos].sem_id  = 0;
+	pipe_info[pos].read_sem_id  = 0;
+	pipe_info[pos].write_sem_id  = 0;
 	pipe_info[pos].pipe_id = 0;
 	pipe_info[pos].write_pos = 0;
 	pipe_info[pos].read_pos = 0;
 	pipe_info[pos].amount = 0;
 	pipe_info[pos].pipe_id = 0;
 	pipe_info[pos].pipe = 0;
-
 
 	num_pipes--;
 }
@@ -97,30 +108,34 @@ void write_to_pipe(unsigned int pipe_id, uint8_t * src, unsigned int count, uint
 	int pos = find_pipe(pipe_id);
 	if(pos == -1)
 		return;
-
-	wait_sem(pipe_info[pos].sem_id, rsp, ss);			
-	for(int i=0; i<count && pipe_info[pos].amount < PIPE_SIZE; i++){
+		
+	for(int i=0; i<count; i++){
+		if(pipe_info[pos].amount == PIPE_SIZE){
+			signal_sem(pipe_info[pos].read_sem_id);
+			wait_sem(pipe_info[pos].write_sem_id, rsp, ss);
+		}
 		pipe_info[pos].pipe[pipe_info[pos].write_pos] = src[i];
 		INCREASE_MOD(pipe_info[pos].write_pos, PIPE_SIZE);
 		
 		pipe_info[pos].amount++;
 	}
-	signal_sem(pipe_info[pos].sem_id);
 }
 
 void read_from_pipe(unsigned int pipe_id, uint8_t * dest, unsigned int count, uint64_t rsp, uint64_t ss){
 	int pos = find_pipe(pipe_id);
 	if(pos == -1)
 		return;
-
-	wait_sem(pipe_info[pos].sem_id, rsp, ss);			
+		
 	for(int i=0; i<count && pipe_info[pos].amount > 0; i++){
+		if(pipe_info[pos].amount == 0){
+			signal_sem(pipe_info[pos].write_sem_id);
+			wait_sem(pipe_info[pos].read_sem_id, rsp, ss);
+		}
 		dest[i] = pipe_info[pos].pipe[pipe_info[pos].read_pos];
 		INCREASE_MOD(pipe_info[pos].read_pos, PIPE_SIZE);
 
 		pipe_info[pos].amount--;
 	}
-	signal_sem(pipe_info[pos].sem_id);
 }
 
 void print_pipe(){

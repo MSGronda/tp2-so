@@ -55,7 +55,7 @@ uint64_t sys_register_pipe(unsigned int pipe_id);
 unsigned int sys_destroy_sem(unsigned int sem_id);
 unsigned int sys_print_sem();
 unsigned int sys_signal_sem(unsigned int sem_id);
-unsigned int sys_register_sem(unsigned int sem_id);
+unsigned int sys_register_sem(unsigned int sem_id, unsigned int value);
 unsigned int sys_wait_sem(unsigned int sem_id, uint64_t rsp, uint64_t ss);
 
 unsigned int sys_free(void * ptr);

@@ -28,7 +28,7 @@ void semtest1(){
 
 void semtest(){
     a = 0;
-    sys_register_sem(555);
+    sys_register_sem(555, 1);
     for(int i=0; i<PROCESS_AMOUNT; i++){
         int error = sys_register_child_process(&semtest1, BACKGROUND, NULL);
         if(error <= 0){

@@ -14,7 +14,7 @@
 #include <interrupts.h>
 #include <locks.h>
 
-unsigned int create_sem(unsigned int sem_id);
+unsigned int create_sem(unsigned int sem_id, unsigned int value);
 void destroy_sem(unsigned int sem_id);
 
 unsigned int signal_sem(unsigned int sem_id);

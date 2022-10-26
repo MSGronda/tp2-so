@@ -63,8 +63,8 @@ unsigned int sys_wait_sem(unsigned int sem_id){
     return syscaller(SYS_WAIT_SEM, (uint64_t) sem_id, NULL, NULL );
 }
 
-unsigned int sys_register_sem(unsigned int sem_id){
-    return syscaller(SYS_REGISTER_SEM, (uint64_t) sem_id, NULL, NULL );
+unsigned int sys_register_sem(unsigned int sem_id, unsigned int value){
+    return syscaller(SYS_REGISTER_SEM, (uint64_t) sem_id, (uint64_t) value, NULL );
 }
 unsigned int sys_print_sem(){
     return syscaller(SYS_PRINT_SEM, NULL, NULL, NULL );

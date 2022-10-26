@@ -53,7 +53,7 @@ void add_blocked(unsigned int pos, unsigned int pid){
 	}
 }
 
-unsigned int create_sem(unsigned int sem_id){
+unsigned int create_sem(unsigned int sem_id, unsigned int value){
 	if(sem_id == 0)				// 0 is reserved to denote empty record
 		return INVALID_SEM_ID;
 	if(active_sem == MAX_SEMAPHORES)
@@ -70,7 +70,7 @@ unsigned int create_sem(unsigned int sem_id){
 	}
 
 	sem_info[freePos].sem_id = sem_id;
-	sem_info[freePos].sem_value = 1;
+	sem_info[freePos].sem_value = value;
 
 	active_sem++;
 

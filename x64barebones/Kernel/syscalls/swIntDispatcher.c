@@ -48,7 +48,7 @@ unsigned int swIntDispatcher(uint64_t mode, uint64_t arg0, uint64_t arg1,
 
 		// Semaphore
 		case SYS_REGISTER_SEM:
-			return sys_register_sem((unsigned int) arg0);
+			return sys_register_sem((unsigned int) arg0, (unsigned int) arg1);
 		case SYS_WAIT_SEM:
 			return sys_wait_sem((unsigned int) arg0,  rsp,  ss);
 		case SYS_SIGNAL_SEM:
