@@ -148,26 +148,26 @@ void print_sem(){
 
 	for(int i=0; i<MAX_SEMAPHORES; i++){
 		if(sem_info[i].sem_id != 0){
-			writeDispatcher(getCurrentScreen(),"Sem Id: ",8);
+			writeDispatcher(get_current_output(),"Sem Id: ",8);
 			len = num_to_string(sem_info[i].sem_id, buffer);
-			writeDispatcher(getCurrentScreen(), buffer, len);
+			writeDispatcher(get_current_output(), buffer, len);
 
-			writeDispatcher(getCurrentScreen()," | Value: ",10);
+			writeDispatcher(get_current_output()," | Value: ",10);
 
 			len = num_to_string(sem_info[i].sem_value, buffer);
-			writeDispatcher(getCurrentScreen(), buffer, len);
+			writeDispatcher(get_current_output(), buffer, len);
 
-			writeDispatcher(getCurrentScreen(),"\nBlocked processes: \n", 21);
+			writeDispatcher(get_current_output(),"\nBlocked processes: \n", 21);
 			for(int j=0; j<MAX_SEMAPHORES; j++){
 				if(sem_info[i].blocked_pids[j] != 0){
-					writeDispatcher(getCurrentScreen(),"     -Pid: ", 11);
+					writeDispatcher(get_current_output(),"     -Pid: ", 11);
 					len = num_to_string(sem_info[i].blocked_pids[j], buffer);
-					writeDispatcher(getCurrentScreen(), buffer, len);
-					writeDispatcher(getCurrentScreen(),"\n",1);
+					writeDispatcher(get_current_output(), buffer, len);
+					writeDispatcher(get_current_output(),"\n",1);
 				}
 			}
-			writeDispatcher(getCurrentScreen(),"\n",1);
+			writeDispatcher(get_current_output(),"\n",1);
 		}
 	}
-	writeDispatcher(getCurrentScreen(),"--------------------\n",21);
+	writeDispatcher(get_current_output(),"--------------------\n",21);
 }

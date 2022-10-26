@@ -6,7 +6,7 @@
 
 void default_exception_handler(const char * msg, uint64_t * registerDumpPos)
 {
-	int screen =  getCurrentScreen() + 1;		// se le suma 1 pues la (screen + 1) es la misma screen pero en rojo.
+	int screen =  get_current_output() + 1;		// se le suma 1 pues la (screen + 1) es la misma screen pero en rojo.
 	sys_write(screen, msg, str_len(msg));
 	
 	printRegisters(screen,registerDumpPos);		// imprimo valor de registros al causarse la exception

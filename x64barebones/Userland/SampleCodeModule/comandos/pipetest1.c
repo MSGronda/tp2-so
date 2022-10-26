@@ -31,8 +31,8 @@ void pipetest1(){
 		return;
 	}
 
-	sys_register_child_process(&consumer, NORMAL_SCREEN, NULL);
-	sys_register_child_process(&producer, NORMAL_SCREEN, NULL);
+	sys_register_child_process(&consumer, 1,NORMAL_SCREEN, NULL);
+	sys_register_child_process(&producer, 1,NORMAL_SCREEN, NULL);
 
 	sys_wait_for_children();
 

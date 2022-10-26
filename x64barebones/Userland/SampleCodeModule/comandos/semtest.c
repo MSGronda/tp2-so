@@ -27,10 +27,16 @@ void semtest1(){
 
 
 void semtest(){
+    int res = sys_register_sem(555, 1);
+    if(res != 0){
+        puts("error creating semaphore");
+        return;
+    }
     a = 0;
-    sys_register_sem(555, 1);
+
+
     for(int i=0; i<PROCESS_AMOUNT; i++){
-        int error = sys_register_child_process(&semtest1, BACKGROUND, NULL);
+        int error = sys_register_child_process(&semtest1,1, BACKGROUND, NULL);
         if(error <= 0){
             puts("error creating children");
         }

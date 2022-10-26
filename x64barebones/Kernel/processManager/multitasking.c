@@ -32,7 +32,6 @@
 typedef struct process_control_block{
 		uint64_t  stackPointer;		// valor de rsp 
 		uint64_t  stackSegment;  	// valor de ss
-		uint8_t screen;				// en que pantalla va a imprimir
 		unsigned int pid;				// valor unico identificador
 		uint8_t state;				// si el proceso es uno activo o ya se elimino
 		uint8_t priority;			// cuantos ticks puede tener por rafaga 
@@ -40,6 +39,9 @@ typedef struct process_control_block{
 		void * stackStart;
 		char ** params;
 		uint64_t ticks;
+
+		uint8_t input;
+		uint8_t output;
 }process_control_block;
 
 // ------ Queue de tasks -------
@@ -50,34 +52,6 @@ static unsigned int newPidValue = 1;					// identificador para cada proceso
 static unsigned int currentTask = 0;				// posicion en el array
 static unsigned int currentRemainingTicks = 0;			// How many timer ticks are remaining for the current process.
 static unsigned int currentDimTasks = 0;
-
-
-/* =========== PROTOYPES =========== */
-
-void idleTask();
-void enableMultiTasking();
-unsigned int get_current_pid();
-uint64_t getRSP();
-uint64_t getSS();
-uint8_t getCurrentScreen();
-int findTask(unsigned int pid);
-uint8_t screenAvailable(unsigned int screen);
-int add_task(uint64_t entrypoint, uint8_t screen, uint8_t priority, uint8_t immortal, uint64_t arg0);
-void pauseScreenProcess(unsigned int screen);
-int pauseOrUnpauseProcess(unsigned int pid);
-void kill_screen_processes();
-void removeCurrentTask();
-int removeTask(unsigned int pid);
-uint8_t has_or_decrease_time();
-uint64_t next_task(uint64_t stackPointer, uint64_t stackSegment);
-uint8_t has_children(unsigned int pid);
-void wait_for_children();
-void signal_process_finished(unsigned int pid);
-void remove_children(unsigned int fatherPid);
-void add_child(unsigned int fatherPid, unsigned int childPid);
-unsigned int add_child_task(uint64_t entrypoint, int screen, uint64_t arg0);
-uint8_t children_finished(unsigned int fatherPid);
-
 
 /* =========== CODE =========== */
 
@@ -91,7 +65,7 @@ void idleTask(){
 char * idleArg[] = {"idle", NULL};
 void enableMultiTasking(){
 
-	add_task((uint64_t)&idleTask, BACKGROUND, 1, IMMORTAL,idleArg);
+	add_task((uint64_t)&idleTask, 1, BACKGROUND, 1, IMMORTAL,idleArg);
 	forceCurrentTask();
 }
 
@@ -106,9 +80,14 @@ uint64_t getRSP(){
 uint64_t getSS(){
 	return tasks[currentTask].stackSegment;
 }
-uint8_t getCurrentScreen(){
-	return tasks[currentTask].screen;
+uint8_t get_current_output(){
+	return tasks[currentTask].output;
 }
+uint8_t get_current_input(){
+	return tasks[currentTask].input;
+}
+
+
 // Encuentro el task usando el pid
 int findTask(unsigned int pid){
 	for(int i=0; i<TOTAL_TASKS; i++){
@@ -129,7 +108,7 @@ uint8_t get_state(unsigned int pid){
 
 /* --- Process Management --- */
 
-int add_task(uint64_t entrypoint, uint8_t screen, uint8_t priority, uint8_t immortal, uint64_t arg0){
+int add_task(uint64_t entrypoint, uint8_t input, uint8_t output, uint8_t priority, uint8_t immortal, uint64_t arg0){
 	if(currentDimTasks>=TOTAL_TASKS){		// no acepto mas tasks al estar lleno
 		return ERROR_NO_SPACE_FOR_TASK;
 	}
@@ -168,7 +147,6 @@ int add_task(uint64_t entrypoint, uint8_t screen, uint8_t priority, uint8_t immo
 	// --- Datos de task ---
 	tasks[pos].stackPointer = (uint64_t) stackStart + STACK_SIZE - STACK_POINT_OF_ENTRY;					// comienzo del stack
 	tasks[pos].stackSegment = SS_VALUE;				// se mantiene constante
-	tasks[pos].screen = screen;
 	tasks[pos].pid = newPidValue++;
 	tasks[pos].state = ACTIVE_PROCESS;
 	tasks[pos].priority = priority;
@@ -176,6 +154,9 @@ int add_task(uint64_t entrypoint, uint8_t screen, uint8_t priority, uint8_t immo
 	tasks[pos].stackStart = stackStart;
 	tasks[pos].params = arg0;
 	tasks[pos].ticks = 1;
+
+	tasks[pos].input = input;
+	tasks[pos].output = output;
 
 	return tasks[pos].pid;
 }
@@ -190,7 +171,7 @@ void alter_process_state(unsigned int pid, uint8_t new_state){
 
 void pauseScreenProcess(unsigned int screen){
 	for(int i=0; i<TOTAL_TASKS; i++){
-		if(tasks[i].state != WAITING_FOR_CHILD && tasks[i].state != DEAD_PROCESS && tasks[i].screen == screen){
+		if(tasks[i].state != WAITING_FOR_CHILD && tasks[i].state != DEAD_PROCESS && tasks[i].output == screen){
 			tasks[i].state = tasks[i].state==PAUSED_PROCESS ? ACTIVE_PROCESS : PAUSED_PROCESS; 	// pausado -> despausado  | despausado -> pausado
 		}
 	}
@@ -354,8 +335,8 @@ void list_process(){
 
 	//TODO: RBP????
 
-	writeDispatcher(tasks[currentTask].screen, "Name     |  ID  |  State  |  Prty  |  Stack  |   RSP   |  Pickd  |  Screen\n", 75);
-	writeDispatcher(tasks[currentTask].screen, "---------------------------------------------------------------------------\n", 76);
+	writeDispatcher(tasks[currentTask].output, "Name     |  ID  |  State  |  Prty  |  Stack  |   RSP   |  Pickd  |  Screen\n", 75);
+	writeDispatcher(tasks[currentTask].output, "---------------------------------------------------------------------------\n", 76);
 
 	for(int i=0; i<TOTAL_TASKS -1 ; i++){
 		if(tasks[i].state != DEAD_PROCESS){
@@ -363,61 +344,61 @@ void list_process(){
 			int len = 0;
 			if(tasks[i].params !=NULL){
 				len = str_len(tasks[i].params[0]);
-				writeDispatcher(tasks[currentTask].screen, tasks[i].params[0], len );
+				writeDispatcher(tasks[currentTask].output, tasks[i].params[0], len );
 			}
-			writeDispatcher(tasks[currentTask].screen, "                  ", 12 - len);
+			writeDispatcher(tasks[currentTask].output, "                  ", 12 - len);
 			len = num_to_string(tasks[i].pid, buffer);
-			writeDispatcher(tasks[currentTask].screen, buffer, len);
-			writeDispatcher(tasks[currentTask].screen, "                  ", 5 - ((tasks[i].pid >= 10) ? 1 : 0));
+			writeDispatcher(tasks[currentTask].output, buffer, len);
+			writeDispatcher(tasks[currentTask].output, "                  ", 5 - ((tasks[i].pid >= 10) ? 1 : 0));
 
 			switch(tasks[i].state){
 				case ACTIVE_PROCESS: 
-					writeDispatcher(tasks[currentTask].screen, "Active ", 7);
+					writeDispatcher(tasks[currentTask].output, "Active ", 7);
 					break;
 				case PAUSED_PROCESS:
-					writeDispatcher(tasks[currentTask].screen, "Paused ", 7);
+					writeDispatcher(tasks[currentTask].output, "Paused ", 7);
 					break;
 
 				default:
-					writeDispatcher(tasks[currentTask].screen, "Blocked", 7);
+					writeDispatcher(tasks[currentTask].output, "Blocked", 7);
 					break;
 
 			}
-			writeDispatcher(tasks[currentTask].screen, "                  ", 6);
+			writeDispatcher(tasks[currentTask].output, "                  ", 6);
 
 
 			len = num_to_string(tasks[i].priority, buffer);
-			writeDispatcher(tasks[currentTask].screen, buffer, len);
-			writeDispatcher(tasks[currentTask].screen, "                  ", 4);
+			writeDispatcher(tasks[currentTask].output, buffer, len);
+			writeDispatcher(tasks[currentTask].output, "                  ", 4);
 
 
 			len = num_to_string(tasks[i].stackStart, buffer);
-			writeDispatcher(tasks[currentTask].screen, buffer, len);
-			writeDispatcher(tasks[currentTask].screen, "                  ",3);
+			writeDispatcher(tasks[currentTask].output, buffer, len);
+			writeDispatcher(tasks[currentTask].output, "                  ",3);
 
 			len = num_to_string(tasks[i].stackPointer, buffer);
-			writeDispatcher(tasks[currentTask].screen, buffer, len);
-			writeDispatcher(tasks[currentTask].screen, "                  ",4);
+			writeDispatcher(tasks[currentTask].output, buffer, len);
+			writeDispatcher(tasks[currentTask].output, "                  ",4);
 
 			len = num_to_string(tasks[i].ticks, buffer);
-			writeDispatcher(tasks[currentTask].screen, buffer, len);
-			writeDispatcher(tasks[currentTask].screen, "                  ",8 - len);
+			writeDispatcher(tasks[currentTask].output, buffer, len);
+			writeDispatcher(tasks[currentTask].output, "                  ",8 - len);
 
-			switch(tasks[i].screen){
+			switch(tasks[i].output){
 				case BACKGROUND:
-					writeDispatcher(tasks[currentTask].screen, "Background", 10);
+					writeDispatcher(tasks[currentTask].output, "Background", 10);
 					break;
 				case STDOUT:
-					writeDispatcher(tasks[currentTask].screen, "Stdout", 6);
+					writeDispatcher(tasks[currentTask].output, "Stdout", 6);
 					break;
 				case STDOUT_LEFT:
-					writeDispatcher(tasks[currentTask].screen, "Stdout left", 11);
+					writeDispatcher(tasks[currentTask].output, "Stdout left", 11);
 					break;
 				case STDOUT_RIGHT:
-					writeDispatcher(tasks[currentTask].screen, "Stdout right", 12);
+					writeDispatcher(tasks[currentTask].output, "Stdout right", 12);
 					break;
 			}
-			writeDispatcher(tasks[currentTask].screen, "\n", 1);
+			writeDispatcher(tasks[currentTask].output, "\n", 1);
 		}
 	}
 }
@@ -436,8 +417,8 @@ void wait_for_children(){
 }
 
 
-unsigned int add_child_task(uint64_t entrypoint, int screen, uint64_t arg0){
-	unsigned int child_pid = add_task(entrypoint, screen, DEFAULT_PRIORITY, MORTAL , arg0);
+unsigned int add_child_task(uint64_t entrypoint, uint8_t input, uint8_t output, uint64_t arg0){
+	unsigned int child_pid = add_task(entrypoint, input, output, DEFAULT_PRIORITY, MORTAL , arg0);
 
 	add_child(get_current_pid(), child_pid);
 

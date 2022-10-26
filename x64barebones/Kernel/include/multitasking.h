@@ -42,11 +42,12 @@ void enableMultiTasking();
 /* --- Getters --- */
 uint64_t getRSP();
 uint64_t getSS();
-uint8_t getCurrentScreen();
+uint8_t get_current_output();
+uint8_t get_current_input();
 unsigned int  get_current_pid();
 
 /* --- Process Management --- */
-int add_task(uint64_t entrypoint, uint8_t screen, uint8_t priority, uint8_t immortal ,uint64_t arg0);
+int add_task(uint64_t entrypoint, uint8_t input, uint8_t output, uint8_t priority, uint8_t immortal, uint64_t arg0);
 
 void alter_process_state(unsigned int pid, uint8_t new_state);
 
@@ -66,7 +67,7 @@ uint64_t next_task(uint64_t stackPointer, uint64_t stackSegment);
 
 /* --- Child processes --- */
 void wait_for_children();
-unsigned int add_child_task(uint64_t entrypoint, int screen, uint64_t arg0);
+unsigned int add_child_task(uint64_t entrypoint, uint8_t input, uint8_t output, uint64_t arg0);
 
 
 #endif

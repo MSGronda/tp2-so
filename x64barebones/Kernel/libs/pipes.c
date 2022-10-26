@@ -102,7 +102,6 @@ void destroy_pipe(unsigned int pipe_id){
 	pipe_info[pos].write_pos = 0;
 	pipe_info[pos].read_pos = 0;
 	pipe_info[pos].amount = 0;
-	pipe_info[pos].pipe_id = 0;
 	pipe_info[pos].pipe = 0;
 
 	num_pipes--;

@@ -80,13 +80,14 @@ unsigned int readDispatcher(unsigned int fd, char * buf, unsigned int count)
 {
 	switch(fd) {										// Eligimos posicion de donde leer. Tambien lo podriamos hacer con una funcion/tabla
 		case STDIN:
-		case STDIN_LEFT:
-		case STDIN_RIGHT:
 			if(checkIfAvailableKey())
 				return consume_kb_buffer(buf,count);		// Si el key buffer no esta vacio, primero tengo que consumirlo
 			return read_stdin(fd, buf, count);				// El buffer esta vacio, puedo leer de pantalla
 
 		default:
-			return 0;	// Seria error?
+			// The rest of the FDs are considered pipe IDs
+			read_from_pipe(fd, buf, count);
+
 	}
+	return count;
 }

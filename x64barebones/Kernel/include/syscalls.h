@@ -72,7 +72,7 @@ uint64_t sys_renounce_cpu();
 
 uint64_t sys_wait_for_children();
 
-uint64_t sys_register_child_process(uint64_t entryPoint, int screen, uint64_t arg0);
+uint64_t sys_register_child_process(uint64_t entryPoint, uint8_t input, uint8_t output, uint64_t arg0);
 
 /*
  * << sys_write >>
@@ -171,7 +171,7 @@ uint64_t sys_read_from_screen(char *buf, unsigned int count);
  * Returns: 
  *      (uint) pid
  */
-uint64_t sys_register_process(uint64_t entryPoint, int screen, uint64_t arg0);
+uint64_t sys_register_process(uint64_t entrypoint, uint8_t input, uint8_t output, uint64_t arg0);
 
 /*
  * << sys_kill_process >>

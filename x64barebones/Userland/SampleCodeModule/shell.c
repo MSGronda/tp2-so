@@ -22,7 +22,7 @@ typedef struct program_info{
         uint8_t max_args;
 }program_info;
 
-#define TOTAL_PROGRAMS 15
+#define TOTAL_PROGRAMS 16
 static program_info programs[] = {
     {.name = "fibonacci", .ptr = (uint64_t) &fibonacci, .min_args = 0, .max_args = 0},
     {.name = "primos", .ptr = (uint64_t) &primos, .min_args = 0, .max_args = 0},
@@ -39,6 +39,7 @@ static program_info programs[] = {
     {.name = "nice", .ptr = (uint64_t) &nice, .min_args = 2, .max_args = 2},
     {.name = "semtest", .ptr = (uint64_t) &semtest, .min_args = 0, .max_args = 0},
     {.name = "pipetest1", .ptr = (uint64_t) &pipetest1, .min_args = 0, .max_args = 0},
+    {.name = "pipetest", .ptr = (uint64_t) &pipetest, .min_args = 0, .max_args = 0},
 };
 
 /* = = = = = = = = = CODIGO = = = = = = = = = */
@@ -148,15 +149,15 @@ void shell(){
 
             // Run in background
             if(backgroud_indiaction == 2){
-                sys_register_process(programs[program_pos].ptr, BACKGROUND, (uint64_t) make_params(words, MIN(i-1,programs[program_pos].max_args))); 
+                sys_register_process(programs[program_pos].ptr, 1, BACKGROUND, (uint64_t) make_params(words, MIN(i-1,programs[program_pos].max_args))); 
             }
             else if(backgroud_indiaction == 1){
-                sys_register_process(programs[program_pos].ptr, NORMAL_SCREEN, (uint64_t) make_params(words, MIN(i-1,programs[program_pos].max_args))); 
+                sys_register_process(programs[program_pos].ptr, 1, NORMAL_SCREEN, (uint64_t) make_params(words, MIN(i-1,programs[program_pos].max_args))); 
             }
 
             // Run on screen
             else{
-                sys_register_child_process(programs[program_pos].ptr, NORMAL_SCREEN, (uint64_t) make_params(words, MIN(amount_of_words-1, programs[program_pos].max_args))); 
+                sys_register_child_process(programs[program_pos].ptr, 1, NORMAL_SCREEN, (uint64_t) make_params(words, MIN(amount_of_words-1, programs[program_pos].max_args))); 
             
                 sys_wait_for_children();
             }
