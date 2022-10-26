@@ -42,6 +42,9 @@ uint64_t sys_register_sem(unsigned int sem_id){
 uint64_t sys_print_sem(){
     return syscaller(SYS_PRINT_SEM, NULL, NULL, NULL );
 }
+unsigned int sys_destroy_sem(unsigned int sem_id){
+    return syscaller(SYS_DESTROY_SEM, (uint64_t) sem_id, NULL, NULL );
+}
 
 
 

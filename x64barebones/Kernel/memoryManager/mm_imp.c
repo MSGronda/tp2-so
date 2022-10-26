@@ -19,10 +19,6 @@
 
     addBlock(out, newSize);
 
-/*
-    ncClear();
-    dump_mem();
-*/
     // User has a pointer after the header
     return (void *)  (SUM_PTR(out, HEADER_SIZE));
  }
@@ -48,7 +44,7 @@ void freeBlock(header_t * ptr) {
 
  // Allocate in a free block, split if needed
  void addBlock(header_t * ptr, uint64_t newSize) {
-    uint64_t oldSize = MASK_LAST_BIT(ptr->size);
+    uint64_t oldSize = GET_SIZE(ptr->size);
 
     if(IS_EOL(ptr->size)) { 
         // last block
@@ -76,8 +72,8 @@ void freeBlock(header_t * ptr) {
  header_t * findFree(uint64_t len) {
      header_t * ptr = HEAP_START;
 
-     while( !IS_EOL(ptr->size) && (ptr->allocated || MASK_LAST_BIT(ptr->size) < len) )
-         ptr = SUM_PTR(ptr, MASK_LAST_BIT(ptr->size));
+     while( !IS_EOL(ptr->size) && (ptr->allocated || GET_SIZE(ptr->size) < len) )
+         ptr = SUM_PTR(ptr, GET_SIZE(ptr->size));
 
      if(IS_EOL(ptr->size)) {
          // Check if it fits

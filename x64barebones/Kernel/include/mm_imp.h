@@ -23,10 +23,13 @@ typedef union header_t {
 // *ptr % 2 == 0 => not allocated / free
 // -2 = 111...1110
 #define MASK_LAST_BIT(num) ((num) & ~0x1)
+#define GET_SIZE(size) (MASK_LAST_BIT(size))
 
 // size == 0 && allocated == 1 => EOL
 // so we can check if *ptr == 1 bc 1 = 000...001
-#define IS_EOL(size) ( !(MASK_LAST_BIT(size) > 0) )
+#define IS_EOL(size) ( !(GET_SIZE(size) > 0) )
+
+#define SUM_PTR(ptr, num) ( (header_t *) ((uint64_t) (ptr) + (num)) )
 
 /*
  * << freeBlock >>
