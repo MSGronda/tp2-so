@@ -65,9 +65,6 @@ uint8_t has_or_decrease_time();
 uint64_t next_task(uint64_t stackPointer, uint64_t stackSegment);
 
 
-/* --- Child processes --- */
-void wait_for_children();
-unsigned int add_child_task(uint64_t entrypoint, uint8_t input, uint8_t output, uint64_t arg0);
 
 
 #endif

@@ -30,18 +30,21 @@
 
 // -----Informacion sobre cada task-----
 typedef struct process_control_block{
-		uint64_t  stackPointer;		// valor de rsp 
-		uint64_t  stackSegment;  	// valor de ss
-		unsigned int pid;				// valor unico identificador
-		uint8_t state;				// si el proceso es uno activo o ya se elimino
-		uint8_t priority;			// cuantos ticks puede tener por rafaga 
-		uint8_t immortal;			// si se puede matar o no
+		unsigned int pid;				// unique identifier. value is > 0
+
+		uint64_t  stackPointer;			// value of rsp 
+		uint64_t  stackSegment;  		// value of ss. This one is constant = 0
 		void * stackStart;
 		char ** params;
-		uint64_t ticks;
+
+		uint8_t state;
+		uint8_t priority;				// the amount of ticks it has to run
+		uint8_t immortal;				// whether it can or can't be killed/blocked/paused
 
 		uint8_t input;
 		uint8_t output;
+
+		uint64_t ticks;					// the amount of times the scheduler picked it to run
 }process_control_block;
 
 // ------ Queue de tasks -------
@@ -188,25 +191,12 @@ int pauseOrUnpauseProcess(unsigned int pid){
 
 	tasks[pos].state = tasks[pos].state==PAUSED_PROCESS ? ACTIVE_PROCESS : PAUSED_PROCESS; 	// pausado -> despausado  | despausado -> pausado
 
-	return TASK_ALTERED;
-}
 
-
-void kill_screen_processes(){
-	for(int i=0; i< TOTAL_TASKS; i++){
-		if(tasks[i].state != DEAD_PROCESS &&  tasks[i].immortal != IMMORTAL ){
-
-			signal_process_finished(tasks[i].pid);
-
-			mm_free(tasks[currentTask].stackStart);
-			free_params(tasks[currentTask].params);
-
-			tasks[i].state = DEAD_PROCESS;
-			currentDimTasks--;
-			// TODO: quizas sigue corriendo por lo que queda del tick?
-
-		}
+	if(pos == currentTask){
+		forceTimerTick();
 	}
+
+	return TASK_ALTERED;
 }
 
 
@@ -221,24 +211,50 @@ void free_params(char ** params){
 	mm_free(params);
 }
 
-void removeCurrentTask(){
-	signal_process_finished(tasks[currentTask].pid);
-	mm_free(tasks[currentTask].stackStart);
-	free_params(tasks[currentTask].params);
 
-	tasks[currentTask].state = DEAD_PROCESS;
+void destroy_process(unsigned int pos){
+	signal_process_finished(tasks[pos].pid);
+	free_params(tasks[pos].params);
+	tasks[pos].state = DEAD_PROCESS;
 	currentDimTasks--;
+	mm_free(tasks[pos].stackStart);
+}
 
+void kill_screen_processes(){
+	uint8_t currentTaskKilled = 0;
+	for(int i=0; i< TOTAL_TASKS; i++){
+		if(tasks[i].state != DEAD_PROCESS &&  tasks[i].immortal != IMMORTAL ){		//TODO: que vuelva a ser solo los screen processes
+			destroy_process(i);
+
+			if(i == currentTask){
+				currentTaskKilled = 1;
+			}
+		}
+	}
+
+	// If the current process is killed, we do not want
+	// to return to executing it, so we force the next
+	// task.
+
+	if(currentTaskKilled){
+		forceTimerTick();
+	}
+}
+
+void removeCurrentTask(){
+	_cli();
+
+	// We must insure that this is atomic, since we are freeing memory
+	// that could be used by another process if this function were to
+	// be interrupted by a timer tick.
+
+	destroy_process(currentTask);
+	forceTimerTick();	
 
 	// There's no need to reset currentRemainingTicks, eventually next_task will do so
-
-	forceNextTask(NULL, NULL);				
 }
 
 int removeTask(unsigned int pid){
-
-	//TODO: si remuevo el actual entonces tengo que resetear el currentRemainingTicks
-
 	int pos = findTask(pid);
 	if(pos < 0)					// se quiere remover task que no existe
 		return NO_TASK_FOUND;
@@ -246,12 +262,12 @@ int removeTask(unsigned int pid){
 	if(tasks[pos].immortal)
 		return -1;
 
-	signal_process_finished(pid);
-	mm_free(tasks[pos].stackStart);
-	free_params(tasks[pos].params);
+	destroy_process(pos);
 
-	tasks[pos].state = DEAD_PROCESS;
-	currentDimTasks--;
+	if(pos == currentTask){
+		forceTimerTick();
+	}
+
 	return TASK_ALTERED;
 }
 
@@ -316,9 +332,6 @@ uint64_t next_task(uint64_t stackPointer, uint64_t stackSegment){
 					found = 1;
 				}
 				break;
-			// case WAITING_FOR_SEM:
-			// 	// logic for blocked state transfered to signal_sem
-			// 	break;
 		}
 	}
 
@@ -326,6 +339,9 @@ uint64_t next_task(uint64_t stackPointer, uint64_t stackSegment){
 
 	return tasks[currentTask].stackPointer;
 }
+
+
+
 
 /* --- Other --- */
 
@@ -404,25 +420,5 @@ void list_process(){
 }
 
 
-/* --- Child processes --- */
-
-void wait_for_children(){
-	if(!has_children(get_current_pid())){
-		return;
-	}
-
-	tasks[currentTask].state = WAITING_FOR_CHILD;
-
-	forceTimerTick(); 		//	ya tiene en rdi y rsi los parametros para next_task
-}
-
-
-unsigned int add_child_task(uint64_t entrypoint, uint8_t input, uint8_t output, uint64_t arg0){
-	unsigned int child_pid = add_task(entrypoint, input, output, DEFAULT_PRIORITY, MORTAL , arg0);
-
-	add_child(get_current_pid(), child_pid);
-
-	return child_pid;
-}
 
 
