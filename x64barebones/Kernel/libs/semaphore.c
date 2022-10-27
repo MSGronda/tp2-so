@@ -77,6 +77,36 @@ unsigned int create_sem(unsigned int sem_id, unsigned int value){
 	return SUCCESS;
 }
 
+int create_sem_available(unsigned int value){
+	// Finds an available sem_id and registers it
+	// returning its value
+
+	if(active_sem == MAX_SEMAPHORES)
+		return -1;
+
+	int freePos = -1, sem_id = 1, found = 0;
+	while(!found){				// not the most efficient thing...
+		found = 1;
+		for(int i=0; i<MAX_SEMAPHORES; i++){
+			if(freePos == -1 && sem_info[i].sem_id == 0){
+				freePos = i;
+			}
+			if(sem_info[i].sem_id == sem_id){
+				found = 0;
+				sem_id++;
+				break;
+			}
+		}
+	}
+	sem_info[freePos].sem_id = sem_id;
+	sem_info[freePos].sem_value = value;
+
+	active_sem++;
+
+	return sem_id;
+}
+
+
 void destroy_sem(unsigned int sem_id){
 	int pos = find_sem(sem_id);
 	if(pos == -1)
@@ -169,5 +199,4 @@ void print_sem(){
 			writeDispatcher(get_current_output(),"\n",1);
 		}
 	}
-	writeDispatcher(get_current_output(),"--------------------\n",21);
 }

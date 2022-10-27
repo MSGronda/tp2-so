@@ -1,7 +1,7 @@
 #include <pipes.h>
 
 #define MAX_PIPES 30
-#define PIPE_SIZE 10
+#define PIPE_SIZE 1024
 
 /* 
 	A clear example of producers and consumers.
@@ -53,31 +53,24 @@ int create_pipe(unsigned int pipe_id){
 	}
 
 	// create semaphore
-	unsigned int sem_resp1 = INVALID_SEM_ID, sem_resp2 = INVALID_SEM_ID;
-	int sem_id1 = 1, sem_id2 = 2;
-	for( ; sem_resp1 == INVALID_SEM_ID || sem_resp2 == INVALID_SEM_ID; ){
-		if(sem_resp1 == INVALID_SEM_ID){
-			sem_resp1 = create_sem(++sem_id1, 0);
-		}
-		if(sem_resp2 == INVALID_SEM_ID){
-			sem_resp2 = create_sem(++sem_id2, PIPE_SIZE);
-		}
-	}
-	if(sem_resp1 == ERROR_NO_MORE_SPACE || sem_resp2 == ERROR_NO_MORE_SPACE){
+	int sem_id1 = create_sem_available(0);
+	int sem_id2 = create_sem_available(PIPE_SIZE);
+	if(sem_id1 == -1 || sem_id2 == -1){
+		destroy_sem(sem_id1);
+		destroy_sem(sem_id2);
 		return ERROR_NO_MORE_SPACE;
 	}
-	
 	// create pipe
 	pipe_info[freePos].pipe = mm_malloc(PIPE_SIZE);
 	if(pipe_info[freePos].pipe == NULL){
-		destroy_sem(pipe_info[freePos].read_sem_id);
-		destroy_sem(pipe_info[freePos].write_sem_id);
+		destroy_sem(sem_id1);
+		destroy_sem(sem_id2);
 		return ERROR_NO_MORE_SPACE;
 	}
 
+	pipe_info[freePos].pipe_id = pipe_id;
 	pipe_info[freePos].read_sem_id  = sem_id1;
 	pipe_info[freePos].write_sem_id  = sem_id2;
-	pipe_info[freePos].pipe_id = pipe_id;
 	pipe_info[freePos].write_pos = 0;
 	pipe_info[freePos].read_pos = 0;
 	pipe_info[freePos].amount = 0;
@@ -141,6 +134,23 @@ void read_from_pipe(unsigned int pipe_id, uint8_t * dest, unsigned int count){
 }
 
 void print_pipe(){
-	
+	int len;
+	char buffer[20];
+
+	for(int i=0; i<MAX_PIPES; i++){
+		if(pipe_info[i].pipe_id != 0){
+			writeDispatcher(get_current_output(),"Pipe Id: ",9);
+			len = num_to_string(pipe_info[i].pipe_id, buffer);
+			writeDispatcher(get_current_output(), buffer, len);
+
+			writeDispatcher(get_current_output()," | Usage: ",10);
+
+			len = num_to_string(pipe_info[i].amount / PIPE_SIZE, buffer);
+			writeDispatcher(get_current_output(), buffer, len);
+
+			writeDispatcher(get_current_output(),"\n",1);
+		}
+	}
 }
+
 
