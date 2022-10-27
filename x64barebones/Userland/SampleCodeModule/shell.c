@@ -22,7 +22,7 @@ typedef struct program_info{
         uint8_t max_args;
 }program_info;
 
-#define TOTAL_PROGRAMS 14
+#define TOTAL_PROGRAMS 16
 static program_info programs[] = {
     {.name = "fibonacci", .ptr = (uint64_t) &fibonacci, .min_args = 0, .max_args = 0},
     {.name = "primos", .ptr = (uint64_t) &primos, .min_args = 0, .max_args = 0},
@@ -38,6 +38,8 @@ static program_info programs[] = {
     {.name = "pause", .ptr = (uint64_t) &pause, .min_args = 1, .max_args = 1},
     {.name = "nice", .ptr = (uint64_t) &nice, .min_args = 2, .max_args = 2},
     {.name = "semtest", .ptr = (uint64_t) &semtest, .min_args = 0, .max_args = 0},
+    {.name = "loop", .ptr = (uint64_t) &loop, .min_args = 0, .max_args = 0},
+    {.name = "cat", .ptr = (uint64_t) &cat, .min_args = 0, .max_args = 0},
 };
 
 /* = = = = = = = = = CODIGO = = = = = = = = = */
@@ -106,12 +108,70 @@ char ** make_params(char ** words, unsigned int len){
     return params;
 }
 
+#define PIPE_ID 123
 
-// void piped_process_handle(char ** words, unsigned int amount_of_words){
-//     for(int i=0; i<amount_of_words; i++){
-//         if()
-//     }
-// }
+int piped_process_handle(char ** words, unsigned int amount_of_words){
+    if(amount_of_words != 3 || strcmp("|", words[1]) != 0)
+        return 0;
+    unsigned int p1 = check_valid_program(words[0]);
+    unsigned int p2 = check_valid_program(words[2]);
+    if(p1 == -1 || p2 == -1){
+        puts("Invalid program!");
+        return 1;
+    }
+    if(programs[p1].max_args != 0 || programs[p2].max_args != 0){
+        puts("Programs with arguments cannot be piped!");
+        return 1;
+    }
+    sys_register_pipe(PIPE_ID);
+
+    sys_register_child_process(programs[p1].ptr, 1, PIPE_ID, (uint64_t) make_params(words, 0)); 
+    sys_register_child_process(programs[p2].ptr, PIPE_ID, NORMAL_SCREEN, (uint64_t) make_params(words, 0)); 
+
+    sys_wait_for_children();
+
+    sys_destroy_pipe(PIPE_ID);
+
+    return 2;
+}
+
+void single_process_handle(char ** words, unsigned int amount_of_words){
+     unsigned int program_pos = check_valid_program(words[0]);
+
+    if(program_pos == -1){
+        puts("Invalid program!");
+    }
+    if(amount_of_words - 1 < programs[program_pos].min_args){
+        puts("Missing arguments!");
+    }
+    else{
+        // Check if user wants to run program in background
+        int i, backgroud_indiaction = 0;
+        for(i=programs[program_pos].min_args + 1; !backgroud_indiaction && i<amount_of_words; i++){
+            if(strcmp("//", words[i]) == 0){         // We consider the symbol as the last argument. All subsequent arguments will be ignored
+                backgroud_indiaction = 2;       
+            }
+            else if(strcmp("/", words[i]) == 0){         // We consider the symbol as the last argument. All subsequent arguments will be ignored
+                backgroud_indiaction = 1;       
+            }
+        }
+
+        // Run in background
+        if(backgroud_indiaction == 2){
+            sys_register_process(programs[program_pos].ptr, 1, BACKGROUND, (uint64_t) make_params(words, MIN(i-1,programs[program_pos].max_args))); 
+        }
+        else if(backgroud_indiaction == 1){
+            sys_register_process(programs[program_pos].ptr, 1, NORMAL_SCREEN, (uint64_t) make_params(words, MIN(i-1,programs[program_pos].max_args))); 
+        }
+
+        // Run on screen
+        else{
+            sys_register_child_process(programs[program_pos].ptr, 1, NORMAL_SCREEN, (uint64_t) make_params(words, MIN(amount_of_words-1, programs[program_pos].max_args))); 
+        
+            sys_wait_for_children();
+        }
+    }
+}
 
 
 void shell(){
@@ -131,42 +191,8 @@ void shell(){
             continue;                 // mas legible asi, no rompas los huevos
         }
 
-        unsigned int program_pos = check_valid_program(words[0]);
-
-        if(program_pos == -1){
-            puts("Invalid program!");
-            continue;
-        }
-        if(amount_of_words - 1 < programs[program_pos].min_args){
-            puts("Missing arguments!");
-        }
-        else{
-            // Check if user wants to run program in background
-            int i, backgroud_indiaction = 0;
-            for(i=programs[program_pos].min_args + 1; !backgroud_indiaction && i<amount_of_words; i++){
-                if(strcmp("//", words[i]) == 0){         // We consider the symbol as the last argument. All subsequent arguments will be ignored
-                    backgroud_indiaction = 2;       
-                }
-                else if(strcmp("/", words[i]) == 0){         // We consider the symbol as the last argument. All subsequent arguments will be ignored
-                    backgroud_indiaction = 1;       
-                }
-            }
-
-            // Run in background
-            if(backgroud_indiaction == 2){
-                sys_register_process(programs[program_pos].ptr, 1, BACKGROUND, (uint64_t) make_params(words, MIN(i-1,programs[program_pos].max_args))); 
-            }
-            else if(backgroud_indiaction == 1){
-                sys_register_process(programs[program_pos].ptr, 1, NORMAL_SCREEN, (uint64_t) make_params(words, MIN(i-1,programs[program_pos].max_args))); 
-            }
-
-            // Run on screen
-            else{
-                sys_register_child_process(programs[program_pos].ptr, 1, NORMAL_SCREEN, (uint64_t) make_params(words, MIN(amount_of_words-1, programs[program_pos].max_args))); 
-            
-                sys_wait_for_children();
-            }
-        puts("");
+        if(piped_process_handle(words,amount_of_words) == 0){
+            single_process_handle(words,amount_of_words);
         }
     }
 }

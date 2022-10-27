@@ -8,8 +8,9 @@
 #define BUFF_SIZE 20
 #define BUFFER_LENGTH 150
 
-void pipetest1();
-void pipetest();
+
+void cat();
+void loop();
 
 void nice(char ** args);
 void semtest();
