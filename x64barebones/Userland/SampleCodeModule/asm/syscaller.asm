@@ -2,8 +2,8 @@ GLOBAL syscaller
 
 section .text
 
-;ASM: rax - rdi - rsi - rdx
-;C:   rdi - rsi - rdx - rcx
+;ASM: rax - rdi - rsi - rdx - r10
+;C:   rdi - rsi - rdx - rcx - r8
 
 syscaller:
     push rbp
@@ -13,6 +13,7 @@ syscaller:
     mov rdi, rsi
     mov rsi, rdx
     mov rdx, rcx
+    mov r10, r8
 
 
 	int 80h

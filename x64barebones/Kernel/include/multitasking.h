@@ -28,6 +28,7 @@
 #define PAUSED_PROCESS 2
 #define WAITING_FOR_CHILD 3
 #define WAITING_FOR_SEM 4
+#define WAITING_FOR_INPUT 5
 
 
 void list_process();
@@ -41,11 +42,12 @@ void enableMultiTasking();
 /* --- Getters --- */
 uint64_t getRSP();
 uint64_t getSS();
-uint8_t getCurrentScreen();
+uint8_t get_current_output();
+uint8_t get_current_input();
 unsigned int  get_current_pid();
 
 /* --- Process Management --- */
-int add_task(uint64_t entrypoint, uint8_t screen, uint8_t priority, uint8_t immortal ,uint64_t arg0);
+int add_task(uint64_t entrypoint, uint8_t input, uint8_t output, uint8_t priority, uint8_t immortal, uint64_t arg0);
 
 void alter_process_state(unsigned int pid, uint8_t new_state);
 
@@ -63,11 +65,6 @@ uint8_t has_or_decrease_time();
 uint64_t next_task(uint64_t stackPointer, uint64_t stackSegment);
 
 
-/* --- Child processes --- */
-void wait_for_children(uint64_t rsp, uint64_t ss);
-unsigned int add_child_task(uint64_t entrypoint, int screen, uint64_t arg0);
 
-/* --- Semaphore --- */
-unsigned int wait_sem(unsigned int sem_id, uint64_t rsp, uint64_t ss);
 
 #endif

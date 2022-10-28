@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <syscalls.h>
 #include <multitasking.h>
+#include <lib.h>
 
 /* --- CONSTANTS  --- */
 #define NO_KEY 0
@@ -12,7 +13,6 @@
 #define DELETE_KEY 2
 #define BUFFER_FULL 3
 #define UNMAPPED 4
-
 
 /*
  * << keyboard_handler >>
@@ -24,7 +24,7 @@
  *      1 <=> wrote buffer
  *      0 <=> otherwise
  */
-char keyboard_handler();
+void keyboard_handler();
 
 
 /*

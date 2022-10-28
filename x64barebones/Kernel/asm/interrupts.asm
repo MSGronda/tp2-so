@@ -31,6 +31,7 @@ EXTERN has_or_decrease_time
 
 GLOBAL forceNextTask
 GLOBAL forceCurrentTask
+GLOBAL forceTimerTick
 
 SECTION .data
 
@@ -99,7 +100,6 @@ SECTION .text
 	popState
 	iretq
 %endmacro
-
 
 _hlt:
 	sti
@@ -213,6 +213,11 @@ forceNextTask:
 enable_multi_tasking:
 	mov BYTE [multi_tasking_enabled], 1
 	jmp tickHandle
+
+
+forceTimerTick:
+	int 20h
+	ret
 	
 ; = = = = = = = = = = = = = = = = = = =
 

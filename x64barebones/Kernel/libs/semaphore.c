@@ -54,7 +54,7 @@ void add_blocked(unsigned int pos, unsigned int pid){
 	}
 }
 
-unsigned int create_sem(unsigned int sem_id){
+unsigned int create_sem(unsigned int sem_id, unsigned int value){
 	if(sem_id == 0)				// 0 is reserved to denote empty record
 		return INVALID_SEM_ID;
 	if(active_sem == MAX_SEMAPHORES)
@@ -71,12 +71,42 @@ unsigned int create_sem(unsigned int sem_id){
 	}
 
 	sem_info[freePos].sem_id = sem_id;
-	sem_info[freePos].sem_value = 1;
+	sem_info[freePos].sem_value = value;
 
 	active_sem++;
 
 	return SUCCESS;
 }
+
+int create_sem_available(unsigned int value){
+	// Finds an available sem_id and registers it
+	// returning its value
+
+	if(active_sem == MAX_SEMAPHORES)
+		return -1;
+
+	int freePos = -1, sem_id = 1, found = 0;
+	while(!found){				// not the most efficient thing...
+		found = 1;
+		for(int i=0; i<MAX_SEMAPHORES; i++){
+			if(freePos == -1 && sem_info[i].sem_id == 0){
+				freePos = i;
+			}
+			if(sem_info[i].sem_id == sem_id){
+				found = 0;
+				sem_id++;
+				break;
+			}
+		}
+	}
+	sem_info[freePos].sem_id = sem_id;
+	sem_info[freePos].sem_value = value;
+
+	active_sem++;
+
+	return sem_id;
+}
+
 
 void destroy_sem(unsigned int sem_id){
 	int pos = find_sem(sem_id);
@@ -94,7 +124,7 @@ void destroy_sem(unsigned int sem_id){
 	unlock(&(sem_info[pos].lock));
 }
 
-unsigned int wait_sem(unsigned int sem_id, uint64_t rsp, uint64_t ss){
+unsigned int wait_sem(unsigned int sem_id){
 	int pos = find_sem(sem_id);
 	if(pos == -1)
 		return -1;
@@ -110,7 +140,7 @@ unsigned int wait_sem(unsigned int sem_id, uint64_t rsp, uint64_t ss){
 		alter_process_state(pid, WAITING_FOR_SEM);
 
 		unlock(&(sem_info[pos].lock));
-		forceNextTask(rsp,ss);
+		forceTimerTick();
 		return 0;
 	}
 
@@ -149,25 +179,25 @@ void print_sem(){
 
 	for(int i=0; i<MAX_SEMAPHORES; i++){
 		if(sem_info[i].sem_id != 0){
-			writeDispatcher(getCurrentScreen(),"Sem Id: ",8);
+			writeDispatcher(get_current_output(),"Sem Id: ",8);
 			len = num_to_string(sem_info[i].sem_id, buffer);
-			writeDispatcher(getCurrentScreen(), buffer, len);
+			writeDispatcher(get_current_output(), buffer, len);
 
-			writeDispatcher(getCurrentScreen()," | Value: ",10);
+			writeDispatcher(get_current_output()," | Value: ",10);
 
 			len = num_to_string(sem_info[i].sem_value, buffer);
-			writeDispatcher(getCurrentScreen(), buffer, len);
+			writeDispatcher(get_current_output(), buffer, len);
 
-			writeDispatcher(getCurrentScreen(),"\nBlocked processes: \n", 21);
+			writeDispatcher(get_current_output(),"\nBlocked processes: \n", 21);
 			for(int j=0; j<MAX_SEMAPHORES; j++){
 				if(sem_info[i].blocked_pids[j] != 0){
-					writeDispatcher(getCurrentScreen(),"     -Pid: ", 11);
+					writeDispatcher(get_current_output(),"     -Pid: ", 11);
 					len = num_to_string(sem_info[i].blocked_pids[j], buffer);
-					writeDispatcher(getCurrentScreen(), buffer, len);
-					writeDispatcher(getCurrentScreen(),"\n",1);
+					writeDispatcher(get_current_output(), buffer, len);
+					writeDispatcher(get_current_output(),"\n",1);
 				}
 			}
-			writeDispatcher(getCurrentScreen(),"\n",1);
+			writeDispatcher(get_current_output(),"\n",1);
 		}
 	}
 }

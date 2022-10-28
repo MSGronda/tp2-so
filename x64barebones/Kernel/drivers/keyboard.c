@@ -1,7 +1,6 @@
 #include <keyboard.h>
 
 extern char readKeyboard();		// en libasm.asm
-
 /*-------- CONSTANTS --------*/
 #define BUFFER_SIZE 200
 
@@ -17,14 +16,6 @@ extern char readKeyboard();		// en libasm.asm
 #define F2_SCAN_CODE 0x3C
 #define F3_SCAN_CODE 0x3D
 #define F5_SCAN_CODE 0x3F
-
-/*--------- MACROS ----------*/
-#define INCREASE_MOD(x,total)	(x) = ((x) + 1) % total;
-#define DECREASE_MOD(x, total) 	x--;\
-				if((x)<0)\
-    					x=((total) + (x)) % (total);\
-				else\
-   					x = (x) % (total);
 
 /*-------- STATIC FILE VARIABLES --------*/
 static char keyBuffer[BUFFER_SIZE];             // Buffer de caracters de teclado
@@ -48,80 +39,13 @@ static char scanCodeTable[] = {
 	UNMAPPED,UNMAPPED,UNMAPPED
 };	
 
-
-/*-------- CODE --------*/
-
-/* Usa un array circular. Si se llega a la capacidad maxima, no sobre-escribe. */
-char keyboard_handler(uint64_t * regDumpPos) 
-{
-
-	int c = readKeyboard();
-
-
-	// Special Actions
-	switch(c){
-		case F5_SCAN_CODE:
-			saveInfoReg(regDumpPos);	// caso: aprienta boton de captura de registros
-			return VALID_KEY;
-
-		case ESCAPE_KEY_SCAN_CODE:
-			kill_screen_processes();
-			return VALID_KEY;
-
-		case F1_SCAN_CODE:
-			pauseScreenProcess(STDOUT);
-			return VALID_KEY;
-
-		case F2_SCAN_CODE:
-			pauseScreenProcess(STDOUT_LEFT);
-			return VALID_KEY;
-
-		case F3_SCAN_CODE:
-			pauseScreenProcess(STDOUT_RIGHT);
-			return VALID_KEY;
-	}
-
-	if(c<0 || c>=128)			// caso: codigo invalido 
-		return NO_KEY;
-	
-	if(keyBuffer[writePos]!=0)		// caso: no hay espacio en el buffer
-		return BUFFER_FULL;		
-			
-	c = scanCodeTable[c];			// convierto a ascii
-
-	// ------ Caracteres especiales ------
-	if(c=='\b'){
-		DECREASE_MOD(writePos,BUFFER_SIZE)
-
-		if(keyBuffer[writePos]!=0){
-			keyBuffer[writePos] = 0; 			// elimino del buffer
-			if(writePos + 1 == peekPos)			// me muevo para atras en el peek 
-				DECREASE_MOD(peekPos, BUFFER_SIZE)
-		}
-		else
-			INCREASE_MOD(writePos,BUFFER_SIZE)		// no habia nada en el buffer, vuelvo adonde estaba
-		return DELETE_KEY;
-	}
-
-	// ------ Caracteres normales -------
-	if(c != UNMAPPED){
-		keyBuffer[writePos] = c;					// se agraga al buffer
-		INCREASE_MOD(writePos,BUFFER_SIZE)	
-
-		return VALID_KEY;
-	}
-	return UNMAPPED;
-}
-
+// ---------------------------------------
 
 /* Consumo letra del buffer y sobreescribe con 0 para denotar una posicion vacia. */
 char get_key()
 {
 	if(!checkIfAvailableKey())
 		return 0;
-
-	if(peekPos == readPos)          	// para que el peek no quede apuntando a nada
-		INCREASE_MOD(peekPos,BUFFER_SIZE)	
 
 	char c = keyBuffer[readPos];		// consumo letra 
 	keyBuffer[readPos] = 0;
@@ -130,19 +54,6 @@ char get_key()
 	
 	return c;
 }
-
-
-/* Como el get_key pero no lo consumo, es decir, no pone en 0 sino que lo deja. */
-char peek_key()
-{
-	if(keyBuffer[peekPos]==0)		// corto sin aumentar
-		return 0;
-
-	char c = keyBuffer[peekPos];
-	INCREASE_MOD(peekPos,BUFFER_SIZE)	
-	return c;
-}
-
 
 unsigned int consume_kb_buffer(char * buf, unsigned int count) 
 {
@@ -158,4 +69,54 @@ unsigned int consume_kb_buffer(char * buf, unsigned int count)
 
 char checkIfAvailableKey() {
 	return keyBuffer[readPos] != 0;
+}
+
+
+// ---------------------------------------
+
+
+/* Usa un array circular. Si se llega a la capacidad maxima, no sobre-escribe. */
+void keyboard_handler() {
+	int key = readKeyboard();
+
+	// Special Actions
+	switch(key){
+		case ESCAPE_KEY_SCAN_CODE:
+			kill_screen_processes();
+			return;
+		case F1_SCAN_CODE:
+			pauseScreenProcess(STDOUT);
+			return;
+
+		case F2_SCAN_CODE:
+			pauseScreenProcess(STDOUT_LEFT);
+			return;
+		case F3_SCAN_CODE:
+			pauseScreenProcess(STDOUT_RIGHT);
+			return;
+	}
+
+	if(key<0 || key>=128 || keyBuffer[writePos]!=0)
+		return;
+			
+	char c = scanCodeTable[key];			// convierto a ascii
+
+	// ------ Caracteres especiales ------
+
+	if(c=='\b'){
+		int previous = writePos;
+		DECREASE_MOD(previous,BUFFER_SIZE)
+		if(keyBuffer[previous] != 0){
+			writePos = previous;
+			keyBuffer[writePos] = 0; 			
+		}
+	}
+
+	// ------ Caracteres normales -------
+	else if(c != UNMAPPED){
+		keyBuffer[writePos] = c;					// se agraga al buffer
+		INCREASE_MOD(writePos,BUFFER_SIZE);
+	}
+
+	screen_write_through(c);
 }

@@ -78,6 +78,9 @@ unsigned int writeDispatcher(unsigned int fd, const char * buf, unsigned int cou
 		format = STDERR_COLOR;
 
 	switch(fd) {
+		case BACKGROUND:
+			break;
+
 		case STDERR:							// mismo codigo
 		case STDOUT:
 			write(buf, format, count, &currentVideoPosOffset, START_LEFT, NORMAL_MODE_LENGTH, NORMAL_MODE_STEP);
@@ -96,9 +99,14 @@ unsigned int writeDispatcher(unsigned int fd, const char * buf, unsigned int cou
 			write(buf, format, count, &currentVideoPosRightOffset, START_RIGHT, SPLIT_MODE_LENGTH, SPLIT_MODE_STEP);
 			currentVideoPosOffset = 0;		// se resetean el normal mode
 		break;
+
+		default:
+			// the rest of the FDs are considered pipe IDs
+			write_to_pipe(fd, buf,count);
+
 	}
 
-    return 0;
+    return count;
 }
 
 
@@ -117,7 +125,7 @@ void clearScreen(int start, int length, int step)
 /* Decides how to proceed depending on screen to clear */
 unsigned int clearScreenDispatcher() 
 {
-	int screen = getCurrentScreen();
+	int screen = get_current_output();
 	switch(screen) {
 		case STDOUT_LEFT:
 			currentVideoPosOffset = currentVideoPosLeftOffset = START_LEFT;		// se resetan las pantallas
@@ -144,13 +152,13 @@ unsigned int clearScreenDispatcher()
 unsigned int getFdOffSet(unsigned int fd)
 {
 	switch(fd) {
-		case STDIN_LEFT:
+		case STDOUT_LEFT:
 			return currentVideoPosLeftOffset;
 
-		case STDIN_RIGHT:
+		case STDOUT_RIGHT:
 			return currentVideoPosRightOffset;
 
-		case STDIN:
+		case STDOUT:
 		default:
 			return currentVideoPosOffset;
 	}

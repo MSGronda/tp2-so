@@ -14,11 +14,13 @@
 #include <interrupts.h>
 #include <locks.h>
 
-unsigned int create_sem(unsigned int sem_id);
+int create_sem_available(unsigned int value);
+
+unsigned int create_sem(unsigned int sem_id, unsigned int value);
 void destroy_sem(unsigned int sem_id);
 
 unsigned int signal_sem(unsigned int sem_id);
-unsigned int wait_sem(unsigned int sem_id, uint64_t rsp, uint64_t ss);
+unsigned int wait_sem(unsigned int sem_id);
 
 void print_sem();
 #endif

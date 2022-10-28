@@ -3,14 +3,14 @@
 
 
 static unsigned int a = 0;
-#define ADD 13000
-#define PROCESS_AMOUNT 5
+#define ADD 500
+#define PROCESS_AMOUNT 2
 
 void slowInc(int * a, int inc){
     int b;
     b = *a;
     b += inc;
-    for(int i=0; i<450; i++);
+    for(int i=0; i<30000; i++);
     *a = b;
 }
 
@@ -27,10 +27,19 @@ void semtest1(){
 
 
 void semtest(){
+    int res = sys_register_sem(555, 1);
+    if(res != 0){
+        puts("error creating semaphore");
+        return;
+    }
     a = 0;
-    sys_register_sem(555);
+
+
     for(int i=0; i<PROCESS_AMOUNT; i++){
-        sys_register_child_process(&semtest1, NORMAL_SCREEN, NULL);
+        int error = sys_register_child_process(&semtest1,1, BACKGROUND, NULL);
+        if(error <= 0){
+            puts("error creating children");
+        }
     }
 
     sys_wait_for_children();

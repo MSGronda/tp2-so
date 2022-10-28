@@ -8,11 +8,6 @@
 /* --- CONSTANTS --- */
 #define BACKGROUND 0
 
-// Entrada estandar
-#define STDIN 1
-#define STDIN_LEFT 3
-#define STDIN_RIGHT 5
-
 // Normal mode
 #define STDOUT 1
 #define STDERR 2

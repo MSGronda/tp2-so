@@ -1,6 +1,10 @@
 #ifndef IO_H_
 #define IO_H_
 
+// Entrada estandar
+#define STDIN 1
+
+#include <stdint.h>
 /*
  * << read_stdin >>
  * ----------------------------------------------------------------------
