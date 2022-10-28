@@ -57,11 +57,10 @@ uint64_t sys_print_sem();
 uint64_t sys_signal_sem(unsigned int sem_id);
 uint64_t sys_register_sem(unsigned int sem_id, unsigned int value);
 uint64_t sys_wait_sem(unsigned int sem_id);
+
 uint64_t sys_free(void * ptr);
 
 uint64_t sys_alloc(uint64_t len);
-
-unsigned int sys_alloc(void ** ptr, uint64_t len);
 
 uint64_t sys_list_process();
 
