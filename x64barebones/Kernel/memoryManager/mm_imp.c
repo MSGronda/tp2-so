@@ -19,10 +19,6 @@
 
     addBlock(out, newSize);
 
-/*
-    ncClear();
-    dump_mem();
-*/
     // User has a pointer after the header
     return (void *)  (SUM_PTR(out, HEADER_SIZE));
  }

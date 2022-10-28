@@ -2,6 +2,7 @@
 
 #define MIN_SIZE_CLASS 5
 #define BUDDY_START 0xA00000
+#define BUDDY_END (BUDDY_START + HEAP_SIZE)
 
 #define BUDDY_SUM_PTR(ptr, num) (((uint64_t) (ptr) + (num)) )
 
@@ -39,7 +40,7 @@ static inline pow2(unsigned int exp) {
 unsigned int getSizeClass(uint64_t size) {
     unsigned int out = 1; // TODO: creo q esto arrancaba con 0
 
-    while((size >>= 1) != 0) 
+    while((size >>= 1) != 0)
         out++;
     return out;
 }
@@ -58,34 +59,62 @@ TNode * getSmallestAvailable(unsigned int sizeClass) {
 
 TNode * getSmallestAvailableRec(unsigned int sizeClass, unsigned int currSizeClass, unsigned int idx) {
     // cb
-    if(sizeClass > maxSizeClass)
+    if(sizeClass > maxSizeClass || btree[idx].isAllocated)
         return NULL;
 
-    if(sizeClass == MIN_SIZE_CLASS) {
-        unsigned int buddyIdx = getBuddy(idx);
-        if(!(btree[idx].isAllocated && btree[buddyIdx].isAllocated)) {
-            btree[getParentIdx(idx)].isSplit = TRUE;
-            return btree[idx].isAllocated? &btree[buddyIdx] : &btree[idx];
-        }
+    if(sizeClass == MIN_SIZE_CLASS || sizeClass == currSizeClass)
+        return &btree[idx];
 
-        return NULL;
+    if(sizeClass < currSizeClass) {
+        TNode * out = getSmallestAvailableRec(sizeClass, currSizeClass - 1, getLeftChildIdx(idx));
+        if(out == NULL)
+            out = getSmallestAvailableRec(sizeClass, currSizeClass - 1, getRightChildIdx(idx));
+
+        btree[idx].isSplit = out? TRUE : FALSE;
+        return out;
     }
 
-    TNode * out = getSmallestAvailableRec(sizeClass, currSizeClass - 1, getLeftChildIdx(idx));
-    if(out == NULL)
-        out = getSmallestAvailableRec(sizeClass, currSizeClass - 1, getRightChildIdx(idx));
-
-    return out;
+    return NULL; // sizeClass > currSizeClass => shouldnt happen
 }
 
 
+// TODO !!!!!!
+// should return idx NOT node
+static inline void * ptrToIdx(TNode * node) {
+    return NULL;
+}
+
+static inline TNode * nodeToPtr(void * userPtr) {
+    return NULL;
+}
+
 
 void * mm_malloc(uint64_t size) {
+    if(size <= 0 || size > HEAP_SIZE)
+        return NULL;    
+
     unsigned int sizeClass = getSizeClass(size);
     TNode * node = getSmallestAvailable(sizeClass);
     // TODO: falta hacer el calculo
 
-
-
+    return nodeToPtr(node);
 }
 
+void freeRec(unsigned int idx) {
+    btree[idx].isAllocated = FALSE;
+
+    int buddyIdx = getBuddy(idx);
+    if(!btree[buddyIdx].isAllocated) {
+        int parentIdx = getParentIdx(idx);
+        btree[parentIdx].isSplit = FALSE;
+        freeRec(parentIdx);
+    }
+}
+
+void mm_free(void * ptr) {
+    if(ptr == NULL || ptr < userStart || ptr > BUDDY_END)
+        return;
+
+    unsigned int idx = ptrToNode(ptr);
+    freeRec(idx);
+}
