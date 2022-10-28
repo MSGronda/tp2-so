@@ -20,27 +20,34 @@ typedef struct program_info{
         uint64_t ptr;
         uint8_t min_args;
         uint8_t max_args;
+        uint8_t pipeable;
 }program_info;
 
 #define TOTAL_PROGRAMS 17
 static program_info programs[] = {
-    {.name = "fibonacci", .ptr = (uint64_t) &fibonacci, .min_args = 0, .max_args = 0},
-    {.name = "primos", .ptr = (uint64_t) &primos, .min_args = 0, .max_args = 0},
-    {.name = "help", .ptr = (uint64_t) &help, .min_args = 0, .max_args = 0},
-    {.name = "time", .ptr = (uint64_t) &time, .min_args = 0, .max_args = 0},
-    {.name = "inforeg", .ptr = (uint64_t) &inforeg, .min_args = 0, .max_args = 0},
-    {.name = "div-error", .ptr = (uint64_t) &divError, .min_args = 0, .max_args = 0},
-    {.name = "opcode-error", .ptr = (uint64_t) &opCodeError, .min_args = 0, .max_args = 0},
-    {.name = "printmem", .ptr = (uint64_t) &printmem, .min_args = 1, .max_args = 1},
-    {.name = "ps", .ptr = (uint64_t) &ps, .min_args = 0, .max_args = 0},
-    {.name = "printargs", .ptr = (uint64_t) &printargs, .min_args = 0, .max_args = MAX_WORDS},
-    {.name = "kill", .ptr = (uint64_t) &kill, .min_args = 1, .max_args = 1},
-    {.name = "pause", .ptr = (uint64_t) &pause, .min_args = 1, .max_args = 1},
-    {.name = "nice", .ptr = (uint64_t) &nice, .min_args = 2, .max_args = 2},
-    {.name = "semtest", .ptr = (uint64_t) &semtest, .min_args = 0, .max_args = 0},
-    {.name = "loop", .ptr = (uint64_t) &loop, .min_args = 0, .max_args = 0},
-    {.name = "cat", .ptr = (uint64_t) &cat, .min_args = 0, .max_args = 0},
-    {.name = "testmm", .ptr = (uint64_t) &test_mm, .min_args = 0, .max_args = 0},
+    {.name = "fibonacci", .ptr = (uint64_t) &fibonacci, .min_args = 0, .max_args = 0, .pipeable = 0},
+    {.name = "primos", .ptr = (uint64_t) &primos, .min_args = 0, .max_args = 0, .pipeable = 0},
+
+    {.name = "help", .ptr = (uint64_t) &help, .min_args = 0, .max_args = 0, .pipeable = 0},
+    {.name = "time", .ptr = (uint64_t) &time, .min_args = 0, .max_args = 0, .pipeable = 0},
+    {.name = "inforeg", .ptr = (uint64_t) &inforeg, .min_args = 0, .max_args = 0, .pipeable = 0},
+
+    {.name = "div-error", .ptr = (uint64_t) &divError, .min_args = 0, .max_args = 0, .pipeable = 0},
+    {.name = "opcode-error", .ptr = (uint64_t) &opCodeError, .min_args = 0, .max_args = 0, .pipeable = 0},
+
+    {.name = "printmem", .ptr = (uint64_t) &printmem, .min_args = 1, .max_args = 1, .pipeable = 0},
+    {.name = "printargs", .ptr = (uint64_t) &printargs, .min_args = 0, .max_args = MAX_WORDS, .pipeable = 0},
+
+    {.name = "ps", .ptr = (uint64_t) &ps, .min_args = 0, .max_args = 0, .pipeable = 0},
+    {.name = "kill", .ptr = (uint64_t) &kill, .min_args = 1, .max_args = 1, .pipeable = 0},
+    {.name = "pause", .ptr = (uint64_t) &pause, .min_args = 1, .max_args = 1, .pipeable = 0},
+    {.name = "nice", .ptr = (uint64_t) &nice, .min_args = 2, .max_args = 2, .pipeable = 0},
+
+    {.name = "semtest", .ptr = (uint64_t) &semtest, .min_args = 0, .max_args = 0, .pipeable = 0},
+    {.name = "testmm", .ptr = (uint64_t) &test_mm, .min_args = 0, .max_args = 0, .pipeable = 0},
+
+    {.name = "cat", .ptr = (uint64_t) &cat, .min_args = 0, .max_args = 0, .pipeable = 0},
+    {.name = "loop", .ptr = (uint64_t) &loop, .min_args = 0, .max_args = 0, .pipeable = 1},
 };
 
 /* = = = = = = = = = CODIGO = = = = = = = = = */
@@ -119,8 +126,8 @@ int piped_process_handle(char ** words, unsigned int amount_of_words){
         puts("Invalid program!");
         return 1;
     }
-    if(programs[p1].max_args != 0 || programs[p2].max_args != 0){
-        puts("Programs with arguments cannot be piped!");
+    if(!programs[p1].pipeable){
+        puts("Program is not pipable!");
         return 1;
     }
     sys_register_pipe(PIPE_ID);
