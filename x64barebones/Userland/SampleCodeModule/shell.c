@@ -10,7 +10,7 @@ extern void opCodeError();          // exception_test.asm
 #define INVALID_COMMAND_MSG "Invalid command!"
 
 // --- Dimensiones ---
-#define BUFFER_LENGTH 150
+#define BUFFER_LENGTH 400
 #define MAX_WORDS 30
 
 #define MIN(a,b) ((a) <= (b) ? (a) : (b))
@@ -147,37 +147,40 @@ void single_process_handle(char ** words, unsigned int amount_of_words){
 
     if(program_pos == -1){
         puts("Invalid program!");
+        return;
     }
     if(amount_of_words - 1 < programs[program_pos].min_args){
         puts("Missing arguments!");
+        return;
     }
+
+
+    // Check if user wants to run program in background
+    int i, backgroud_indiaction = 0;
+    for(i=programs[program_pos].min_args + 1; !backgroud_indiaction && i<amount_of_words; i++){
+        if(strcmp("//", words[i]) == 0){         // We consider the symbol as the last argument. All subsequent arguments will be ignored
+            backgroud_indiaction = 2;       
+        }
+        else if(strcmp("/", words[i]) == 0){         // We consider the symbol as the last argument. All subsequent arguments will be ignored
+            backgroud_indiaction = 1;       
+        }
+    }
+
+    // Run in background
+    if(backgroud_indiaction == 2){
+        sys_register_process(programs[program_pos].ptr, 1, BACKGROUND, (uint64_t) make_params(words, MIN(i-1,programs[program_pos].max_args))); 
+    }
+    else if(backgroud_indiaction == 1){
+        sys_register_process(programs[program_pos].ptr, 1, NORMAL_SCREEN, (uint64_t) make_params(words, MIN(i-1,programs[program_pos].max_args))); 
+    }
+
+    // Run on screen
     else{
-        // Check if user wants to run program in background
-        int i, backgroud_indiaction = 0;
-        for(i=programs[program_pos].min_args + 1; !backgroud_indiaction && i<amount_of_words; i++){
-            if(strcmp("//", words[i]) == 0){         // We consider the symbol as the last argument. All subsequent arguments will be ignored
-                backgroud_indiaction = 2;       
-            }
-            else if(strcmp("/", words[i]) == 0){         // We consider the symbol as the last argument. All subsequent arguments will be ignored
-                backgroud_indiaction = 1;       
-            }
-        }
-
-        // Run in background
-        if(backgroud_indiaction == 2){
-            sys_register_process(programs[program_pos].ptr, 1, BACKGROUND, (uint64_t) make_params(words, MIN(i-1,programs[program_pos].max_args))); 
-        }
-        else if(backgroud_indiaction == 1){
-            sys_register_process(programs[program_pos].ptr, 1, NORMAL_SCREEN, (uint64_t) make_params(words, MIN(i-1,programs[program_pos].max_args))); 
-        }
-
-        // Run on screen
-        else{
-            sys_register_child_process(programs[program_pos].ptr, 1, NORMAL_SCREEN, (uint64_t) make_params(words, MIN(amount_of_words-1, programs[program_pos].max_args))); 
-        
-            sys_wait_for_children();
-        }
+        sys_register_child_process(programs[program_pos].ptr, 1, NORMAL_SCREEN, (uint64_t) make_params(words, MIN(amount_of_words-1, programs[program_pos].max_args))); 
+    
+        sys_wait_for_children();
     }
+    
 }
 
 
@@ -190,6 +193,7 @@ void shell(){
         print(SYMBOL, SYMBOL_LENGTH);
 
         read_line(buffer, BUFFER_LENGTH);
+        puts("");
 
         int amount_of_words = tokenize(buffer, words);
 

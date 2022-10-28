@@ -50,7 +50,7 @@ void puts(char * string);
  *      (int) size of bytes to read
  * Devuelve: -- 
  */
-void read_line(char * buf, int length);
+int read_line(char * buf, int length);
 
 /*
  * << getchar >>

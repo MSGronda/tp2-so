@@ -21,7 +21,6 @@ extern char readKeyboard();		// en libasm.asm
 static char keyBuffer[BUFFER_SIZE];             // Buffer de caracters de teclado
 static int writePos;				// Posicion a escribir en el buffer
 static int readPos;				// Posicion a consumir en el buffer
-static int peekPos;			        // Posicion para observar en el buffer
 
 /* Tabla de equivalencias entre makeCode y Ascii */
 static char scanCodeTable[] = {
@@ -101,22 +100,9 @@ void keyboard_handler() {
 			
 	char c = scanCodeTable[key];			// convierto a ascii
 
-	// ------ Caracteres especiales ------
-
-	if(c=='\b'){
-		int previous = writePos;
-		DECREASE_MOD(previous,BUFFER_SIZE)
-		if(keyBuffer[previous] != 0){
-			writePos = previous;
-			keyBuffer[writePos] = 0; 			
-		}
-	}
-
 	// ------ Caracteres normales -------
-	else if(c != UNMAPPED){
+	if(c != UNMAPPED){
 		keyBuffer[writePos] = c;					// se agraga al buffer
 		INCREASE_MOD(writePos,BUFFER_SIZE);
 	}
-
-	screen_write_through(c);
 }
