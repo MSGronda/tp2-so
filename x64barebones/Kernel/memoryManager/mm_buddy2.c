@@ -31,6 +31,10 @@ static inline unsigned int getBuddy(unsigned int idx) {
     return (idx % 2) == 0? idx - 1 : idx + 1; 
 }
 
+static inline unsigned int getFirstIdxOfClass(unsigned int sizeClass) {
+    return (1 << (maxSizeClass - sizeClass)) - 1;
+}
+
 static inline pow2(unsigned int exp) {
     return (2 << exp);
 }
@@ -42,7 +46,8 @@ unsigned int getSizeClass(uint64_t size) {
 
     while((size >>= 1) != 0)
         out++;
-    return out;
+    
+    return out < MIN_SIZE_CLASS? MIN_SIZE_CLASS : out;
 }
 
 void mm_init() {
@@ -58,12 +63,13 @@ TNode * getSmallestAvailable(unsigned int sizeClass) {
 }
 
 TNode * getSmallestAvailableRec(unsigned int sizeClass, unsigned int currSizeClass, unsigned int idx) {
-    // cb
-    if(sizeClass > maxSizeClass || btree[idx].isAllocated)
+    if(btree[idx].isAllocated)
         return NULL;
 
-    if(sizeClass == MIN_SIZE_CLASS || sizeClass == currSizeClass)
+    if(sizeClass == currSizeClass) {
+        btree[idx].isAllocated = TRUE;
         return &btree[idx];
+    }
 
     if(sizeClass < currSizeClass) {
         TNode * out = getSmallestAvailableRec(sizeClass, currSizeClass - 1, getLeftChildIdx(idx));
@@ -74,18 +80,14 @@ TNode * getSmallestAvailableRec(unsigned int sizeClass, unsigned int currSizeCla
         return out;
     }
 
-    return NULL; // sizeClass > currSizeClass => shouldnt happen
+    return NULL; // sizeClass > currSizeClass => shouldnt happen, already checked
 }
 
 
 // TODO !!!!!!
 // should return idx NOT node
-static inline void * ptrToIdx(TNode * node) {
-    return NULL;
-}
-
-static inline TNode * nodeToPtr(void * userPtr) {
-    return NULL;
+static inline void * nodeToPtr(unsigned int idx, unsigned int sizeClass) {
+    return (uint64_t) userStart + (idx - getFirstIdxOfClass(sizeClass)) * (1 << sizeClass);
 }
 
 
@@ -94,10 +96,12 @@ void * mm_malloc(uint64_t size) {
         return NULL;    
 
     unsigned int sizeClass = getSizeClass(size);
-    TNode * node = getSmallestAvailable(sizeClass);
-    // TODO: falta hacer el calculo
+    if(sizeClass > maxSizeClass)
+        return NULL;
 
-    return nodeToPtr(node);
+    TNode * node = getSmallestAvailable(sizeClass);
+
+    return (void *) nodeToPtr(node, sizeClass);
 }
 
 void freeRec(unsigned int idx) {
@@ -115,6 +119,6 @@ void mm_free(void * ptr) {
     if(ptr == NULL || ptr < userStart || ptr > BUDDY_END)
         return;
 
-    unsigned int idx = ptrToNode(ptr);
+    unsigned int idx = ptrToIdx(ptr);
     freeRec(idx);
 }
