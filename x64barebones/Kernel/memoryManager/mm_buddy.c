@@ -5,10 +5,11 @@
 #define BUDDY_SUM_PTR(ptr, num) (((uint64_t) (ptr) + (num)) )
 
 typedef struct TNode{
-    int sizeClass;
+    uint8_t sizeClass;
     char isAllocated;
     char isDivided;
-    uint64_t * userAdd;
+
+    uint64_t * userAddr;
     TNode * left;
     TNode * right;
 } TNode;
@@ -19,11 +20,11 @@ void mm_init() {
 
     uint64_t * sizeClasses = BUDDY_START;
 
-    int nodes = ((maxSizeClass - MIN_SIZE_CLASS + 1) << 1) - 1;
+    int nodes = (1  << ((maxSizeClass - MIN_SIZE_CLASS) + 1)) - 1; // 2^h+1 - 1
 
     //Como nos aseguramos que el TREE + la memoria de 2^maxSizeClass entre en el heapsize??
 
-    uint64_t * userStart = (uint64_t *) BUDDY_SUM_PTR(BUDDY_START, nodes*sizeof(TNode));
+    uint64_t * userStart = (uint64_t *) BUDDY_SUM_PTR(BUDDY_START, nodes * sizeof(TNode));
 
 
     uint64_t endOfTree;    
@@ -33,42 +34,42 @@ void mm_init() {
 
 
 //Buildeo el arbol primero izq hasta llegar al MIN_SIZE_CLASS y lo mismo por la der despues.
-TNode * buildTreeRec(uint64_t * currAdd, int sizeClass, uint64_t * userAdd, uint64_t * finalAdress) {
+TNode * buildTreeRec(uint64_t * currAddr, int sizeClass, uint64_t * userAddr, uint64_t * finalAdress) {
 
     //Si ya me pase del MIN_SIZE_CLASS devuelvo NULL pues el padre es el ultimo.
     if(sizeClass == MIN_SIZE_CLASS - 1){
-        *finalAdress = currAdd;
+        *finalAdress = currAddr;
         return NULL;
     }
 
-    TNode * currNode = (TNode *) currAdd;
-    currAdd = BUDDY_SUM_PTR(currAdd, sizeof(TNode));
+    TNode * currNode = (TNode *) currAddr;
+    currAddr = BUDDY_SUM_PTR(currAddr, sizeof(TNode));
 
     currNode->sizeClass = sizeClass;
     currNode->isAllocated = FALSE;
-    currNode->userAdd = userAdd;
+    currNode->userAddr = userAddr;
     currNode->isDivided = FALSE;
 
     uint64_t final;
     
     
-    uint64_t * leftAdd = userAdd;
-    currNode->left = buildTree(BUDDY_SUM_PTR(currAdd, sizeof(TNode)), sizeClass - 1, leftAdd ,&final);
-    currAdd = final;
+    uint64_t * leftAddr = userAddr;
+    currNode->left = buildTree(BUDDY_SUM_PTR(currAddr, sizeof(TNode)), sizeClass - 1, leftAddr ,&final);
+    currAddr = final;
 
     uint64_t halfBlockSize = getSize(sizeClass)/2;
-    uint64_t * rightAdd = BUDDY_SUM_PTR(userAdd, halfBlockSize);
-    currNode->right = buildTree(BUDDY_SUM_PTR(currAdd, sizeof(TNode)), sizeClass - 1, rightAdd ,&final);
-    currAdd = final;
+    uint64_t * rightAddr = BUDDY_SUM_PTR(userAddr, halfBlockSize);
+    currNode->right = buildTree(BUDDY_SUM_PTR(currAddr, sizeof(TNode)), sizeClass - 1, rightAddr ,&final);
+    currAddr = final;
 
-    *finalAdress = currAdd;
+    *finalAdress = currAddr;
     return currNode;
 }
 
-void setNode(TNode * node, int size, char allocated, uint64_t userAdd, TNode * left, TNode * right){
+void setNode(TNode * node, int size, char allocated, uint64_t userAddr, TNode * left, TNode * right){
     node->sizeClass = size;
     node->isAllocated = allocated;
-    node->userAdd = userAdd;
+    node->userAddr = userAddr;
     node->left = left;
     node->right = right;
 }
@@ -92,7 +93,7 @@ int getSize(int sizeClass){
 //Returns the max size class that fits a block of size
 //Performs a log2(size) rounded to nearest whole num using bitwise operations
 int getSizeClass(uint64_t size) {
-    long out = 1;
+    long out = 1; // TODO: creo q esto arrancaba con 0
     while((size >>= 1) != 0) 
         out++;
     return out;
