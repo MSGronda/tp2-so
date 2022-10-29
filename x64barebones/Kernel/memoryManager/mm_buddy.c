@@ -40,7 +40,7 @@ static inline unsigned int getFirstIdxOfClass(unsigned int sizeClass) {
 }
 
 static inline unsigned int pow2(unsigned int exp) {
-    return (2 << exp);
+    return (1 << exp);
 }
 
 //Returns the max size class that fits a block of size
@@ -81,7 +81,8 @@ int getSmallestAvailableRec(unsigned int sizeClass, unsigned int currSizeClass, 
         if(out == -1)
             out = getSmallestAvailableRec(sizeClass, currSizeClass - 1, getRightChildIdx(idx));
 
-        btree[idx].isSplit = out != -1? TRUE : FALSE;
+        if(out != -1)
+            btree[idx].isSplit = TRUE;
         return out;
     }
 
