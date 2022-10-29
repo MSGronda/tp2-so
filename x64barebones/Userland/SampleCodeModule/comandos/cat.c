@@ -1,7 +1,7 @@
 #include "../include/comandos.h"
+#include "../include/syscalls.h"
 
-
-#define SIZE 100
+#define SIZE 20
 
 void cat(){
 	char buffer[SIZE] = {0};

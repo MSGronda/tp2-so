@@ -1,6 +1,7 @@
 #include "../include/comandos.h"
 #include "../include/syscalls.h"
 
-void ps(){
-	sys_list_process();
+
+void pipe(){
+	sys_print_pipe();
 }

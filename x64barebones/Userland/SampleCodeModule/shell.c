@@ -23,7 +23,7 @@ typedef struct program_info{
         uint8_t pipeable;
 }program_info;
 
-#define TOTAL_PROGRAMS 17
+#define TOTAL_PROGRAMS 21
 static program_info programs[] = {
     {.name = "fibonacci", .ptr = (uint64_t) &fibonacci, .min_args = 0, .max_args = 0, .pipeable = 0},
     {.name = "primos", .ptr = (uint64_t) &primos, .min_args = 0, .max_args = 0, .pipeable = 0},
@@ -37,6 +37,8 @@ static program_info programs[] = {
 
     {.name = "printmem", .ptr = (uint64_t) &printmem, .min_args = 1, .max_args = 1, .pipeable = 0},
     {.name = "printargs", .ptr = (uint64_t) &printargs, .min_args = 0, .max_args = MAX_WORDS, .pipeable = 0},
+    {.name = "pipe", .ptr = (uint64_t) &pipe, .min_args = 0, .max_args = 0, .pipeable = 0},
+    {.name = "sem", .ptr = (uint64_t) &sem, .min_args = 0, .max_args = 0, .pipeable = 0},
 
     {.name = "ps", .ptr = (uint64_t) &ps, .min_args = 0, .max_args = 0, .pipeable = 0},
     {.name = "kill", .ptr = (uint64_t) &kill, .min_args = 1, .max_args = 1, .pipeable = 0},
@@ -48,6 +50,8 @@ static program_info programs[] = {
 
     {.name = "cat", .ptr = (uint64_t) &cat, .min_args = 0, .max_args = 0, .pipeable = 0},
     {.name = "loop", .ptr = (uint64_t) &loop, .min_args = 0, .max_args = 0, .pipeable = 1},
+    {.name = "filter", .ptr = (uint64_t) &filter, .min_args = 0, .max_args = 0, .pipeable = 0},
+    {.name = "wc", .ptr = (uint64_t) &wc, .min_args = 0, .max_args = 0, .pipeable = 0},
 };
 
 /* = = = = = = = = = CODIGO = = = = = = = = = */

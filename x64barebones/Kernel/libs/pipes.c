@@ -137,6 +137,8 @@ void print_pipe(){
 	int len;
 	char buffer[20];
 
+	writeDispatcher(get_current_output(),"-=-=-=-=-= Pipe Info =-=-=-=-=-\n", 32);
+
 	for(int i=0; i<MAX_PIPES; i++){
 		if(pipe_info[i].pipe_id != 0){
 			writeDispatcher(get_current_output(),"Pipe Id: ",9);

@@ -8,7 +8,11 @@
 #define BUFF_SIZE 20
 #define BUFFER_LENGTH 150
 
+void pipe();
+void sem();
 
+void wc();
+void filter();
 void cat();
 void loop();
 
