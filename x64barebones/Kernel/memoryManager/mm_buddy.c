@@ -1,19 +1,17 @@
 #include <memoryManager.h>
 
-#define MIN_SIZE_CLASS 5
+#define MIN_SIZE_CLASS 6
 #define BUDDY_START 0xA00000
 #define BUDDY_END (BUDDY_START + HEAP_SIZE)
 
 #define HEADER_SIZE (sizeof(uint64_t)) // in order to stay alligned
 
 #define BUDDY_SUM_PTR(ptr, num) (((uint64_t) (ptr) + (num)) )
-#define BUDDY_GET_CLASS(ptr) ( *((unsigned int *) ptr))
-
-
+#define BUDDY_GET_CLASS(ptr) (*((unsigned int *) ptr))
 
 typedef struct TNode{
-    char isAllocated : 1;
-    char isSplit : 1;
+    char isAllocated;
+    char isSplit;
 } TNode;
 
 static TNode * btree = BUDDY_START;
@@ -22,7 +20,7 @@ static unsigned int maxSizeClass;
 static uint64_t buddySize;
 
 static inline unsigned int getParentIdx(unsigned int idx) {
-    return (idx - 1) >> 1;
+    return ((idx + 1) >> 1) - 1;
 }
 
 static inline unsigned int getLeftChildIdx(unsigned int idx) {
@@ -56,37 +54,41 @@ unsigned int getSizeClass(uint64_t size) {
     return out < MIN_SIZE_CLASS? MIN_SIZE_CLASS : out;
 }
 
+// TODO: chequear que el size del btree sea menor que el size del heap
 void mm_init() {
     maxSizeClass = getSizeClass(HEAP_SIZE);
 
     int nodes = pow2((maxSizeClass - MIN_SIZE_CLASS) + 1) - 1; // 2^h+1 - 1
 
     userStart = (void *) BUDDY_SUM_PTR(btree, nodes * sizeof(TNode));
-    buddySize =  BUDDY_END - ((int64_t) userStart);
+    buddySize =  BUDDY_END - ((uint64_t) userStart);
 }
 
-TNode * getSmallestAvailableRec(unsigned int sizeClass, unsigned int currSizeClass, unsigned int idx) {
+int getSmallestAvailableRec(unsigned int sizeClass, unsigned int currSizeClass, unsigned int idx) {
     if(btree[idx].isAllocated)
-        return NULL;
+        return -1;
 
     if(sizeClass == currSizeClass) {
+        if(btree[idx].isSplit)
+            return -1;
+
         btree[idx].isAllocated = TRUE;
-        return &btree[idx];
+        return idx;
     }
 
     if(sizeClass < currSizeClass) {
-        TNode * out = getSmallestAvailableRec(sizeClass, currSizeClass - 1, getLeftChildIdx(idx));
-        if(out == NULL)
+        int out = getSmallestAvailableRec(sizeClass, currSizeClass - 1, getLeftChildIdx(idx));
+        if(out == -1)
             out = getSmallestAvailableRec(sizeClass, currSizeClass - 1, getRightChildIdx(idx));
 
-        btree[idx].isSplit = out? TRUE : FALSE;
+        btree[idx].isSplit = out != -1? TRUE : FALSE;
         return out;
     }
 
-    return NULL; // sizeClass > currSizeClass => shouldnt happen
+    return -1; // sizeClass > currSizeClass => shouldnt happen
 }
 
-TNode * getSmallestAvailable(unsigned int sizeClass) {
+int getSmallestAvailable(unsigned int sizeClass) {
     return getSmallestAvailableRec(sizeClass, maxSizeClass, 0);
 }
 
@@ -94,8 +96,8 @@ static inline void * nodeToPtr(unsigned int idx, unsigned int sizeClass) {
     return BUDDY_SUM_PTR(userStart, (idx - getFirstIdxOfClass(sizeClass)) * (1 << sizeClass));
 }
 
-static inline unsigned int ptrToIdx(void * ptr, unsigned int sizeClass) {
-    return (ptr - userStart) >> sizeClass; 
+static inline unsigned int ptrToIdx(void * ptr) {
+    return *(uint64_t *) ptr;
 }
 
 
@@ -107,10 +109,10 @@ void * mm_malloc(uint64_t size) {
     if(sizeClass > maxSizeClass)
         return NULL;
 
-    TNode * node = getSmallestAvailable(sizeClass);
+    int idx = getSmallestAvailable(sizeClass);
 
-    void * out = nodeToPtr(node, sizeClass);
-    *((uint64_t *) out) = sizeClass; // TODO: posible error aca, chequear con gdb que hace lo esperado
+    void * out = nodeToPtr(idx, sizeClass);
+    *((uint64_t *) out) = idx; // TODO: posible error aca, chequear con gdb que hace lo esperado
 
     return (void *) BUDDY_SUM_PTR(out, HEADER_SIZE);
 }
@@ -119,7 +121,7 @@ void freeRec(unsigned int idx) {
     btree[idx].isAllocated = FALSE;
 
     int buddyIdx = getBuddy(idx);
-    if(!btree[buddyIdx].isAllocated) {
+    if(!btree[buddyIdx].isAllocated && !btree[buddyIdx].isSplit) {
         int parentIdx = getParentIdx(idx);
         btree[parentIdx].isSplit = FALSE;
         freeRec(parentIdx);
@@ -131,6 +133,9 @@ void mm_free(void * ptr) {
         return;
 
     void * realPtr = BUDDY_SUM_PTR(ptr, -HEADER_SIZE);
-    unsigned int idx = ptrToIdx(realPtr, BUDDY_GET_CLASS(realPtr));
+    unsigned int idx = ptrToIdx(realPtr);
+    if(!btree[idx].isAllocated)
+        return;
+
     freeRec(idx);
 }

@@ -5,7 +5,7 @@
 #include "../include/syscalls.h"
 
 #define MAX_BLOCKS 80
-#define MAX_MEMORY 2000 
+#define MAX_MEMORY 500 
 typedef struct MM_rq{
   void *address;
   uint32_t size;
