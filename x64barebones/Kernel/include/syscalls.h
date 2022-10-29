@@ -34,6 +34,7 @@
 // Return values
 #define INVALID_SCREEN -1
 
+uint64_t sys_destroy_sem();
 uint64_t sys_print_sem();
 uint64_t sys_signal_sem(unsigned int sem_id);
 uint64_t sys_register_sem(unsigned int sem_id);

@@ -1,3 +1,4 @@
+/*
 #include <memoryManager.h>
 #include <mm_imp.h>
 #include <stddef.h>
@@ -88,3 +89,4 @@ void freeBlock(header_t * ptr) {
     ptr->size = 0;
     ptr->allocated = TRUE;
  }
+ */

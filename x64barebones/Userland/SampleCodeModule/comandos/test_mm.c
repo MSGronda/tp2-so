@@ -5,7 +5,7 @@
 #include "../include/syscalls.h"
 
 #define MAX_BLOCKS 80
-#define MAX_MEMORY 2000
+#define MAX_MEMORY 2000 
 typedef struct MM_rq{
   void *address;
   uint32_t size;
@@ -19,6 +19,8 @@ void* setmem(void* destination, int32_t c, uint64_t length) {
     }
     return destination;
 }
+
+void bup() {}
 
 void test_mm(){
     mm_rq mm_rqs[MAX_BLOCKS];
@@ -38,6 +40,8 @@ void test_mm(){
         while (rq < MAX_BLOCKS && total < max_memory) {
             mm_rqs[rq].size = GetUniform(max_memory - total - 1) + 1;
             mm_rqs[rq].address = malloc(mm_rqs[rq].size);
+
+            if(rq == 8) bup();
 
             char buffer[20];
             num_to_string(rq, buffer);
