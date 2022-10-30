@@ -177,7 +177,7 @@ void print_sem(){
 	int len;
 	char buffer[20];
 
-		writeDispatcher(get_current_output(),"-=-=-=-=-= Sem Info =-=-=-=-=-\n", 31);
+	writeDispatcher(get_current_output(),"-=-=-=-=-= Sem Info =-=-=-=-=-\n", 31);
 
 	for(int i=0; i<MAX_SEMAPHORES; i++){
 		if(sem_info[i].sem_id != 0){

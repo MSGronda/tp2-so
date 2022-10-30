@@ -10,12 +10,7 @@
 #define RIGHT_SCREEN 5
 #define NORMAL_SCREEN 1
 #define BACKGROUND 0
-
-// --- Caracteres especiales ---
-#define PAUSE_NORMAL_SCREEN 17
-#define PAUSE_LEFT_SCREEN  18
-#define PAUSE_RIGHT_SCREEN 19
-#define ESCAPE_KEY 27
+#define STDIN 1
 
 /*
  * << print >>

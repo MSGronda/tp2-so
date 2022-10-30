@@ -7,11 +7,18 @@ extern void opCodeError();          // exception_test.asm
 #define SYMBOL "$> "
 #define SYMBOL_LENGTH 3
 #define PIPE "|"
+
+// Error Msg
 #define INVALID_COMMAND_MSG "Invalid command!"
+#define NON_PIPABLE "Program is not pipable!"
+#define MISSING_ARGS "Missing arguments!"
+#define NO_STRING "Empty string!"
+#define MALLOC_ERROR "Error allocating space for args!"
 
 // --- Dimensiones ---
 #define BUFFER_LENGTH 400
 #define MAX_WORDS 30
+#define PIPE_ID 244
 
 #define MIN(a,b) ((a) <= (b) ? (a) : (b))
 
@@ -42,11 +49,11 @@ static program_info programs[] = {
 
     {.name = "ps", .ptr = (uint64_t) &ps, .min_args = 0, .max_args = 0, .pipeable = 0},
     {.name = "kill", .ptr = (uint64_t) &kill, .min_args = 1, .max_args = 1, .pipeable = 0},
-    {.name = "pause", .ptr = (uint64_t) &pause, .min_args = 1, .max_args = 1, .pipeable = 0},
+    {.name = "block", .ptr = (uint64_t) &pause, .min_args = 1, .max_args = 1, .pipeable = 0},
     {.name = "nice", .ptr = (uint64_t) &nice, .min_args = 2, .max_args = 2, .pipeable = 0},
 
-    {.name = "semtest", .ptr = (uint64_t) &semtest, .min_args = 0, .max_args = 0, .pipeable = 0},
-    {.name = "testmm", .ptr = (uint64_t) &test_mm, .min_args = 0, .max_args = 0, .pipeable = 0},
+    {.name = "test-sem", .ptr = (uint64_t) &semtest, .min_args = 0, .max_args = 0, .pipeable = 0},
+    {.name = "test-mm", .ptr = (uint64_t) &test_mm, .min_args = 0, .max_args = 0, .pipeable = 0},
     {.name = "test-process", .ptr = (uint64_t) &test_processes, .min_args = 1, .max_args = 1, .pipeable = 0},
     {.name = "test-prio", .ptr = (uint64_t) &test_prio, .min_args = 0, .max_args =0, .pipeable = 0},
 
@@ -86,14 +93,11 @@ unsigned int check_valid_program(char * string){
     return -1;
 }
 
-// ps NULL
-// printmem abc NULL
-
 char ** make_params(char ** words, unsigned int len){
     void * coso = (void*) sys_alloc((2 + len) * sizeof(char *)); // + 1 for name, + 1 por null termination
 
     if(coso == NULL){
-        puts("error!");     //TODO: replace
+        puts(MALLOC_ERROR);     //TODO: replace
         return NULL;
     }
 
@@ -108,7 +112,7 @@ char ** make_params(char ** words, unsigned int len){
         param = (void*) sys_alloc(paramLen);
 
          if(param == NULL){
-            puts("error!");     //TODO: replace
+            puts(MALLOC_ERROR);     //TODO: replace
             return NULL;
         }
 
@@ -121,24 +125,27 @@ char ** make_params(char ** words, unsigned int len){
     return params;
 }
 
-#define PIPE_ID 123
-
 int piped_process_handle(char ** words, unsigned int amount_of_words){
     if(amount_of_words != 3 || strcmp("|", words[1]) != 0)
         return 0;
     unsigned int p1 = check_valid_program(words[0]);
     unsigned int p2 = check_valid_program(words[2]);
     if(p1 == -1 || p2 == -1){
-        puts("Invalid program!");
+        puts(INVALID_COMMAND_MSG);
         return 1;
     }
     if(!programs[p1].pipeable){
-        puts("Program is not pipable!");
+        puts(NON_PIPABLE);
         return 1;
     }
-    sys_register_pipe(PIPE_ID);
+    int resp = sys_register_pipe(PIPE_ID);
 
-    sys_register_child_process(programs[p1].ptr, 1, PIPE_ID, (uint64_t) make_params(words, 0)); 
+    if(resp != 0){
+        puts("Error creating pipe!");
+        return 1;
+    }
+
+    sys_register_child_process(programs[p1].ptr, STDIN, PIPE_ID, (uint64_t) make_params(words, 0)); 
     sys_register_child_process(programs[p2].ptr, PIPE_ID, NORMAL_SCREEN, (uint64_t) make_params(words, 0)); 
 
     sys_wait_for_children();
@@ -152,11 +159,11 @@ void single_process_handle(char ** words, unsigned int amount_of_words){
      unsigned int program_pos = check_valid_program(words[0]);
 
     if(program_pos == -1){
-        puts("Invalid program!");
+        puts(INVALID_COMMAND_MSG);
         return;
     }
     if(amount_of_words - 1 < programs[program_pos].min_args){
-        puts("Missing arguments!");
+        puts(MISSING_ARGS);
         return;
     }
 
@@ -174,15 +181,15 @@ void single_process_handle(char ** words, unsigned int amount_of_words){
 
     // Run in background
     if(backgroud_indiaction == 2){
-        sys_register_process(programs[program_pos].ptr, 1, BACKGROUND, (uint64_t) make_params(words, MIN(i-1,programs[program_pos].max_args))); 
+        sys_register_process(programs[program_pos].ptr, STDIN, BACKGROUND, (uint64_t) make_params(words, MIN(i-1,programs[program_pos].max_args))); 
     }
     else if(backgroud_indiaction == 1){
-        sys_register_process(programs[program_pos].ptr, 1, NORMAL_SCREEN, (uint64_t) make_params(words, MIN(i-1,programs[program_pos].max_args))); 
+        sys_register_process(programs[program_pos].ptr, STDIN, NORMAL_SCREEN, (uint64_t) make_params(words, MIN(i-1,programs[program_pos].max_args))); 
     }
 
     // Run on screen
     else{
-        sys_register_child_process(programs[program_pos].ptr, 1, NORMAL_SCREEN, (uint64_t) make_params(words, MIN(amount_of_words-1, programs[program_pos].max_args))); 
+        sys_register_child_process(programs[program_pos].ptr, STDIN, NORMAL_SCREEN, (uint64_t) make_params(words, MIN(amount_of_words-1, programs[program_pos].max_args))); 
     
         sys_wait_for_children();
     }
@@ -204,7 +211,7 @@ void shell(){
         int amount_of_words = tokenize(buffer, words);
 
         if(amount_of_words  == 0){
-            puts("Empty string!");
+            puts(NO_STRING);
             continue;                 // mas legible asi, no rompas los huevos
         }
 

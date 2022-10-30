@@ -67,6 +67,7 @@ void endless_loop_print(){
 
   while(1){
     print(buf, len);
+    print(" ", 1);
     bussy_wait(10000000);
   }
 }

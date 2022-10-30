@@ -5,6 +5,7 @@
 static unsigned int a = 0;
 #define ADD 500
 #define PROCESS_AMOUNT 2
+#define SEM_ID 26984
 
 void slowInc(int * a, int inc){
     int b;
@@ -15,19 +16,19 @@ void slowInc(int * a, int inc){
 }
 
 
-void semtest1(){
+void incTest(){
     int inc = 1;
     for(int i=0; i<ADD; i++){
-        sys_wait_sem(555);
+        sys_wait_sem(SEM_ID);
         slowInc(&a,inc);
-        sys_signal_sem(555);
+        sys_signal_sem(SEM_ID);
     }
 }
 
 
 
 void semtest(){
-    int res = sys_register_sem(555, 1);
+    int res = sys_register_sem(SEM_ID, 1);
     if(res != 0){
         puts("error creating semaphore");
         return;
@@ -36,14 +37,14 @@ void semtest(){
 
 
     for(int i=0; i<PROCESS_AMOUNT; i++){
-        int error = sys_register_child_process(&semtest1,1, BACKGROUND, NULL);
+        int error = sys_register_child_process(&incTest,STDIN, BACKGROUND, NULL);
         if(error <= 0){
             puts("error creating children");
         }
     }
 
     sys_wait_for_children();
-    sys_destroy_sem(555);
+    sys_destroy_sem(SEM_ID);
 
 
     char buff[29];
@@ -55,5 +56,4 @@ void semtest(){
     print(buff, len);
     puts("\n");
 
-    sys_print_sem();
 }
