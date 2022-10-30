@@ -1,20 +1,9 @@
+#ifdef USE_BUDDY
+
 #include <memoryManager.h>
+#include <mm_buddy.h>
 
-#define MIN_SIZE_CLASS 6
-#define BUDDY_START 0xA00000
-#define BUDDY_END (BUDDY_START + HEAP_SIZE)
-
-#define HEADER_SIZE (sizeof(uint64_t)) // in order to stay alligned
-
-#define BUDDY_SUM_PTR(ptr, num) (((uint64_t) (ptr) + (num)) )
-#define BUDDY_GET_CLASS(ptr) (*((unsigned int *) ptr))
-
-typedef struct TNode{
-    char isAllocated;
-    char isSplit;
-} TNode;
-
-static TNode * btree = BUDDY_START;
+static TNode * btree = (TNode *) HEAP_START;
 static void * userStart;
 static unsigned int maxSizeClass;
 static uint64_t buddySize;
@@ -36,16 +25,12 @@ static inline unsigned int getBuddy(unsigned int idx) {
 }
 
 static inline unsigned int getFirstIdxOfClass(unsigned int sizeClass) {
-    return (1 << (maxSizeClass - sizeClass)) - 1;
-}
-
-static inline unsigned int pow2(unsigned int exp) {
-    return (1 << exp);
+    return POW_2(maxSizeClass - sizeClass) - 1;
 }
 
 //Returns the max size class that fits a block of size
 //Performs a log2(size) rounded to nearest whole num using bitwise operations
-unsigned int getSizeClass(uint64_t size) {
+static unsigned int getSizeClass(uint64_t size) {
     unsigned int out = 1; 
 
     while((size >>= 1) != 0)
@@ -58,13 +43,13 @@ unsigned int getSizeClass(uint64_t size) {
 void mm_init() {
     maxSizeClass = getSizeClass(HEAP_SIZE);
 
-    int nodes = pow2((maxSizeClass - MIN_SIZE_CLASS) + 1) - 1; // 2^h+1 - 1
+    int nodes = POW_2((maxSizeClass - MIN_SIZE_CLASS) + 1) - 1; // 2^h+1 - 1
 
-    userStart = (void *) BUDDY_SUM_PTR(btree, nodes * sizeof(TNode));
-    buddySize =  BUDDY_END - ((uint64_t) userStart);
+    userStart = (void *) SUM_PTR(btree, nodes * sizeof(TNode));
+    buddySize =  (uint64_t) (HEAP_END - userStart);
 }
 
-int getSmallestAvailableRec(unsigned int sizeClass, unsigned int currSizeClass, unsigned int idx) {
+static int getSmallestAvailableRec(unsigned int sizeClass, unsigned int currSizeClass, unsigned int idx) {
     if(btree[idx].isAllocated)
         return -1;
 
@@ -94,7 +79,7 @@ int getSmallestAvailable(unsigned int sizeClass) {
 }
 
 static inline void * nodeToPtr(unsigned int idx, unsigned int sizeClass) {
-    return BUDDY_SUM_PTR(userStart, (idx - getFirstIdxOfClass(sizeClass)) * (1 << sizeClass));
+    return (void *) SUM_PTR(userStart, (idx - getFirstIdxOfClass(sizeClass)) * (1 << sizeClass));
 }
 
 static inline unsigned int ptrToIdx(void * ptr) {
@@ -115,10 +100,10 @@ void * mm_malloc(uint64_t size) {
     void * out = nodeToPtr(idx, sizeClass);
     *((uint64_t *) out) = idx; // TODO: posible error aca, chequear con gdb que hace lo esperado
 
-    return (void *) BUDDY_SUM_PTR(out, HEADER_SIZE);
+    return (void *) SUM_PTR(out, HEADER_SIZE);
 }
 
-void freeRec(unsigned int idx) {
+static void freeRec(unsigned int idx) {
     btree[idx].isAllocated = FALSE;
 
     int buddyIdx = getBuddy(idx);
@@ -130,13 +115,15 @@ void freeRec(unsigned int idx) {
 }
 
 void mm_free(void * ptr) {
-    if(ptr == NULL || ptr < userStart || ptr > BUDDY_END)
+    if(ptr == NULL || ptr < userStart || ptr > HEAP_END)
         return;
 
-    void * realPtr = BUDDY_SUM_PTR(ptr, -HEADER_SIZE);
+    void * realPtr = (void *) SUM_PTR(ptr, -HEADER_SIZE);
     unsigned int idx = ptrToIdx(realPtr);
     if(!btree[idx].isAllocated)
         return;
 
     freeRec(idx);
 }
+
+#endif // USE_BUDDY

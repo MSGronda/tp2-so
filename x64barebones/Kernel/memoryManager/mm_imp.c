@@ -1,11 +1,12 @@
-/*
+#ifndef USE_BUDDY
+
 #include <memoryManager.h>
 #include <mm_imp.h>
 #include <stddef.h>
 
  // WE ALWAYS WANT BYTES!!!!
  void mm_init() {
-     addEOL(HEAP_START);
+     addEOL((header_t *) HEAP_START);
  }
 
  void * mm_malloc(uint64_t len) {
@@ -25,11 +26,12 @@
  }
 
  void mm_free(void * ptr) {
- 	header_t * castedPtr = (header_t *) ptr;
-    if(castedPtr == NULL || castedPtr < HEAP_START || castedPtr >= HEAP_END)
+    if(ptr == NULL || ptr < HEAP_START || ptr >= HEAP_END)
         return;
+
+ 	header_t * castedPtr = (header_t *) ptr;
   
-    header_t * head = SUM_PTR(castedPtr, -HEADER_SIZE);
+    header_t * head = (header_t *) SUM_PTR(castedPtr, -HEADER_SIZE);
     //Free the header just before the user pointer
     freeBlock(head);
  }
@@ -38,7 +40,7 @@
 void freeBlock(header_t * ptr) {
     ptr->allocated = FALSE;
 
-    header_t * next = SUM_PTR(ptr, ptr->size);
+    header_t * next = (header_t *) SUM_PTR(ptr, ptr->size);
     if(!next->allocated)
         ptr->size += next->size;
 }
@@ -49,7 +51,7 @@ void freeBlock(header_t * ptr) {
 
     if(IS_EOL(ptr->size)) { 
         // last block
-        addEOL(SUM_PTR(ptr, newSize));
+        addEOL((header_t *) SUM_PTR(ptr, newSize));
 
         ptr->size = newSize;
         ptr->allocated = TRUE;
@@ -58,7 +60,7 @@ void freeBlock(header_t * ptr) {
         ptr->size = newSize;
         ptr->allocated = TRUE;
 
-        ptr = SUM_PTR(ptr, newSize); // next block
+        ptr = (header_t *) SUM_PTR(ptr, newSize); // next block
 
         ptr->size = oldSize - newSize;
         ptr->allocated = FALSE; // for coherence
@@ -71,14 +73,14 @@ void freeBlock(header_t * ptr) {
  }
 
  header_t * findFree(uint64_t len) {
-     header_t * ptr = HEAP_START;
+     header_t * ptr = (header_t *) HEAP_START;
 
      while( !IS_EOL(ptr->size) && (ptr->allocated || MASK_LAST_BIT(ptr->size) < len) )
-         ptr = SUM_PTR(ptr, MASK_LAST_BIT(ptr->size));
+         ptr = (header_t *) SUM_PTR(ptr, MASK_LAST_BIT(ptr->size));
 
      if(IS_EOL(ptr->size)) {
          // Check if it fits
-         if(SUM_PTR(ptr, len + EOL_SIZE) > HEAP_END)
+         if((void *) SUM_PTR(ptr, len + EOL_SIZE) > HEAP_END)
              return NULL;
      }
      return ptr;
@@ -89,4 +91,5 @@ void freeBlock(header_t * ptr) {
     ptr->size = 0;
     ptr->allocated = TRUE;
  }
- */
+
+#endif // USE_BUDDY

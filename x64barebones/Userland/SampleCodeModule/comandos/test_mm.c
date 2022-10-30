@@ -4,8 +4,14 @@
 #include "../include/stdlib.h"
 #include "../include/syscalls.h"
 
-#define MAX_BLOCKS 500
-#define MAX_MEMORY 5000
+#ifdef USE_BUDDY
+    #define MAX_BLOCKS 500
+    #define MAX_MEMORY 5000
+#else
+    #define MAX_BLOCKS 80
+    #define MAX_MEMORY 2000
+#endif
+
 typedef struct MM_rq{
   void *address;
   uint32_t size;
