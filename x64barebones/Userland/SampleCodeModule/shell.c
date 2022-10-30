@@ -23,7 +23,7 @@ typedef struct program_info{
         uint8_t pipeable;
 }program_info;
 
-#define TOTAL_PROGRAMS 21
+#define TOTAL_PROGRAMS 23
 static program_info programs[] = {
     {.name = "fibonacci", .ptr = (uint64_t) &fibonacci, .min_args = 0, .max_args = 0, .pipeable = 0},
     {.name = "primos", .ptr = (uint64_t) &primos, .min_args = 0, .max_args = 0, .pipeable = 0},
@@ -47,6 +47,8 @@ static program_info programs[] = {
 
     {.name = "semtest", .ptr = (uint64_t) &semtest, .min_args = 0, .max_args = 0, .pipeable = 0},
     {.name = "testmm", .ptr = (uint64_t) &test_mm, .min_args = 0, .max_args = 0, .pipeable = 0},
+    {.name = "test-process", .ptr = (uint64_t) &test_processes, .min_args = 1, .max_args = 1, .pipeable = 0},
+    {.name = "test-prio", .ptr = (uint64_t) &test_prio, .min_args = 0, .max_args =0, .pipeable = 0},
 
     {.name = "cat", .ptr = (uint64_t) &cat, .min_args = 0, .max_args = 0, .pipeable = 0},
     {.name = "loop", .ptr = (uint64_t) &loop, .min_args = 0, .max_args = 0, .pipeable = 1},

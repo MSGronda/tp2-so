@@ -8,6 +8,10 @@
 #define BUFF_SIZE 20
 #define BUFFER_LENGTH 150
 
+
+void test_prio();
+void test_processes(char ** argv);
+
 void pipe();
 void sem();
 

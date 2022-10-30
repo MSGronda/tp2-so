@@ -60,13 +60,13 @@ void endless_loop(){
   while(1);
 }
 
-void endless_loop_print(uint64_t wait){
+void endless_loop_print(){
   int64_t pid = sys_get_pid();
   char buf[64] = {0};
-  num_to_string(pid, buf);
+  int len = num_to_string(pid, buf);
 
   while(1){
-    puts(buf);
-    bussy_wait(wait);
+    print(buf, len);
+    bussy_wait(10000000);
   }
 }
