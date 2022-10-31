@@ -258,7 +258,6 @@ void removeCurrentTask(){
 	destroy_process(currentTask);
 	forceChangeTask();
 
-	// There's no need to reset currentRemainingTicks, eventually next_task will do so
 }
 
 int removeTask(unsigned int pid){

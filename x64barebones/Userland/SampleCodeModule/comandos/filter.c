@@ -6,8 +6,9 @@
 int removeVocals(char * buf, int length){
 	int i=0;
 	for(int j=0; j<length; j++){
-		while( j<length && (buf[j] == 'a' || buf[j] == 'e' || buf[j] == 'i' 
-			|| buf[j] == 'o' || buf[j] == 'u')){
+		while( j<length &&( (buf[j] == 'a' || buf[j] == 'e' || buf[j] == 'i' 
+					|| buf[j] == 'o' || buf[j] == 'u') || (buf[j] == 'A' || buf[j] == 'E' || buf[j] == 'I' 
+					|| buf[j] == 'O' || buf[j] == 'U'))){
 			j++;
 		}
 		if(j<length){
@@ -25,7 +26,7 @@ void filter(){
 	int len;
 
 	while(1){
-		len = sys_read(buffer, 10);
+		len = sys_read(buffer, 1);
 
 		int len2 = removeVocals(buffer, len);
 

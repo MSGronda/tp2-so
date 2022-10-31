@@ -36,7 +36,7 @@ static program_info programs[] = {
     {.name = "primos", .ptr = (uint64_t) &primos, .min_args = 0, .max_args = 0, .pipeable = 0},
 
     {.name = "help", .ptr = (uint64_t) &help, .min_args = 0, .max_args = 0, .pipeable = 0},
-    {.name = "time", .ptr = (uint64_t) &time, .min_args = 0, .max_args = 0, .pipeable = 0},
+    {.name = "time", .ptr = (uint64_t) &time, .min_args = 0, .max_args = 0, .pipeable = 1},
 
     {.name = "div-error", .ptr = (uint64_t) &divError, .min_args = 0, .max_args = 0, .pipeable = 0},
     {.name = "opcode-error", .ptr = (uint64_t) &opCodeError, .min_args = 0, .max_args = 0, .pipeable = 0},
@@ -45,7 +45,7 @@ static program_info programs[] = {
     {.name = "pipe", .ptr = (uint64_t) &pipe, .min_args = 0, .max_args = 0, .pipeable = 0},
     {.name = "sem", .ptr = (uint64_t) &sem, .min_args = 0, .max_args = 0, .pipeable = 0},
 
-    {.name = "ps", .ptr = (uint64_t) &ps, .min_args = 0, .max_args = 0, .pipeable = 0},
+    {.name = "ps", .ptr = (uint64_t) &ps, .min_args = 0, .max_args = 0, .pipeable = 1},
     {.name = "kill", .ptr = (uint64_t) &kill, .min_args = 1, .max_args = 1, .pipeable = 0},
     {.name = "block", .ptr = (uint64_t) &pause, .min_args = 1, .max_args = 1, .pipeable = 0},
     {.name = "nice", .ptr = (uint64_t) &nice, .min_args = 2, .max_args = 2, .pipeable = 0},
@@ -56,9 +56,9 @@ static program_info programs[] = {
     {.name = "test-process", .ptr = (uint64_t) &test_processes, .min_args = 1, .max_args = 1, .pipeable = 0},
     {.name = "test-prio", .ptr = (uint64_t) &test_prio, .min_args = 0, .max_args =0, .pipeable = 0},
 
-    {.name = "cat", .ptr = (uint64_t) &cat, .min_args = 0, .max_args = 0, .pipeable = 0},
+    {.name = "cat", .ptr = (uint64_t) &cat, .min_args = 0, .max_args = 0, .pipeable = 1},
     {.name = "loop", .ptr = (uint64_t) &loop, .min_args = 0, .max_args = 0, .pipeable = 1},
-    {.name = "filter", .ptr = (uint64_t) &filter, .min_args = 0, .max_args = 0, .pipeable = 0},
+    {.name = "filter", .ptr = (uint64_t) &filter, .min_args = 0, .max_args = 0, .pipeable = 1},
     {.name = "wc", .ptr = (uint64_t) &wc, .min_args = 0, .max_args = 0, .pipeable = 0},
 };
 

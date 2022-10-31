@@ -8,7 +8,7 @@ void cat(){
 	int len;
 
 	while(1){
-		len = sys_read(buffer, 10);
+		len = sys_read(buffer, 1);
 		print(buffer, len);
 	}	
 }
