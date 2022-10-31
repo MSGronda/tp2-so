@@ -21,7 +21,8 @@ void cat();
 void loop();
 
 void nice(char ** args);
-void semtest();
+void test_sem();
+void test_no_sem();
 void pause(char ** args);
 void kill(char ** args);
 void printargs(char ** args);

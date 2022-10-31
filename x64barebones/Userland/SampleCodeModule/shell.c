@@ -30,19 +30,17 @@ typedef struct program_info{
         uint8_t pipeable;
 }program_info;
 
-#define TOTAL_PROGRAMS 23
+#define TOTAL_PROGRAMS 21
 static program_info programs[] = {
     {.name = "fibonacci", .ptr = (uint64_t) &fibonacci, .min_args = 0, .max_args = 0, .pipeable = 0},
     {.name = "primos", .ptr = (uint64_t) &primos, .min_args = 0, .max_args = 0, .pipeable = 0},
 
     {.name = "help", .ptr = (uint64_t) &help, .min_args = 0, .max_args = 0, .pipeable = 0},
     {.name = "time", .ptr = (uint64_t) &time, .min_args = 0, .max_args = 0, .pipeable = 0},
-    {.name = "inforeg", .ptr = (uint64_t) &inforeg, .min_args = 0, .max_args = 0, .pipeable = 0},
 
     {.name = "div-error", .ptr = (uint64_t) &divError, .min_args = 0, .max_args = 0, .pipeable = 0},
     {.name = "opcode-error", .ptr = (uint64_t) &opCodeError, .min_args = 0, .max_args = 0, .pipeable = 0},
 
-    {.name = "printmem", .ptr = (uint64_t) &printmem, .min_args = 1, .max_args = 1, .pipeable = 0},
     {.name = "printargs", .ptr = (uint64_t) &printargs, .min_args = 0, .max_args = MAX_WORDS, .pipeable = 0},
     {.name = "pipe", .ptr = (uint64_t) &pipe, .min_args = 0, .max_args = 0, .pipeable = 0},
     {.name = "sem", .ptr = (uint64_t) &sem, .min_args = 0, .max_args = 0, .pipeable = 0},
@@ -52,7 +50,8 @@ static program_info programs[] = {
     {.name = "block", .ptr = (uint64_t) &pause, .min_args = 1, .max_args = 1, .pipeable = 0},
     {.name = "nice", .ptr = (uint64_t) &nice, .min_args = 2, .max_args = 2, .pipeable = 0},
 
-    {.name = "test-sem", .ptr = (uint64_t) &semtest, .min_args = 0, .max_args = 0, .pipeable = 0},
+    {.name = "test-sem", .ptr = (uint64_t) &test_sem, .min_args = 0, .max_args = 0, .pipeable = 0},
+    {.name = "test-no-sem", .ptr = (uint64_t) &test_no_sem, .min_args = 0, .max_args = 0, .pipeable = 0},
     {.name = "test-mm", .ptr = (uint64_t) &test_mm, .min_args = 0, .max_args = 0, .pipeable = 0},
     {.name = "test-process", .ptr = (uint64_t) &test_processes, .min_args = 1, .max_args = 1, .pipeable = 0},
     {.name = "test-prio", .ptr = (uint64_t) &test_prio, .min_args = 0, .max_args =0, .pipeable = 0},

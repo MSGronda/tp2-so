@@ -33,8 +33,6 @@
 
 void list_process();
 
-
-
 /* --- Init --- */
 void enableMultiTasking();
 
@@ -59,6 +57,8 @@ void removeCurrentTask();
 int removeTask(unsigned int pid);
 
 unsigned int change_priority(unsigned int pid, int delta);
+
+void forceChangeTask();
 
 /* --- Scheduling --- */
 uint8_t has_or_decrease_time();

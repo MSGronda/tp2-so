@@ -76,7 +76,7 @@ void wait_for_children(){
 
 	alter_process_state(pid, WAITING_FOR_CHILD);
 
-	forceTimerTick();
+	forceChangeTask();
 }
 
 

@@ -3,6 +3,6 @@
 
 
 uint64_t sys_renounce_cpu(){
-	forceTimerTick();
+	forceChangeTask();
 	return 1;
 }

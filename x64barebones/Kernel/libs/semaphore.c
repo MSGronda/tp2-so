@@ -140,8 +140,8 @@ unsigned int wait_sem(unsigned int sem_id){
 		alter_process_state(pid, WAITING_FOR_SEM);
 
 		unlock(&(sem_info[pos].lock));
-		forceTimerTick();
-		return 0;
+		forceChangeTask();
+		return 1;
 	}
 
 
@@ -167,11 +167,31 @@ unsigned int signal_sem(unsigned int sem_id){
 	}
 
 	unlock(&(sem_info[pos].lock));
-	return 0;
+	return 1;
 }
 
 
 
+
+void print_blocked_by_id(unsigned int sem_id){
+	int pos = find_sem(sem_id);
+	if(pos == -1)
+		return INVALID_SEM_ID;
+
+	int len;
+	char buffer[20];
+
+	writeDispatcher(get_current_output(),"\nBlocked processes: \n", 21);
+	for(int j=0; j<MAX_SEMAPHORES; j++){
+		if(sem_info[pos].blocked_pids[j] != 0){
+			writeDispatcher(get_current_output(),"     -Pid: ", 11);
+			len = num_to_string(sem_info[pos].blocked_pids[j], buffer);
+			writeDispatcher(get_current_output(), buffer, len);
+			writeDispatcher(get_current_output(),"\n",1);
+		}
+	}
+	writeDispatcher(get_current_output(),"\n",1);
+}
 
 void print_sem(){
 	int len;

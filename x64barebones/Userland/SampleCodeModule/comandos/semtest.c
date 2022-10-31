@@ -3,6 +3,8 @@
 
 
 static unsigned int a = 0;
+
+
 #define ADD 500
 #define PROCESS_AMOUNT 2
 #define SEM_ID 26984
@@ -16,35 +18,48 @@ void slowInc(int * a, int inc){
 }
 
 
-void incTest(){
+void incTest(char ** argv){
     int inc = 1;
     for(int i=0; i<ADD; i++){
-        sys_wait_sem(SEM_ID);
+
+        if(argv[1][0] == 't')
+            sys_wait_sem(SEM_ID);
+
         slowInc(&a,inc);
-        sys_signal_sem(SEM_ID);
+
+        if(argv[1][0] == 't')
+            sys_signal_sem(SEM_ID);
     }
 }
 
-
-
-void semtest(){
-    int res = sys_register_sem(SEM_ID, 1);
-    if(res != 0){
-        puts("error creating semaphore");
-        return;
+void semtest(uint8_t sem){
+    if(sem){
+        int res = sys_register_sem(SEM_ID, 1);
+        if(res != 0){
+            puts("error creating semaphore");
+            return;
+        }    
     }
     a = 0;
+    char * args[] = {"sem", NULL, NULL};
 
+    if(sem)
+        args[1] = "t";
+    else
+        args[1] = "f";
 
     for(int i=0; i<PROCESS_AMOUNT; i++){
-        int error = sys_register_child_process(&incTest,STDIN, BACKGROUND, NULL);
+        int error = sys_register_child_process(&incTest,STDIN, BACKGROUND, args);
         if(error <= 0){
             puts("error creating children");
         }
     }
 
     sys_wait_for_children();
-    sys_destroy_sem(SEM_ID);
+
+    if(sem){
+        sys_destroy_sem(SEM_ID);
+    }
 
 
     char buff[29];
@@ -57,3 +72,14 @@ void semtest(){
     puts("\n");
 
 }
+
+
+void test_sem(){
+    semtest(1);
+}
+
+void test_no_sem(){
+    semtest(0);
+}
+
+

@@ -172,6 +172,13 @@ void alter_process_state(unsigned int pid, uint8_t new_state){
 	tasks[pos].state = new_state;
 }
 
+
+void forceChangeTask(){
+	currentRemainingTicks = tasks[currentTask].priority + 1;
+	forceTimerTick();
+}
+
+
 void pauseScreenProcess(unsigned int screen){
 	for(int i=0; i<TOTAL_TASKS; i++){
 		if(tasks[i].state != WAITING_FOR_CHILD && tasks[i].state != DEAD_PROCESS && tasks[i].output == screen){
@@ -193,7 +200,7 @@ int pauseOrUnpauseProcess(unsigned int pid){
 
 
 	if(pos == currentTask){
-		forceTimerTick();
+		forceChangeTask();
 	}
 
 	return TASK_ALTERED;
@@ -237,7 +244,7 @@ void kill_screen_processes(){
 	// task.
 
 	if(currentTaskKilled){
-		forceTimerTick();
+		forceChangeTask();
 	}
 }
 
@@ -249,7 +256,7 @@ void removeCurrentTask(){
 	// be interrupted by a timer tick.
 
 	destroy_process(currentTask);
-	forceTimerTick();	
+	forceChangeTask();
 
 	// There's no need to reset currentRemainingTicks, eventually next_task will do so
 }
@@ -265,7 +272,7 @@ int removeTask(unsigned int pid){
 	destroy_process(pos);
 
 	if(pos == currentTask){
-		forceTimerTick();
+		forceChangeTask();
 	}
 
 	return TASK_ALTERED;
@@ -341,15 +348,11 @@ uint64_t next_task(uint64_t stackPointer, uint64_t stackSegment){
 }
 
 
-
-
 /* --- Other --- */
 
 void list_process(){
 	int len;
 	char buffer[100];
-
-	//TODO: RBP????
 
 	writeDispatcher(tasks[currentTask].output, "Name     |  ID  |  State  |  Prty  |  Stack  |   RSP   |  Pickd  |  Screen\n", 75);
 	writeDispatcher(tasks[currentTask].output, "---------------------------------------------------------------------------\n", 76);
@@ -382,7 +385,6 @@ void list_process(){
 			}
 			writeDispatcher(tasks[currentTask].output, "                  ", 6);
 
-
 			len = num_to_string(tasks[i].priority, buffer);
 			writeDispatcher(tasks[currentTask].output, buffer, len);
 			writeDispatcher(tasks[currentTask].output, "                  ", 4);
@@ -413,12 +415,12 @@ void list_process(){
 				case STDOUT_RIGHT:
 					writeDispatcher(tasks[currentTask].output, "Stdout right", 12);
 					break;
+				default:
+					writeDispatcher(tasks[currentTask].output, "Pipe", 4);
+					break;
 			}
 			writeDispatcher(tasks[currentTask].output, "\n", 1);
 		}
 	}
 }
-
-
-
 
