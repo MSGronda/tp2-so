@@ -29,12 +29,15 @@
 #define SYS_READ_PIPE 27
 #define SYS_PRINT_PIPE 28
 #define SYS_DESTROY_PIPE 29
+#define SYS_REGISTER_PIPE_AVAILABLE 30
 
 #define NULL 0
 
 extern uint64_t syscaller(uint64_t syscallID, uint64_t param1, uint64_t param2, uint64_t param3, uint64_t param4);
 
-
+uint64_t sys_register_pipe_available(){
+    return syscaller(SYS_REGISTER_PIPE_AVAILABLE, NULL, NULL, NULL , NULL );    
+}
 uint64_t sys_print_pipe(){
     return syscaller(SYS_PRINT_PIPE, NULL, NULL, NULL , NULL );
 }

@@ -8,6 +8,8 @@
 
 #define INVALID_PIPE_ID 2
 
+int create_pipe_available();
+
 int create_pipe(unsigned int pipe_id);
 void destroy_pipe(unsigned int pipe_id);
 

@@ -29,6 +29,27 @@ int find_sem(unsigned int sem_id){
 	return -1;
 }
 
+int find_available_sem_id(){
+	if(active_sem == MAX_SEMAPHORES)
+		return ERROR_NO_MORE_SPACE;
+
+	uint8_t found = 0;
+	int sem_id = 10;
+
+	while(!found){
+		found = 1;
+		for(int i=0; i<MAX_SEMAPHORES; i++){
+			if(sem_info[i].sem_id == sem_id){
+				found = 0;
+				sem_id++;
+				break;
+			}
+		}
+	}
+	return sem_id;
+}
+
+
 unsigned int remove_next_blocked(unsigned int pos){
 	for(int i=0; i<MAX_WAITING_PROCESS ; i++){
 		if(sem_info[pos].blocked_pids[sem_info[pos].currentBlocked] != 0){
@@ -54,7 +75,20 @@ void add_blocked(unsigned int pos, unsigned int pid){
 	}
 }
 
-unsigned int create_sem(unsigned int sem_id, unsigned int value){
+int create_sem_available(unsigned int value){
+	int id = find_available_sem_id();
+
+	if(id == ERROR_NO_MORE_SPACE){
+		return ERROR_NO_MORE_SPACE;
+	}
+
+	if( create_sem(id, value) != SUCCESS){
+		return ERROR_NO_MORE_SPACE;
+	}
+	return id;
+}
+
+int create_sem(unsigned int sem_id, unsigned int value){
 	if(sem_id == 0)				// 0 is reserved to denote empty record
 		return INVALID_SEM_ID;
 	if(active_sem == MAX_SEMAPHORES)
@@ -77,36 +111,6 @@ unsigned int create_sem(unsigned int sem_id, unsigned int value){
 
 	return SUCCESS;
 }
-
-int create_sem_available(unsigned int value){
-	// Finds an available sem_id and registers it
-	// returning its value
-
-	if(active_sem == MAX_SEMAPHORES)
-		return -1;
-
-	int freePos = -1, sem_id = 1, found = 0;
-	while(!found){				// not the most efficient thing...
-		found = 1;
-		for(int i=0; i<MAX_SEMAPHORES; i++){
-			if(freePos == -1 && sem_info[i].sem_id == 0){
-				freePos = i;
-			}
-			if(sem_info[i].sem_id == sem_id){
-				found = 0;
-				sem_id++;
-				break;
-			}
-		}
-	}
-	sem_info[freePos].sem_id = sem_id;
-	sem_info[freePos].sem_value = value;
-
-	active_sem++;
-
-	return sem_id;
-}
-
 
 void destroy_sem(unsigned int sem_id){
 	int pos = find_sem(sem_id);
@@ -176,7 +180,7 @@ unsigned int signal_sem(unsigned int sem_id){
 void print_blocked_by_id(unsigned int sem_id){
 	int pos = find_sem(sem_id);
 	if(pos == -1)
-		return INVALID_SEM_ID;
+		return;
 
 	int len;
 	char buffer[20];

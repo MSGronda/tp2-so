@@ -69,6 +69,8 @@ uint64_t swIntDispatcher(uint64_t mode, uint64_t arg0, uint64_t arg1,
 			return sys_print_pipe();
 		case SYS_DESTROY_PIPE:
 			return sys_destroy_pipe((unsigned int) arg0);
+		case SYS_REGISTER_PIPE_AVAILABLE:
+			return sys_register_pipe_available();
 
 		// MM
 		case SYS_ALLOC:

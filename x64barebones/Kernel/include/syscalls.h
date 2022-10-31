@@ -42,10 +42,13 @@
 #define SYS_READ_PIPE 27
 #define SYS_PRINT_PIPE 28
 #define SYS_DESTROY_PIPE 29
+#define SYS_REGISTER_PIPE_AVAILABLE 30
 
 // Return values
 #define INVALID_SCREEN -1
 
+
+uint64_t sys_register_pipe_available();
 uint64_t sys_print_pipe();
 uint64_t sys_destroy_pipe(unsigned int pipe_id);
 uint64_t sys_read_pipe(unsigned int pipe_id, uint8_t * dest, unsigned int count);

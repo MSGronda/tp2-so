@@ -35,6 +35,41 @@ int find_pipe(unsigned int pipe_id){
 	return -1;
 }
 
+int find_available_pipe_id(){
+	if(num_pipes == MAX_PIPES)
+		return ERROR_NO_MORE_SPACE;
+
+	uint8_t found = 0;
+	int pipe_id = 10;
+
+	while(!found){
+		found = 1;
+		for(int i=0; i<MAX_PIPES; i++){
+			if(pipe_info[i].pipe_id == pipe_id){
+				found = 0;
+				pipe_id++;
+				break;
+			}
+		}
+	}
+	return pipe_id;
+}
+
+
+int create_pipe_available(){
+	int id = find_available_pipe_id();
+
+	if(id == ERROR_NO_MORE_SPACE){
+		return ERROR_NO_MORE_SPACE;
+	}
+	
+	if( create_pipe(id) != SUCCESS){
+		return ERROR_NO_MORE_SPACE;
+	}
+	
+
+	return id;
+}
 
 int create_pipe(unsigned int pipe_id){
 	if(pipe_id == 0)				// 0 is reserved to denote empty record

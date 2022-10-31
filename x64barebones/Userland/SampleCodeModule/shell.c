@@ -137,19 +137,19 @@ int piped_process_handle(char ** words, unsigned int amount_of_words){
         puts(NON_PIPABLE);
         return 1;
     }
-    int resp = sys_register_pipe(PIPE_ID);
+    int pipe_id = sys_register_pipe_available();
 
-    if(resp != 0){
+    if(pipe_id <= 0){
         puts("Error creating pipe!");
         return 1;
     }
 
-    sys_register_child_process(programs[p1].ptr, STDIN, PIPE_ID, (uint64_t) make_params(words, 0)); 
-    sys_register_child_process(programs[p2].ptr, PIPE_ID, NORMAL_SCREEN, (uint64_t) make_params(words, 0)); 
+    sys_register_child_process(programs[p1].ptr, STDIN, pipe_id, (uint64_t) make_params(words, 0)); 
+    sys_register_child_process(programs[p2].ptr, pipe_id, NORMAL_SCREEN, (uint64_t) make_params(words, 0)); 
 
     sys_wait_for_children();
 
-    sys_destroy_pipe(PIPE_ID);
+    sys_destroy_pipe(pipe_id);
 
     return 2;
 }
