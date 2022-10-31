@@ -3,10 +3,17 @@
 #include <memoryManager.h>
 #include <mm_imp.h>
 #include <stddef.h>
+#define USER_START (SUM_PTR(HEAP_START, sizeof(memStatus)))
+
+ memStatus * getMemStatus(){
+    return (memStatus *) HEAP_START;
+ }
 
  // WE ALWAYS WANT BYTES!!!!
  void mm_init() {
-     addEOL((header_t *) HEAP_START);
+     memStatus * status = getMemStatus();
+     status->freeBytes = (uint64_t) (SUM_PTR(HEAP_END, -USER_START));
+     addEOL((header_t *) USER_START);
  }
 
  void * mm_malloc(uint64_t len) {
@@ -21,19 +28,32 @@
 
     addBlock(out, newSize);
 
+    memStatus * status = getMemStatus();
+    
+    status->allocatedBytes += newSize;
+    status->freeBytes -= newSize;
+    status->allocatedBlocks++;
+
     // User has a pointer after the header
     return (void *)  (SUM_PTR(out, HEADER_SIZE));
  }
 
  void mm_free(void * ptr) {
-    if(ptr == NULL || ptr < HEAP_START || ptr >= HEAP_END)
+    if(ptr == NULL || ptr < USER_START || ptr >= HEAP_END)
         return;
 
  	header_t * castedPtr = (header_t *) ptr;
   
     header_t * head = (header_t *) SUM_PTR(castedPtr, -HEADER_SIZE);
+    
     //Free the header just before the user pointer
     freeBlock(head);
+
+    memStatus * status = getMemStatus();
+    
+    status->allocatedBytes -= 1;
+    status->freeBytes += 1;
+    status->allocatedBlocks--;
  }
 
  // TODO: HACER EL FREE PARA ATRAS TAMBIEN
@@ -73,7 +93,7 @@ void freeBlock(header_t * ptr) {
  }
 
  header_t * findFree(uint64_t len) {
-     header_t * ptr = (header_t *) HEAP_START;
+     header_t * ptr = (header_t *) USER_START;
 
      while( !IS_EOL(ptr->size) && (ptr->allocated || MASK_LAST_BIT(ptr->size) < len) )
          ptr = (header_t *) SUM_PTR(ptr, MASK_LAST_BIT(ptr->size));

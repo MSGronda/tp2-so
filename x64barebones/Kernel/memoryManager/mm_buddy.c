@@ -3,7 +3,7 @@
 #include <memoryManager.h>
 #include <mm_buddy.h>
 
-static TNode * btree = (TNode *) HEAP_START;
+static TNode * btree = (TNode *) SUM_PTR(HEAP_START, sizeof(memStatus));
 static void * userStart;
 static unsigned int maxSizeClass;
 static uint64_t buddySize;
@@ -47,6 +47,11 @@ void mm_init() {
 
     userStart = (void *) SUM_PTR(btree, nodes * sizeof(TNode));
     buddySize =  (uint64_t) (HEAP_END - userStart);
+
+
+    memStatus* status = getMemStatus();
+    uint64_t free = (uint64_t) (HEAP_END - userStart);
+    status->freeBytes = free;
 }
 
 static int getSmallestAvailableRec(unsigned int sizeClass, unsigned int currSizeClass, unsigned int idx) {
@@ -86,6 +91,9 @@ static inline unsigned int ptrToIdx(void * ptr) {
     return *(uint64_t *) ptr;
 }
 
+memStatus * getMemStatus(){
+    return (memStatus*) HEAP_START;
+}
 
 void * mm_malloc(uint64_t size) {
     if(size <= 0 || size + HEADER_SIZE > buddySize)
@@ -96,6 +104,15 @@ void * mm_malloc(uint64_t size) {
         return NULL;
 
     int idx = getSmallestAvailable(sizeClass);
+
+    if(idx == -1)
+        return NULL;
+
+    memStatus * status = getMemStatus();
+    
+    status->allocatedBytes += POW_2(sizeClass);
+    status->freeBytes -= POW_2(sizeClass);
+    status->allocatedBlocks++;
 
     void * out = nodeToPtr(idx, sizeClass);
     *((uint64_t *) out) = idx; // TODO: posible error aca, chequear con gdb que hace lo esperado
@@ -114,6 +131,16 @@ static void freeRec(unsigned int idx) {
     }
 }
 
+int idxToClass(unsigned int idx){
+    int i;
+    for(i = maxSizeClass ; i >= MIN_SIZE_CLASS ; i--){
+        int firstClassIdx = getFirstIdxOfClass(i);
+        int idxClassCount = getFirstIdxOfClass(i-1) - firstClassIdx;
+        if(idx > firstClassIdx && idx < firstClassIdx + idxClassCount)
+            return i;
+    }
+}
+
 void mm_free(void * ptr) {
     if(ptr == NULL || ptr < userStart || ptr > HEAP_END)
         return;
@@ -124,6 +151,14 @@ void mm_free(void * ptr) {
         return;
 
     freeRec(idx);
+
+    uint64_t size = POW_2(idxToClass(idx));
+
+    memStatus * status = getMemStatus();
+
+    status->allocatedBytes -= size;
+    status->freeBytes += size;
+    status->allocatedBlocks--;
 }
 
 #endif // USE_BUDDY

@@ -13,6 +13,11 @@
 #define HEAP_START ((void *) 0xA00000)  // 10 Mb  (TODO: habria que calcular el fin del userland y meterlo ahi)
 #define HEAP_END ((void *) (SUM_PTR(HEAP_START, HEAP_SIZE)))
 
+typedef struct memStatus{
+    uint64_t allocatedBytes;
+    uint64_t freeBytes;
+    uint64_t allocatedBlocks;
+} memStatus;
 
 /*
  * << mm_init >>
@@ -47,5 +52,16 @@ void * mm_malloc(uint64_t size);
  * Devuelve: --
  */
 void mm_free(void * ptr);
+
+
+/*
+ * << getMemStatus >>
+ * ----------------------------------------------------------------------
+ * Description: returns a pointer to memStatus struct
+ * ----------------------------------------------------------------------
+ * Receives: --
+ * Devuelve: memStatus *
+ */
+memStatus * getMemStatus();
 
 #endif

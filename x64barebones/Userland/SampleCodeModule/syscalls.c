@@ -23,6 +23,7 @@
 #define SYS_SIGNAL_SEM 22
 #define SYS_PRINT_SEM 23
 #define SYS_DESTROY_SEM 24
+#define SYS_MM_STATUS 25
 
 #define NULL 0
 
@@ -30,6 +31,10 @@ extern uint64_t syscaller(uint64_t syscallID, uint64_t param1, uint64_t param2, 
 
 uint64_t sys_signal_sem(unsigned int sem_id){
     return syscaller(SYS_SIGNAL_SEM, (uint64_t) sem_id, NULL, NULL );
+}
+
+uint64_t sys_mm_status(uint64_t * buffer){
+    return syscaller(SYS_MM_STATUS, (uint64_t) buffer, NULL, NULL);
 }
 
 uint64_t sys_wait_sem(unsigned int sem_id){
