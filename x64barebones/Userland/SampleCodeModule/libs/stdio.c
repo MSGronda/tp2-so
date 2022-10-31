@@ -40,6 +40,10 @@ int read_line(char * buf, int length) {
     while(count < length){
         inc = sys_read(buf + count, length);
 
+        if(inc == EOF){
+            return EOF;
+        }
+
         for(int j=0; j<inc; j++){
             if(buf[count + j] != '\n'){
                 if(buf[count + j] == '\b'){

@@ -4,7 +4,7 @@
 #include <multitasking.h>
 
 /* Decides how to proceed depending on where to read */
-unsigned int readDispatcher(unsigned int fd, char * buf, unsigned int count) 
+int readDispatcher(unsigned int fd, char * buf, unsigned int count) 
 {
 	if(fd == STDIN) {										// Eligimos posicion de donde leer. Tambien lo podriamos hacer con una funcion/tabla
 		while( !checkIfAvailableKey()){
@@ -14,6 +14,5 @@ unsigned int readDispatcher(unsigned int fd, char * buf, unsigned int count)
 	}
 
 	// The rest of the FDs are considered pipe IDs
-	read_from_pipe(fd, buf, count);
-	return count;
+	return read_from_pipe(fd, buf, count);;
 }

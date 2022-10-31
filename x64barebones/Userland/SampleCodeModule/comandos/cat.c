@@ -9,6 +9,11 @@ void cat(){
 
 	while(1){
 		len = sys_read(buffer, 1);
+
+		if(len == EOF){
+			return;
+		}
+		
 		print(buffer, len);
 	}	
 }

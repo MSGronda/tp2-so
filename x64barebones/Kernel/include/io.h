@@ -5,19 +5,7 @@
 #define STDIN 1
 
 #include <stdint.h>
-/*
- * << read_stdin >>
- * ----------------------------------------------------------------------
- * Descripcion: Writes to corresponding screen
- * ----------------------------------------------------------------------
- * Recibe: 
-*       [fd] = screen
- *      [buf] = string to be leave answer
- *      [count] = number of letters to be written
- * Devuelve: 
- *      (uint) bytes read
- */
-unsigned int read_stdin(unsigned int fd, char * buf, unsigned int count);
+
 
 
 /*
@@ -32,6 +20,6 @@ unsigned int read_stdin(unsigned int fd, char * buf, unsigned int count);
  * Devuelve: 
  *      (uint) bytes read
  */
-unsigned int readDispatcher(unsigned int fd, char * buf, unsigned int count);
+int readDispatcher(unsigned int fd, char * buf, unsigned int count);
 
 #endif

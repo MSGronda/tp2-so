@@ -68,7 +68,7 @@ unsigned int write(const char * buf, char format, unsigned int count,
 
 
 /* Decides how to proceed depending on screen to write */
-unsigned int writeDispatcher(unsigned int fd, const char * buf, unsigned int count) 
+int writeDispatcher(unsigned int fd, const char * buf, unsigned int count) 
 {
 	char format;
 
@@ -102,7 +102,7 @@ unsigned int writeDispatcher(unsigned int fd, const char * buf, unsigned int cou
 
 		default:
 			// the rest of the FDs are considered pipe IDs
-			write_to_pipe(fd, buf,count);
+			return write_to_pipe(fd, buf,count);
 
 	}
 

@@ -7,6 +7,7 @@
 #include <video.h>
 #include <child_process.h>
 #include <semaphore.h>
+#include <pipes.h>
 
 /* --- CONSTANTS  --- */
 // Return values

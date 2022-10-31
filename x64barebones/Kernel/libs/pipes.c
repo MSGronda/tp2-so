@@ -1,7 +1,9 @@
 #include <pipes.h>
 
-#define MAX_PIPES 30
+#define MAX_PIPES 20
 #define PIPE_SIZE 1024
+
+#define EOF -1
 
 /* 
 	A clear example of producers and consumers.
@@ -21,6 +23,8 @@ typedef struct pipe_record{
 	unsigned int read_pos;
 	uint8_t * pipe;
 	unsigned int amount;
+
+	uint8_t eof;
 }pipe_record;
 
 static pipe_record pipe_info[MAX_PIPES];
@@ -54,7 +58,6 @@ int find_available_pipe_id(){
 	}
 	return pipe_id;
 }
-
 
 int create_pipe_available(){
 	int id = find_available_pipe_id();
@@ -109,6 +112,7 @@ int create_pipe(unsigned int pipe_id){
 	pipe_info[freePos].write_pos = 0;
 	pipe_info[freePos].read_pos = 0;
 	pipe_info[freePos].amount = 0;
+	pipe_info[freePos].eof = 0;
 	
 	num_pipes++;
 
@@ -136,10 +140,22 @@ void destroy_pipe(unsigned int pipe_id){
 }
 
 
-void write_to_pipe(unsigned int pipe_id, uint8_t * src, unsigned int count){
+// Signals that process that is being piped has ended
+// and that there will be no more input into the pipe
+
+void signal_eof(unsigned int pipe_id){
 	int pos = find_pipe(pipe_id);
 	if(pos == -1)
 		return;
+
+	pipe_info[pos].eof = 1;
+}
+
+
+int write_to_pipe(unsigned int pipe_id, uint8_t * src, unsigned int count){
+	int pos = find_pipe(pipe_id);
+	if(pos == -1)
+		return -1;
 	
 	for(int i=0; i<count; i++){
 		wait_sem(pipe_info[pos].write_sem_id);
@@ -150,14 +166,21 @@ void write_to_pipe(unsigned int pipe_id, uint8_t * src, unsigned int count){
 
 		signal_sem(pipe_info[pos].read_sem_id);
 	}
+	return count;
 }
 
-void read_from_pipe(unsigned int pipe_id, uint8_t * dest, unsigned int count){
+int read_from_pipe(unsigned int pipe_id, uint8_t * dest, unsigned int count){
 	int pos = find_pipe(pipe_id);
 	if(pos == -1)
-		return;
+		return -1;
+
+	// The conditions mean that a pipe was being piped and has
+	// now finished. Nothing else will be read from the pipe.
+	if(pipe_info[pos].eof && pipe_info[pos].amount == 0){
+		return EOF;
+	}
 		
-	for(int i=0; i<count; i++){
+	for(int i=0; i<count && !(pipe_info[pos].eof && pipe_info[pos].amount == 0); i++){
 		wait_sem(pipe_info[pos].read_sem_id);
 
 		dest[i] = pipe_info[pos].pipe[pipe_info[pos].read_pos];
@@ -166,26 +189,35 @@ void read_from_pipe(unsigned int pipe_id, uint8_t * dest, unsigned int count){
 		
 		signal_sem(pipe_info[pos].write_sem_id);
 	}
+	return count;
 }
 
 void print_pipe(){
 	int len;
 	char buffer[20];
 
-	writeDispatcher(get_current_output(),"-=-=-=-=-= Pipe Info =-=-=-=-=-\n", 32);
+	int out = get_current_output();
+
+	writeDispatcher(out,"-=-=-=-=-= Pipe Info =-=-=-=-=-\n", 32);
 
 	for(int i=0; i<MAX_PIPES; i++){
 		if(pipe_info[i].pipe_id != 0){
-			writeDispatcher(get_current_output(),"Pipe Id: ",9);
+			writeDispatcher(out,"Pipe Id: ",9);
 			len = num_to_string(pipe_info[i].pipe_id, buffer);
-			writeDispatcher(get_current_output(), buffer, len);
+			writeDispatcher(out, buffer, len);
 
-			writeDispatcher(get_current_output()," | Usage: ",10);
+			writeDispatcher(out," | Usage: ",10);
 
 			len = num_to_string(pipe_info[i].amount / PIPE_SIZE, buffer);
-			writeDispatcher(get_current_output(), buffer, len);
+			writeDispatcher(out, buffer, len);
 
-			writeDispatcher(get_current_output(),"\n",1);
+			writeDispatcher(out, "\n\n--Read semaphore--\n",20);
+			print_blocked_by_id(pipe_info[i].read_sem_id);
+
+			writeDispatcher(out, "--Write semaphore--",19);
+			print_blocked_by_id(pipe_info[i].write_sem_id);
+
+			writeDispatcher(out,"\n",1);
 		}
 	}
 }

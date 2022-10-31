@@ -10,6 +10,8 @@ void * malloc(uint64_t size);
 void free(void * ptr);
 long long atosi(const char * string);
 
+int strncmp(const char * s1, const char * s2, int n);
+
 /*
  * << num_to_string >>
  * ----------------------------------------------------------------------

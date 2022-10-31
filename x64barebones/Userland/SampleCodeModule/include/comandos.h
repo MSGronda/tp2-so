@@ -8,9 +8,12 @@
 #define BUFF_SIZE 20
 #define BUFFER_LENGTH 150
 
-
+void test_pipe();
 void test_prio();
 void test_processes(char ** argv);
+void test_no_sem();
+void test_sem();
+void test_mm();
 
 void pipe();
 void sem();
@@ -21,13 +24,10 @@ void cat();
 void loop();
 
 void nice(char ** args);
-void test_sem();
-void test_no_sem();
 void pause(char ** args);
 void kill(char ** args);
 void printargs(char ** args);
 void ps();
-void test_mm();
 
 /*
  * << printmem >>

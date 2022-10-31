@@ -28,6 +28,10 @@ void filter(){
 	while(1){
 		len = sys_read(buffer, 1);
 
+		if(len == EOF){
+			return;
+		}
+
 		int len2 = removeVocals(buffer, len);
 
 		print(buffer, len2);

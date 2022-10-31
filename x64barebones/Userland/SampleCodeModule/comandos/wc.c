@@ -17,15 +17,19 @@ int count_new_line(char * buff, int length){
 void wc(){
 	char buffer[SIZE] = {0};
 	char buffer2[SIZE] = {0};
-	int len;
+	int len, count = 0;
 
 
 	len = sys_read(buffer, SIZE);
 
-	int count = count_new_line(buffer, len);
+	while(len != EOF){
+		count += count_new_line(buffer, len);
+		len = sys_read(buffer, SIZE);
+	}
 
 	num_to_string(count,buffer2);
 
+	print("\nLine count: ",14);
 	puts(buffer2);
 
 }

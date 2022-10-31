@@ -249,13 +249,20 @@ void kill_screen_processes(){
 }
 
 void removeCurrentTask(){
-	_cli();
-
 	// We must insure that this is atomic, since we are freeing memory
 	// that could be used by another process if this function were to
 	// be interrupted by a timer tick.
+	_cli();
 
 	destroy_process(currentTask);
+	
+	// If the process is being piped, we signal that pipe will no longer
+	// be use by process. 
+	uint8_t out = tasks[currentTask].output;
+	if(out != STDOUT && out != STDOUT_LEFT && out != STDOUT_RIGHT){
+		signal_eof(out);
+	}
+
 	forceChangeTask();
 
 }

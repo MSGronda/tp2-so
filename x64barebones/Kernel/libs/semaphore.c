@@ -1,6 +1,6 @@
 #include <semaphore.h>
 
-#define MAX_SEMAPHORES 20
+#define MAX_SEMAPHORES 50
 #define MAX_WAITING_PROCESS 20
 
 
@@ -185,45 +185,49 @@ void print_blocked_by_id(unsigned int sem_id){
 	int len;
 	char buffer[20];
 
-	writeDispatcher(get_current_output(),"\nBlocked processes: \n", 21);
-	for(int j=0; j<MAX_SEMAPHORES; j++){
+	int out = get_current_output();
+
+	writeDispatcher(out,"\nBlocked processes: \n", 21);
+	for(int j=0; j<MAX_WAITING_PROCESS; j++){
 		if(sem_info[pos].blocked_pids[j] != 0){
-			writeDispatcher(get_current_output(),"     -Pid: ", 11);
+			writeDispatcher(out,"     -Pid: ", 11);
 			len = num_to_string(sem_info[pos].blocked_pids[j], buffer);
-			writeDispatcher(get_current_output(), buffer, len);
-			writeDispatcher(get_current_output(),"\n",1);
+			writeDispatcher(out, buffer, len);
+			writeDispatcher(out,"\n",1);
 		}
 	}
-	writeDispatcher(get_current_output(),"\n",1);
+	writeDispatcher(out,"\n",1);
 }
 
 void print_sem(){
 	int len;
 	char buffer[20];
 
-	writeDispatcher(get_current_output(),"-=-=-=-=-= Sem Info =-=-=-=-=-\n", 31);
+	int out = get_current_output();
+
+	writeDispatcher(out,"-=-=-=-=-= Sem Info =-=-=-=-=-\n", 31);
 
 	for(int i=0; i<MAX_SEMAPHORES; i++){
 		if(sem_info[i].sem_id != 0){
-			writeDispatcher(get_current_output(),"Sem Id: ",8);
+			writeDispatcher(out,"Sem Id: ",8);
 			len = num_to_string(sem_info[i].sem_id, buffer);
-			writeDispatcher(get_current_output(), buffer, len);
+			writeDispatcher(out, buffer, len);
 
-			writeDispatcher(get_current_output()," | Value: ",10);
+			writeDispatcher(out," | Value: ",10);
 
 			len = num_to_string(sem_info[i].sem_value, buffer);
-			writeDispatcher(get_current_output(), buffer, len);
+			writeDispatcher(out, buffer, len);
 
-			writeDispatcher(get_current_output(),"\nBlocked processes: \n", 21);
-			for(int j=0; j<MAX_SEMAPHORES; j++){
+			writeDispatcher(out,"\nBlocked processes: \n", 21);
+			for(int j=0; j<MAX_WAITING_PROCESS; j++){
 				if(sem_info[i].blocked_pids[j] != 0){
-					writeDispatcher(get_current_output(),"     -Pid: ", 11);
+					writeDispatcher(out,"     -Pid: ", 11);
 					len = num_to_string(sem_info[i].blocked_pids[j], buffer);
-					writeDispatcher(get_current_output(), buffer, len);
-					writeDispatcher(get_current_output(),"\n",1);
+					writeDispatcher(out, buffer, len);
+					writeDispatcher(out,"\n",1);
 				}
 			}
-			writeDispatcher(get_current_output(),"\n",1);
+			writeDispatcher(out,"\n",1);
 		}
 	}
 }

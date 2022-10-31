@@ -3,6 +3,5 @@
 
 uint64_t sys_write_pipe(unsigned int pipe_id, uint8_t * src, unsigned int count)
 {
-	write_to_pipe(pipe_id, src, count);
-	return 1;
+	return write_to_pipe(pipe_id, src, count);
 }

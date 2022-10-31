@@ -49,7 +49,7 @@ unsigned int write(const char * buf, char format, unsigned int count,
  * Devuelve: 
  *      0 <=> successful
  */
-unsigned int writeDispatcher(unsigned int fd, const char * buf, unsigned int count);
+int writeDispatcher(unsigned int fd, const char * buf, unsigned int count);
 
 /*
  * << clearScreen >>
