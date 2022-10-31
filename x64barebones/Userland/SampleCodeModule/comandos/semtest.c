@@ -34,6 +34,7 @@ void incTest(char ** argv){
 
 void semtest(uint8_t sem){
     if(sem){
+        sys_destroy_sem(SEM_ID);
         int res = sys_register_sem(SEM_ID, 1);
         if(res != 0){
             puts("error creating semaphore");

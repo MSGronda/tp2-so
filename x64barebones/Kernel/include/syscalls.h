@@ -12,13 +12,9 @@
 #define SYS_CLEAR_SCREEN 2
 #define SYS_REGISTER_PROCESS 3 
 #define SYS_RTC 4
-#define SYS_CONSUME_STDIN 7
 
 #define SYS_KILL_PROCESS 8
 #define SYS_PAUSE_PROCESS 9
-
-#define SYS_INFOREG 10
-#define SYS_PRINTMEM 11
 
 #define SYS_REGISTER_CHILD_PROCESS 12
 #define SYS_WAIT_FOR_CHILDREN 13
@@ -202,20 +198,6 @@ uint64_t sys_kill_process(unsigned int pid);
  */
 uint64_t sys_pause_process(unsigned int pid);
 
-
-/*
- * << sys_consume_stdin >>
- * ----------------------------------------------------------------------
- * Description: Consumes buffer without interrupting to receive keyboard
- * ----------------------------------------------------------------------
- * Receives: 
- *      (char*) buffer to leave keys consumed
- *      (uint) amount of keys to consume
- * Returns: 
- *      (uint) amount of keys consumed
- */
-uint64_t sys_consume_stdin(char * buf, unsigned int count);    
-
 /*
  * << saveInfoReg >>
  * ----------------------------------------------------------------------
@@ -227,29 +209,6 @@ uint64_t sys_consume_stdin(char * buf, unsigned int count);
  * Returns: --
  */
 void saveInfoReg(uint64_t * regDumpPos);
-
-/*
- * << sys_inforeg >>
- * ----------------------------------------------------------------------
- * Description: Transfers saved register data from saveInfoReg into a buffer
- * ----------------------------------------------------------------------
- * Receives: 
- *      (char*) buffer to leave register values
- * Returns: --
- */
-uint64_t sys_inforeg(uint64_t * buffer);
-
-/*
- * << sys_printmem >>
- * ----------------------------------------------------------------------
- * Description: Memory dump starting from [position]
- * ----------------------------------------------------------------------
- * Receives: 
- *      (uint64_t) starting position of mem dump
- *      (char*) buffer to leave data
- * Returns: --
- */
-uint64_t sys_printmem(uint64_t position, char * buffer);
 
 
 #endif

@@ -119,19 +119,6 @@ uint64_t  sys_inforeg(uint64_t * buffer);
 
 
 /*
- * << sys_consume_stdin >>
- * ----------------------------------------------------------------------
- * Description: Consumes buffer without interrupting to receive keyboard
- * ----------------------------------------------------------------------
- * Receives: 
- *      (char*) buffer to leave keys consumed
- *      (uint) amount of keys to consume
- * Returns: 
- *      (uint) amount of keys consumed
- */
-uint64_t  sys_consume_stdin(char * buf, unsigned int count);    
-
-/*
  * << saveInfoReg >>
  * ----------------------------------------------------------------------
  * Description: Makes a snapshot of register values at the time of calling
@@ -143,26 +130,4 @@ uint64_t  sys_consume_stdin(char * buf, unsigned int count);
  */
 void saveInfoReg(uint64_t * regDumpPos);
 
-/*
- * << sys_inforeg >>
- * ----------------------------------------------------------------------
- * Description: Transfers saved register data from saveInfoReg into a buffer
- * ----------------------------------------------------------------------
- * Receives: 
- *      (char*) buffer to leave register values
- * Returns: --
- */
-uint64_t  sys_inforeg(uint64_t * buffer);
-
-/*
- * << sys_printmem >>
- * ----------------------------------------------------------------------
- * Description: Memory dump starting from [position]
- * ----------------------------------------------------------------------
- * Receives: 
- *      (uint64_t) starting position of mem dump
- *      (char*) buffer to leave data
- * Returns: --
- */
-uint64_t  sys_printmem(uint64_t position, char * buffer);
 #endif

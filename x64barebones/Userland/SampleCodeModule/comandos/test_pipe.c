@@ -37,6 +37,7 @@ void write_pipe(){
 
 
 void test_pipe(){
+	sys_destroy_pipe(PIPEID);
 	int resp = sys_register_pipe(PIPEID);
 
 	if(resp != 0){

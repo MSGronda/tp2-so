@@ -86,7 +86,7 @@ void help()
     int currPage = 0;
     page0();
     while(1) {
-        size = consume_buffer(buffer, BUFFER_LENGTH-1);
+        size = sys_read(buffer, BUFFER_LENGTH-1);
         buffer[size] = 0;
 
         if(strContainsChar(buffer, '.')>=0) {                    // ## REMPLAZAR ##

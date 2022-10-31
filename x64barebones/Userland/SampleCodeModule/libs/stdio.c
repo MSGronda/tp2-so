@@ -69,10 +69,6 @@ int read_line(char * buf, int length) {
     return clean_buffer(buf, count-1);
 }
 
-unsigned int consume_buffer(char * buffer, int length){
-    return sys_consume_stdin(buffer, length);
-}
-
 char getchar() {
     char c;
     read_line(&c, 1);
