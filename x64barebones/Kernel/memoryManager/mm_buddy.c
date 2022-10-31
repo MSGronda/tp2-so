@@ -115,7 +115,7 @@ void * mm_malloc(uint64_t size) {
     status->allocatedBlocks++;
 
     void * out = nodeToPtr(idx, sizeClass);
-    *((uint64_t *) out) = idx; // TODO: posible error aca, chequear con gdb que hace lo esperado
+    *((uint64_t *) out) = idx;
 
     return (void *) SUM_PTR(out, HEADER_SIZE);
 }

@@ -3,7 +3,7 @@
 #include <memoryManager.h>
 #include <mm_imp.h>
 #include <stddef.h>
-#define USER_START (SUM_PTR(HEAP_START, sizeof(memStatus)))
+#define USER_START ((void *) SUM_PTR(HEAP_START, sizeof(memStatus)))
 
  memStatus * getMemStatus(){
     return (memStatus *) HEAP_START;
@@ -12,7 +12,8 @@
  // WE ALWAYS WANT BYTES!!!!
  void mm_init() {
      memStatus * status = getMemStatus();
-     status->freeBytes = (uint64_t) (SUM_PTR(HEAP_END, -USER_START));
+     status->freeBytes = (uint64_t) (HEAP_END - USER_START);
+
      addEOL((header_t *) USER_START);
  }
 
@@ -35,25 +36,22 @@
     status->allocatedBlocks++;
 
     // User has a pointer after the header
-    return (void *)  (SUM_PTR(out, HEADER_SIZE));
+    return (void *) SUM_PTR(out, HEADER_SIZE);
  }
 
  void mm_free(void * ptr) {
     if(ptr == NULL || ptr < USER_START || ptr >= HEAP_END)
         return;
 
- 	header_t * castedPtr = (header_t *) ptr;
-  
-    header_t * head = (header_t *) SUM_PTR(castedPtr, -HEADER_SIZE);
+    header_t * head = (header_t *) SUM_PTR(ptr, -HEADER_SIZE);
     
+    memStatus * status = getMemStatus();
+    status->allocatedBytes -= MASK_LAST_BIT(head->size);
+    status->freeBytes += MASK_LAST_BIT(head->size);
+    status->allocatedBlocks--;
+
     //Free the header just before the user pointer
     freeBlock(head);
-
-    memStatus * status = getMemStatus();
-    
-    status->allocatedBytes -= 1;
-    status->freeBytes += 1;
-    status->allocatedBlocks--;
  }
 
  // TODO: HACER EL FREE PARA ATRAS TAMBIEN
