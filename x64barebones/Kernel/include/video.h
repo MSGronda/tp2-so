@@ -18,6 +18,33 @@
 #define STDERR_LEFT 4
 #define STDERR_RIGHT 6
 
+// Colores 
+#define STDOUT_COLOR 7
+#define STDERR_COLOR 4
+
+// Columna de comienzo en pantalla
+#define START_LEFT 0
+#define START_RIGHT 80
+
+// Dimensiones de pantalla
+#define NORMAL_MODE_LENGTH 160
+#define SPLIT_MODE_LENGTH 80
+
+#define SCREEN_HEIGHT 25
+#define SCREEN_WIDTH 160
+
+// Salto de pantalla
+#define NORMAL_MODE_STEP 0
+#define SPLIT_MODE_STEP 80
+
+int * normalOffset();
+int * leftOffset();
+int * rightOffset();
+
+void resetNormal();
+void resetLeft();
+void resetNormal();
+
 /*
  * << write >>
  * ----------------------------------------------------------------------
@@ -37,19 +64,6 @@
 unsigned int write(const char * buf, char format, unsigned int count, 
 					unsigned int * offset, unsigned int start,  unsigned int length , unsigned int step);
 
-/*
- * << writeDispatcher >>
- * ----------------------------------------------------------------------
- * Descripcion: Decides how to proceed depending on screen to write
- * ----------------------------------------------------------------------
- * Recibe: 
- *      [fd] = screen to write
- *      [buf] = string to be written
- *      [count] = number of letters to be written
- * Devuelve: 
- *      0 <=> successful
- */
-int writeDispatcher(unsigned int fd, const char * buf, unsigned int count);
 
 /*
  * << clearScreen >>

@@ -2,25 +2,6 @@
 #include <multitasking.h>
 #include <video.h>
 
-// Columna de comienzo en pantalla
-#define START_LEFT 0
-#define START_RIGHT 80
-
-// Dimensiones de pantalla
-#define NORMAL_MODE_LENGTH 160
-#define SPLIT_MODE_LENGTH 80
-
-#define SCREEN_HEIGHT 25
-#define SCREEN_WIDTH 160
-
-// Salto de pantalla
-#define NORMAL_MODE_STEP 0
-#define SPLIT_MODE_STEP 80
-
-// Colores 
-#define STDOUT_COLOR 7
-#define STDERR_COLOR 4
-
 // Variables estaticas
 static uint8_t * defaultVideoPos = (uint8_t*)0xB8000;
 
@@ -30,8 +11,7 @@ static unsigned int currentVideoPosRightOffset = START_RIGHT;
 
 
 /* Writes to given screen */
-unsigned int write(const char * buf, char format, unsigned int count, 
-	unsigned int * offset, unsigned int start,  unsigned int length , unsigned int step)
+unsigned int write(const char * buf, char format, unsigned int count, unsigned int * offset, unsigned int start,  unsigned int length , unsigned int step)
 {
 	int i;
 
@@ -66,49 +46,28 @@ unsigned int write(const char * buf, char format, unsigned int count,
 	return i;
 }
 
-
-/* Decides how to proceed depending on screen to write */
-int writeDispatcher(unsigned int fd, const char * buf, unsigned int count) 
-{
-	char format;
-
-	if(fd % 2 != 0)				// notar que solo los pares son ERROR
-		format = STDOUT_COLOR;
-	else 
-		format = STDERR_COLOR;
-
-	switch(fd) {
-		case BACKGROUND:
-			break;
-
-		case STDERR:							// mismo codigo
-		case STDOUT:
-			write(buf, format, count, &currentVideoPosOffset, START_LEFT, NORMAL_MODE_LENGTH, NORMAL_MODE_STEP);
-			currentVideoPosRightOffset = 0;		// se resetean las split screen
-			currentVideoPosLeftOffset = 0;
-		break;
-
-		case STDERR_LEFT:
-		case STDOUT_LEFT:
-			write(buf, format, count, &currentVideoPosLeftOffset, START_LEFT, SPLIT_MODE_LENGTH, SPLIT_MODE_STEP);
-			currentVideoPosOffset = 0;		// se resetean el normal mode
-		break;
-
-		case STDERR_RIGHT:
-		case STDOUT_RIGHT:
-			write(buf, format, count, &currentVideoPosRightOffset, START_RIGHT, SPLIT_MODE_LENGTH, SPLIT_MODE_STEP);
-			currentVideoPosOffset = 0;		// se resetean el normal mode
-		break;
-
-		default:
-			// the rest of the FDs are considered pipe IDs
-			return write_to_pipe(fd, buf,count);
-
-	}
-
-    return count;
+int * normalOffset(){
+	return &currentVideoPosOffset;
+}
+int * leftOffset(){
+	return &currentVideoPosLeftOffset;
 }
 
+int * rightOffset(){
+	return &currentVideoPosRightOffset;
+}
+
+void resetRight(){
+	currentVideoPosRightOffset = 0;		// se resetean las split screen
+}
+
+void resetLeft(){
+	currentVideoPosLeftOffset = 0;
+}
+
+void resetNormal(){
+	currentVideoPosOffset = 0;		// se resetean el normal mode
+}
 
 /* Clears given screen */
 void clearScreen(int start, int length, int step) 

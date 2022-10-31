@@ -87,23 +87,23 @@ uint64_t  sys_list_process(){
 
 
 uint64_t  sys_write(const char * string, unsigned int length){
-    return syscaller(SYS_WRITE_TO_SCREEN, (uint64_t) string, (uint64_t) length, NULL, NULL );        // feo arreglar
+    return syscaller(SYS_WRITE_TO_SCREEN, (uint64_t) string, (uint64_t) length, NULL, NULL );      
 }   
 
 uint64_t  sys_read(char * buf, unsigned int length){
-    return syscaller(SYS_READ_FROM_SCREEN, (uint64_t) buf, (uint64_t) length, NULL, NULL );        // feo arreglar
+    return syscaller(SYS_READ_FROM_SCREEN, (uint64_t) buf, (uint64_t) length, NULL, NULL );      
 }
 
 uint64_t  sys_clear_screen(){
-    return syscaller(SYS_CLEAR_SCREEN, NULL, NULL, NULL , NULL );        // feo arreglar
+    return syscaller(SYS_CLEAR_SCREEN, NULL, NULL, NULL , NULL );      
 }
 
 uint64_t sys_register_process(uint64_t entrypoint, uint8_t input, uint8_t output, uint64_t arg0){
-    return syscaller(SYS_REGISTER_PROCESS, (uint64_t) entrypoint, (uint64_t) input, (uint64_t) output, arg0);        // feo arreglar
+    return syscaller(SYS_REGISTER_PROCESS, (uint64_t) entrypoint, (uint64_t) input, (uint64_t) output, arg0);      
 }
 
 uint64_t  sys_register_child_process(uint64_t entryPoint, uint8_t input, uint8_t output, uint64_t arg0){
-    return syscaller(SYS_REGISTER_CHILD_PROCESS, (uint64_t) entryPoint, (uint64_t) input, (uint64_t) output, arg0);        // feo arreglar
+    return syscaller(SYS_REGISTER_CHILD_PROCESS, (uint64_t) entryPoint, (uint64_t) input, (uint64_t) output, arg0);      
 }
 
 uint64_t  sys_wait_for_children(){
@@ -125,7 +125,7 @@ uint64_t  sys_get_pid(){
 
 
 uint64_t  sys_rtc(unsigned int  mode){
-    return syscaller(SYS_RTC, (uint64_t)mode, NULL, NULL, NULL );        // feo arreglar
+    return syscaller(SYS_RTC, (uint64_t)mode, NULL, NULL, NULL );      
 }
 uint64_t  sys_kill_process(unsigned int pid){
     return syscaller(SYS_KILL_PROCESS,(uint64_t) pid,NULL,NULL, NULL );
