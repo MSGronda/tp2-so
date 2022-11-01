@@ -73,6 +73,8 @@ void enableMultiTasking(){
 }
 
 
+
+
 /* --- Getters --- */
 unsigned int get_current_pid(){
 	return tasks[currentTask].pid;
@@ -90,6 +92,13 @@ uint8_t get_current_input(){
 	return tasks[currentTask].input;
 }
 
+uint8_t get_state(unsigned int pid){
+	int pos = findTask(pid);
+	if(pos==NO_TASK_FOUND)
+		return NO_TASK_FOUND;
+	
+	return tasks[pos].state;
+}
 
 // Encuentro el task usando el pid
 int findTask(unsigned int pid){
@@ -100,16 +109,10 @@ int findTask(unsigned int pid){
 	return NO_TASK_FOUND;			// no existe task con ese pid
 }
 
-uint8_t get_state(unsigned int pid){
-	int pos = findTask(pid);
-	if(pos==NO_TASK_FOUND)
-		return NO_TASK_FOUND;
-	
-	return tasks[pos].state;
-}
 
 
-/* --- Process Management --- */
+
+/* --- Creation and destruction --- */
 
 int add_task(uint64_t entrypoint, uint8_t input, uint8_t output, uint8_t priority, uint8_t immortal, uint64_t arg0){
 	if(currentDimTasks>=TOTAL_TASKS){		// no acepto mas tasks al estar lleno
@@ -164,49 +167,6 @@ int add_task(uint64_t entrypoint, uint8_t input, uint8_t output, uint8_t priorit
 	return tasks[pos].pid;
 }
 
-void alter_process_state(unsigned int pid, uint8_t new_state){
-	int pos = findTask(pid);
-	if(pos == -1)
-		return;
-
-	tasks[pos].state = new_state;
-}
-
-
-void forceChangeTask(){
-	currentRemainingTicks = tasks[currentTask].priority + 1;
-	forceTimerTick();
-}
-
-
-void pauseScreenProcess(unsigned int screen){
-	for(int i=0; i<TOTAL_TASKS; i++){
-		if(tasks[i].state != WAITING_FOR_CHILD && tasks[i].state != DEAD_PROCESS && tasks[i].output == screen){
-			tasks[i].state = tasks[i].state==PAUSED_PROCESS ? ACTIVE_PROCESS : PAUSED_PROCESS; 	// pausado -> despausado  | despausado -> pausado
-		}
-	}
-}
-
-// pauso o despauso proceso con el pid
-int pauseOrUnpauseProcess(unsigned int pid){
-	int pos = findTask(pid);
-	if(pos < 0)					// se quiere pausar task que no existe
-		return NO_TASK_FOUND;
-
-	if(tasks[pos].immortal)
-		return -1;
-
-	tasks[pos].state = tasks[pos].state==PAUSED_PROCESS ? ACTIVE_PROCESS : PAUSED_PROCESS; 	// pausado -> despausado  | despausado -> pausado
-
-
-	if(pos == currentTask){
-		forceChangeTask();
-	}
-
-	return TASK_ALTERED;
-}
-
-
 // params are null terminated array of pointers to strings
 void free_params(char ** params){
 	if(params==NULL)
@@ -225,6 +185,61 @@ void destroy_process(unsigned int pos){
 	tasks[pos].state = DEAD_PROCESS;
 	currentDimTasks--;
 	mm_free(tasks[pos].stackStart);
+}
+
+void removeCurrentTask(){
+	// We must insure that this is atomic, since we are freeing memory
+	// that could be used by another process if this function were to
+	// be interrupted by a timer tick.
+	_cli();
+
+	destroy_process(currentTask);
+	
+	// If the process is being piped, we signal that pipe will no longer
+	// be use by process. 
+	uint8_t out = tasks[currentTask].output;
+	if(out != STDOUT && out != STDOUT_LEFT && out != STDOUT_RIGHT){
+		signal_eof(out);
+	}
+
+	forceChangeTask();
+
+}
+
+void forceChangeTask(){
+	currentRemainingTicks = tasks[currentTask].priority + 1;
+	forceTimerTick();
+}
+
+
+
+
+/* --- Process management --- */
+
+// alter state of all tasks that have a specific state
+void alter_state_if(uint8_t old_state, uint8_t new_state){
+	for(int i=0; i<TOTAL_TASKS; i++){
+		if(tasks[i].state != DEAD_PROCESS && tasks[i].state == old_state){
+			tasks[i].state = new_state;
+		}
+	}
+}
+
+// alter state of a specific task
+void alter_process_state(unsigned int pid, uint8_t new_state){
+	int pos = findTask(pid);
+	if(pos == -1)
+		return;
+
+	tasks[pos].state = new_state;
+}
+
+void pauseScreenProcess(unsigned int screen){
+	for(int i=0; i<TOTAL_TASKS; i++){
+		if(tasks[i].state != WAITING_FOR_CHILD && tasks[i].state != DEAD_PROCESS && tasks[i].output == screen){
+			tasks[i].state = tasks[i].state==PAUSED_PROCESS ? ACTIVE_PROCESS : PAUSED_PROCESS; 	// pausado -> despausado  | despausado -> pausado
+		}
+	}
 }
 
 void kill_screen_processes(){
@@ -248,23 +263,23 @@ void kill_screen_processes(){
 	}
 }
 
-void removeCurrentTask(){
-	// We must insure that this is atomic, since we are freeing memory
-	// that could be used by another process if this function were to
-	// be interrupted by a timer tick.
-	_cli();
+// pauso o despauso proceso con el pid
+int pauseOrUnpauseProcess(unsigned int pid){
+	int pos = findTask(pid);
+	if(pos < 0)					// se quiere pausar task que no existe
+		return NO_TASK_FOUND;
 
-	destroy_process(currentTask);
-	
-	// If the process is being piped, we signal that pipe will no longer
-	// be use by process. 
-	uint8_t out = tasks[currentTask].output;
-	if(out != STDOUT && out != STDOUT_LEFT && out != STDOUT_RIGHT){
-		signal_eof(out);
+	if(tasks[pos].immortal)
+		return -1;
+
+	tasks[pos].state = tasks[pos].state==PAUSED_PROCESS ? ACTIVE_PROCESS : PAUSED_PROCESS; 	// pausado -> despausado  | despausado -> pausado
+
+
+	if(pos == currentTask){
+		forceChangeTask();
 	}
 
-	forceChangeTask();
-
+	return TASK_ALTERED;
 }
 
 int removeTask(unsigned int pid){
@@ -299,6 +314,8 @@ unsigned int change_priority(unsigned int pid, int delta){
 
 	return 1;
 }
+
+
 
 
 
@@ -352,6 +369,8 @@ uint64_t next_task(uint64_t stackPointer, uint64_t stackSegment){
 
 	return tasks[currentTask].stackPointer;
 }
+
+
 
 
 /* --- Other --- */

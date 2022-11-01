@@ -49,6 +49,7 @@ unsigned int  get_current_pid();
 int add_task(uint64_t entrypoint, uint8_t input, uint8_t output, uint8_t priority, uint8_t immortal, uint64_t arg0);
 
 void alter_process_state(unsigned int pid, uint8_t new_state);
+void alter_state_if(uint8_t old_state, uint8_t new_state);
 
 void pauseScreenProcess(unsigned int screen);
 int pauseOrUnpauseProcess(unsigned int pid);

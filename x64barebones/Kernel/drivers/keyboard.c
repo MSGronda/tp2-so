@@ -104,5 +104,9 @@ void keyboard_handler() {
 	if(c != UNMAPPED){
 		keyBuffer[writePos] = c;					// se agraga al buffer
 		INCREASE_MOD(writePos,BUFFER_SIZE);
+
+		// signal to all processes waiting for an input that there
+		// is something the the KB buffer
+		alter_state_if(WAITING_FOR_INPUT, ACTIVE_PROCESS);		
 	}
 }

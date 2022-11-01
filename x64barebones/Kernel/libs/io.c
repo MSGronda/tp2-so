@@ -1,6 +1,5 @@
 #include <io.h>
 
-
 /* Decides how to proceed depending on screen to write */
 int writeDispatcher(unsigned int fd, const char * buf, unsigned int count) 
 {
@@ -48,6 +47,7 @@ int readDispatcher(unsigned int fd, char * buf, unsigned int count)
 {
 	if(fd == STDIN) {										// Eligimos posicion de donde leer. Tambien lo podriamos hacer con una funcion/tabla
 		while( !checkIfAvailableKey()){
+			alter_process_state(get_current_pid(), WAITING_FOR_INPUT);
 			forceChangeTask();					// Se bloquea
 		}
 		return consume_kb_buffer(buf,count);		// Si el key buffer no esta vacio, primero tengo que consumirlo
