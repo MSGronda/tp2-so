@@ -36,6 +36,8 @@ uint64_t swIntDispatcher(uint64_t mode, uint64_t arg0, uint64_t arg1,
 			return sys_nice(arg0, arg1);
 		case SYS_GET_PID:
 			return sys_get_pid();
+		case SYS_PROCESS_ALIVE:
+			return sys_process_alive((unsigned int) arg0);
 
 		// Semaphore
 		case SYS_REGISTER_SEM:

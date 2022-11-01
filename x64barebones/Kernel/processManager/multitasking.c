@@ -228,7 +228,7 @@ void alter_state_if(uint8_t old_state, uint8_t new_state){
 // alter state of a specific task
 void alter_process_state(unsigned int pid, uint8_t new_state){
 	int pos = findTask(pid);
-	if(pos == -1)
+	if(pos == NO_TASK_FOUND)
 		return;
 
 	tasks[pos].state = new_state;

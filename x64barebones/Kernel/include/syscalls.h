@@ -39,12 +39,14 @@
 #define SYS_PRINT_PIPE 28
 #define SYS_DESTROY_PIPE 29
 #define SYS_REGISTER_PIPE_AVAILABLE 30
-
 #define SYS_MM_STATUS 31
+#define SYS_PROCESS_ALIVE 32
 
 // Return values
 #define INVALID_SCREEN -1
 
+
+uint64_t sys_process_alive(unsigned int pid);
 
 uint64_t sys_register_pipe_available();
 uint64_t sys_print_pipe();

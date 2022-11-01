@@ -45,6 +45,9 @@ uint8_t get_current_output();
 uint8_t get_current_input();
 unsigned int  get_current_pid();
 
+
+int findTask(unsigned int pid);
+
 /* --- Process Management --- */
 int add_task(uint64_t entrypoint, uint8_t input, uint8_t output, uint8_t priority, uint8_t immortal, uint64_t arg0);
 

@@ -29,12 +29,16 @@
 #define SYS_PRINT_PIPE 28
 #define SYS_DESTROY_PIPE 29
 #define SYS_REGISTER_PIPE_AVAILABLE 30
-
 #define SYS_MM_STATUS 31
+#define SYS_PROCESS_ALIVE 32
 
 #define NULL 0
 
 extern uint64_t syscaller(uint64_t syscallID, uint64_t param1, uint64_t param2, uint64_t param3, uint64_t param4);
+
+uint64_t sys_process_alive(unsigned int pid){
+    return syscaller(SYS_PROCESS_ALIVE, (uint64_t) pid, NULL, NULL , NULL );    
+}
 
 uint64_t sys_register_pipe_available(){
     return syscaller(SYS_REGISTER_PIPE_AVAILABLE, NULL, NULL, NULL , NULL );    
