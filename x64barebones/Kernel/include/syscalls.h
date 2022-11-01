@@ -32,7 +32,6 @@
 #define SYS_SIGNAL_SEM 22
 #define SYS_PRINT_SEM 23
 #define SYS_DESTROY_SEM 24
-#define SYS_MM_STATUS 25
 
 #define SYS_WRITE_PIPE 25
 #define SYS_REGISTER_PIPE 26
@@ -40,6 +39,8 @@
 #define SYS_PRINT_PIPE 28
 #define SYS_DESTROY_PIPE 29
 #define SYS_REGISTER_PIPE_AVAILABLE 30
+
+#define SYS_MM_STATUS 31
 
 // Return values
 #define INVALID_SCREEN -1

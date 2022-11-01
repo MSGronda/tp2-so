@@ -22,7 +22,6 @@
 #define SYS_SIGNAL_SEM 22
 #define SYS_PRINT_SEM 23
 #define SYS_DESTROY_SEM 24
-#define SYS_MM_STATUS 25
 
 #define SYS_WRITE_PIPE 25
 #define SYS_REGISTER_PIPE 26
@@ -30,6 +29,8 @@
 #define SYS_PRINT_PIPE 28
 #define SYS_DESTROY_PIPE 29
 #define SYS_REGISTER_PIPE_AVAILABLE 30
+
+#define SYS_MM_STATUS 31
 
 #define NULL 0
 
@@ -55,13 +56,7 @@ uint64_t sys_register_pipe(unsigned int pipe_id){
 }
 
 uint64_t sys_mm_status(uint64_t * buffer){
-    return syscaller(SYS_MM_STATUS, (uint64_t) buffer, NULL, NULL);
-}
-
-uint64_t sys_wait_sem(unsigned int sem_id){
-    return syscaller(SYS_WAIT_SEM, (uint64_t) sem_id, NULL, NULL );
-uint64_t  sys_destroy_sem(unsigned int sem_id){
-    return syscaller(SYS_DESTROY_SEM, (uint64_t) sem_id, NULL, NULL , NULL );
+    return syscaller(SYS_MM_STATUS, (uint64_t) buffer, NULL, NULL, NULL);
 }
 
 uint64_t  sys_signal_sem(unsigned int sem_id){
@@ -72,7 +67,7 @@ uint64_t  sys_wait_sem(unsigned int sem_id){
     return syscaller(SYS_WAIT_SEM, (uint64_t) sem_id, NULL, NULL , NULL );
 }
 uint64_t sys_destroy_sem(unsigned int sem_id){
-    return syscaller(SYS_DESTROY_SEM, (uint64_t) sem_id, NULL, NULL );
+    return syscaller(SYS_DESTROY_SEM, (uint64_t) sem_id, NULL, NULL, NULL);
 }
 
 uint64_t  sys_register_sem(unsigned int sem_id, unsigned int value){
