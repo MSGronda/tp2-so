@@ -22,6 +22,7 @@ void wc();
 void filter();
 void cat();
 void loop();
+void phylo();
 
 void nice(char ** args);
 void pause(char ** args);
