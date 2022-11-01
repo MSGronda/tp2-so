@@ -1,10 +1,20 @@
+#ifndef USE_BUDDY
+
 #include <memoryManager.h>
 #include <mm_imp.h>
 #include <stddef.h>
+#define USER_START ((void *) SUM_PTR(HEAP_START, sizeof(memStatus)))
+
+ memStatus * getMemStatus(){
+    return (memStatus *) HEAP_START;
+ }
 
  // WE ALWAYS WANT BYTES!!!!
  void mm_init() {
-     addEOL(HEAP_START);
+     memStatus * status = getMemStatus();
+     status->freeBytes = (uint64_t) (HEAP_END - USER_START);
+
+     addEOL((header_t *) USER_START);
  }
 
  void * mm_malloc(uint64_t len) {
@@ -19,16 +29,27 @@
 
     addBlock(out, newSize);
 
+    memStatus * status = getMemStatus();
+    
+    status->allocatedBytes += newSize;
+    status->freeBytes -= newSize;
+    status->allocatedBlocks++;
+
     // User has a pointer after the header
-    return (void *)  (SUM_PTR(out, HEADER_SIZE));
+    return (void *) SUM_PTR(out, HEADER_SIZE);
  }
 
  void mm_free(void * ptr) {
- 	header_t * castedPtr = (header_t *) ptr;
-    if(castedPtr == NULL || castedPtr < HEAP_START || castedPtr >= HEAP_END)
+    if(ptr == NULL || ptr < USER_START || ptr >= HEAP_END)
         return;
-  
-    header_t * head = SUM_PTR(castedPtr, -HEADER_SIZE);
+
+    header_t * head = (header_t *) SUM_PTR(ptr, -HEADER_SIZE);
+    
+    memStatus * status = getMemStatus();
+    status->allocatedBytes -= MASK_LAST_BIT(head->size);
+    status->freeBytes += MASK_LAST_BIT(head->size);
+    status->allocatedBlocks--;
+
     //Free the header just before the user pointer
     freeBlock(head);
  }
@@ -37,7 +58,7 @@
 void freeBlock(header_t * ptr) {
     ptr->allocated = FALSE;
 
-    header_t * next = SUM_PTR(ptr, ptr->size);
+    header_t * next = (header_t *) SUM_PTR(ptr, ptr->size);
     if(!next->allocated)
         ptr->size += next->size;
 }
@@ -48,7 +69,7 @@ void freeBlock(header_t * ptr) {
 
     if(IS_EOL(ptr->size)) { 
         // last block
-        addEOL(SUM_PTR(ptr, newSize));
+        addEOL((header_t *) SUM_PTR(ptr, newSize));
 
         ptr->size = newSize;
         ptr->allocated = TRUE;
@@ -57,7 +78,7 @@ void freeBlock(header_t * ptr) {
         ptr->size = newSize;
         ptr->allocated = TRUE;
 
-        ptr = SUM_PTR(ptr, newSize); // next block
+        ptr = (header_t *) SUM_PTR(ptr, newSize); // next block
 
         ptr->size = oldSize - newSize;
         ptr->allocated = FALSE; // for coherence
@@ -70,14 +91,14 @@ void freeBlock(header_t * ptr) {
  }
 
  header_t * findFree(uint64_t len) {
-     header_t * ptr = HEAP_START;
+     header_t * ptr = (header_t *) USER_START;
 
-     while( !IS_EOL(ptr->size) && (ptr->allocated || GET_SIZE(ptr->size) < len) )
-         ptr = SUM_PTR(ptr, GET_SIZE(ptr->size));
+     while( !IS_EOL(ptr->size) && (ptr->allocated || MASK_LAST_BIT(ptr->size) < len) )
+         ptr = (header_t *) SUM_PTR(ptr, MASK_LAST_BIT(ptr->size));
 
      if(IS_EOL(ptr->size)) {
          // Check if it fits
-         if(SUM_PTR(ptr, len + EOL_SIZE) > HEAP_END)
+         if((void *) SUM_PTR(ptr, len + EOL_SIZE) > HEAP_END)
              return NULL;
      }
      return ptr;
@@ -88,3 +109,5 @@ void freeBlock(header_t * ptr) {
     ptr->size = 0;
     ptr->allocated = TRUE;
  }
+
+#endif // USE_BUDDY

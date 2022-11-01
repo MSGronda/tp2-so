@@ -4,8 +4,14 @@
 #include "../include/stdlib.h"
 #include "../include/syscalls.h"
 
-#define MAX_BLOCKS 80
-#define MAX_MEMORY 2000
+#ifdef USE_BUDDY
+    #define MAX_BLOCKS 500
+    #define MAX_MEMORY 5000
+#else
+    #define MAX_BLOCKS 80
+    #define MAX_MEMORY 2000
+#endif
+
 typedef struct MM_rq{
   void *address;
   uint32_t size;
@@ -20,6 +26,8 @@ void* setmem(void* destination, int32_t c, uint64_t length) {
     return destination;
 }
 
+void bup() {}
+
 void test_mm(){
     mm_rq mm_rqs[MAX_BLOCKS];
     uint8_t rq;
@@ -27,8 +35,9 @@ void test_mm(){
     uint64_t max_memory;
 
     max_memory = MAX_MEMORY;
-
+    int test = 0;
     while (1) {
+        test++;
         rq = 0;
         total = 0;
 
@@ -36,8 +45,13 @@ void test_mm(){
 
         // Request as many blocks as we can
         while (rq < MAX_BLOCKS && total < max_memory) {
+            if(test == 9 && rq == 5){
+                bup();
+            }
             mm_rqs[rq].size = GetUniform(max_memory - total - 1) + 1;
             mm_rqs[rq].address = malloc(mm_rqs[rq].size);
+
+            
 
             char buffer[20];
             num_to_string(rq, buffer);
@@ -63,6 +77,10 @@ void test_mm(){
         for (i = 0; i < rq; i++)
             if (mm_rqs[i].address)
                 if (!memcheck(mm_rqs[i].address, i, mm_rqs[i].size)) {
+                    char buffer[20];
+                    num_to_string(test, buffer);
+                    puts(buffer);
+                    bup();
                     puts("test_mm ERROR");
                     return;
                 }

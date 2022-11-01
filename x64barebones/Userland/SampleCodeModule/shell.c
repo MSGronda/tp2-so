@@ -60,6 +60,7 @@ static program_info programs[] = {
     {.name = "loop", .ptr = (uint64_t) &loop, .min_args = 0, .max_args = 0, .pipeable = 1},
     {.name = "filter", .ptr = (uint64_t) &filter, .min_args = 0, .max_args = 0, .pipeable = 1},
     {.name = "wc", .ptr = (uint64_t) &wc, .min_args = 0, .max_args = 0, .pipeable = 0},
+    {.name = "mmstatus", .ptr = (uint64_t) &mmstatus, .min_args = 0, .max_args = 0},
 };
 
 /* = = = = = = = = = CODIGO = = = = = = = = = */

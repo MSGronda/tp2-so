@@ -76,6 +76,9 @@ uint64_t swIntDispatcher(uint64_t mode, uint64_t arg0, uint64_t arg1,
 		case SYS_LIST_PROCESS:
 			return sys_list_process();
 
+		case SYS_MM_STATUS:
+			return sys_mm_status((uint64_t *) arg0);
+
 		default:
 			return INVALID_SYS_CALL;
 	}

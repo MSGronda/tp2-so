@@ -4,14 +4,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#define SUM_PTR(ptr, num) ((uint64_t) (ptr) + (num))
 
 #define TRUE 1
 #define FALSE (!TRUE)
 
-#define HEAP_SIZE ((uint64_t) 0x100000)  // 1Mb (in bytes!!!!)    
-#define HEAP_START ((header_t *) 0xA00000)  // 10 Mb  (TODO: habria que calcular el fin del userland y meterlo ahi)
-#define HEAP_END ((header_t *) (SUM_PTR(HEAP_START, HEAP_SIZE)))
+#define HEAP_SIZE 0x100000  // 1Mb (in bytes!!!!)    
+#define HEAP_START ((void *) 0xA00000)  // 10 Mb  (TODO: habria que calcular el fin del userland y meterlo ahi)
+#define HEAP_END ((void *) (SUM_PTR(HEAP_START, HEAP_SIZE)))
 
+typedef struct memStatus{
+    uint64_t allocatedBytes;
+    uint64_t freeBytes;
+    uint64_t allocatedBlocks;
+} memStatus;
 
 /*
  * << mm_init >>
@@ -46,5 +52,16 @@ void * mm_malloc(uint64_t size);
  * Devuelve: --
  */
 void mm_free(void * ptr);
+
+
+/*
+ * << getMemStatus >>
+ * ----------------------------------------------------------------------
+ * Description: returns a pointer to memStatus struct
+ * ----------------------------------------------------------------------
+ * Receives: --
+ * Devuelve: memStatus *
+ */
+memStatus * getMemStatus();
 
 #endif

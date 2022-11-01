@@ -1,3 +1,5 @@
+#ifndef USE_BUDDY
+
 #ifndef _MM_IMP_H_
 #define _MM_IMP_H_
 
@@ -80,4 +82,5 @@ header_t * findFree(uint64_t len);
  */
 void addEOL(header_t * ptr);
 
-#endif
+#endif // _MM_IMP_H_
+#endif // USE_BUDDY

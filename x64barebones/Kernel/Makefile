@@ -23,6 +23,10 @@ OBJECTS_MM=$(SOURCES_MM:.c=.o)
 OBJECTS_PM=$(SOURCES_PM:.c=.o)
 
 LOADERSRC=loader.asm
+# Uncomment to use buddy 
+#MEMORY_MANAGER=-D USE_BUDDY
+# else
+MEMORY_MANAGER=
 
 LOADEROBJECT=$(LOADERSRC:.asm=.o)
 STATICLIBS=
@@ -34,7 +38,8 @@ $(KERNEL): $(LOADEROBJECT) $(OBJECTS) $(STATICLIBS) $(OBJECTS_ASM) $(OBJECTS_EXC
 	$(LD) $(LDFLAGS) -T kernel.ld --oformat=elf64-x86-64 -o kernel.elf $(LOADEROBJECT) $(OBJECTS) $(OBJECTS_ASM) $(OBJECTS_EXCEPTIONS) $(OBJECTS_IRQ) $(OBJECTS_LIBS) $(OBJECTS_SYSCALLS) $(OBJECTS_DRIVERS) $(OBJECTS_MM) $(OBJECTS_PM) $(STATICLIBS)
 
 %.o: %.c
-	$(GCC) $(GCCFLAGS) -I./include -c $< -o $@
+	$(GCC) $(GCCFLAGS) -I./include -c $< -o $@ $(MEMORY_MANAGER)
+
 
 %.o : %.asm
 	$(ASM) $(ASMFLAGS) $< -o $@

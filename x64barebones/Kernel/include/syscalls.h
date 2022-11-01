@@ -32,6 +32,7 @@
 #define SYS_SIGNAL_SEM 22
 #define SYS_PRINT_SEM 23
 #define SYS_DESTROY_SEM 24
+#define SYS_MM_STATUS 25
 
 #define SYS_WRITE_PIPE 25
 #define SYS_REGISTER_PIPE 26
@@ -56,6 +57,8 @@ uint64_t sys_print_sem();
 uint64_t sys_signal_sem(unsigned int sem_id);
 uint64_t sys_register_sem(unsigned int sem_id, unsigned int value);
 uint64_t sys_wait_sem(unsigned int sem_id);
+
+uint64_t sys_mm_status(uint64_t * buffer);
 
 uint64_t sys_free(void * ptr);
 
