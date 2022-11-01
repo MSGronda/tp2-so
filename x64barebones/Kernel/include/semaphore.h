@@ -13,6 +13,7 @@
 #include <video.h>
 #include <interrupts.h>
 #include <locks.h>
+#include <queue.h>
 
 int create_sem_available(unsigned int value);
 

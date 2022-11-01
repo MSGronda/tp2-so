@@ -12,4 +12,18 @@ typedef struct queueADT{
     unsigned int size;
 }queueADT;
 
+void init_queue(queueADT * q, unsigned int size);
+unsigned int size_queue(queueADT * q);
+uint64_t dequeue(queueADT * q);
+uint8_t contais_queue(queueADT * q, uint64_t elem);
+void destroy_queue(queueADT * q);
+
+
+void new_iterator_queue(queueADT * q,unsigned int * pos);
+uint8_t has_next_queue(queueADT * q, unsigned int * pos);
+uint64_t next_queue(queueADT * q, unsigned int * pos);
+
+
+
+
 #endif

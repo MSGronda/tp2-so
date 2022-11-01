@@ -44,3 +44,27 @@ uint8_t contais_queue(queueADT * q, uint64_t elem){
 void destroy_queue(queueADT * q){
     mm_free(q->array);
 }
+
+
+/* - - - Iterator - - - */
+
+void new_iterator_queue(queueADT * q,unsigned int * pos){
+    *pos = q->readPos;
+}
+
+uint8_t has_next_queue(queueADT * q, unsigned int * pos){
+    if(q->readPos > q->writePos){
+        return (*pos >= q->readPos && *pos < q->size) || (*pos < q->writePos);
+    }   
+    return *pos >= q->readPos && *pos < q->writePos;
+}
+
+uint64_t next_queue(queueADT * q, unsigned int * pos){ 
+    if(*pos >= q->size)
+        return NULL;
+
+    uint64_t resp = q->array[*pos];
+    *pos = ((*pos) + 1) % q->size;
+
+    return resp;
+}

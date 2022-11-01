@@ -26,8 +26,6 @@ void* setmem(void* destination, int32_t c, uint64_t length) {
     return destination;
 }
 
-void bup() {}
-
 void test_mm(){
     mm_rq mm_rqs[MAX_BLOCKS];
     uint8_t rq;
@@ -41,21 +39,13 @@ void test_mm(){
         rq = 0;
         total = 0;
 
-        puts("TESTING MEMORY MANAGER - PRESS ESC TO FINISH TEST");
+        //puts("TESTING MEMORY MANAGER - PRESS ESC TO FINISH TEST");
 
         // Request as many blocks as we can
         while (rq < MAX_BLOCKS && total < max_memory) {
-            if(test == 9 && rq == 5){
-                bup();
-            }
             mm_rqs[rq].size = GetUniform(max_memory - total - 1) + 1;
             mm_rqs[rq].address = malloc(mm_rqs[rq].size);
-
-            
-
-            char buffer[20];
-            num_to_string(rq, buffer);
-            puts(buffer);
+        
             if(mm_rqs[rq].address == NULL){
                 puts("NO MORE MEM AVAILABLE");
                 return;
@@ -77,10 +67,6 @@ void test_mm(){
         for (i = 0; i < rq; i++)
             if (mm_rqs[i].address)
                 if (!memcheck(mm_rqs[i].address, i, mm_rqs[i].size)) {
-                    char buffer[20];
-                    num_to_string(test, buffer);
-                    puts(buffer);
-                    bup();
                     puts("test_mm ERROR");
                     return;
                 }
@@ -89,7 +75,7 @@ void test_mm(){
         for (i = 0; i < rq; i++)
             if (mm_rqs[i].address)
                 free(mm_rqs[i].address);
-        puts("Test passed!");   
+        //puts("Test passed!");   
     }
 }
 

@@ -151,7 +151,6 @@ void signal_eof(unsigned int pipe_id){
 	pipe_info[pos].eof = 1;
 }
 
-
 int write_to_pipe(unsigned int pipe_id, uint8_t * src, unsigned int count){
 	int pos = find_pipe(pipe_id);
 	if(pos == -1)
@@ -179,8 +178,8 @@ int read_from_pipe(unsigned int pipe_id, uint8_t * dest, unsigned int count){
 	if(pipe_info[pos].eof && pipe_info[pos].amount == 0){
 		return EOF;
 	}
-		
-	for(int i=0; i<count && !(pipe_info[pos].eof && pipe_info[pos].amount == 0); i++){
+	int i=0;	
+	for(; i<count && !(pipe_info[pos].eof && pipe_info[pos].amount == 0); i++){
 		wait_sem(pipe_info[pos].read_sem_id);
 
 		dest[i] = pipe_info[pos].pipe[pipe_info[pos].read_pos];
@@ -189,7 +188,7 @@ int read_from_pipe(unsigned int pipe_id, uint8_t * dest, unsigned int count){
 		
 		signal_sem(pipe_info[pos].write_sem_id);
 	}
-	return count;
+	return i;
 }
 
 void print_pipe(){
@@ -208,7 +207,7 @@ void print_pipe(){
 
 			writeDispatcher(out," | Usage: ",10);
 
-			len = num_to_string(pipe_info[i].amount / PIPE_SIZE, buffer);
+			len = num_to_string(pipe_info[i].amount , buffer);
 			writeDispatcher(out, buffer, len);
 
 			writeDispatcher(out, "\n\n--Read semaphore--\n",20);
