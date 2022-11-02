@@ -19,6 +19,7 @@
 #define SYS_FREE 19
 #define SYS_WAIT_SEM 20
 #define SYS_REGISTER_SEM 21
+#define SYS_REGISTER_SEM_AVAILABLE 32
 #define SYS_SIGNAL_SEM 22
 #define SYS_PRINT_SEM 23
 #define SYS_DESTROY_SEM 24
@@ -77,6 +78,11 @@ uint64_t sys_destroy_sem(unsigned int sem_id){
 uint64_t  sys_register_sem(unsigned int sem_id, unsigned int value){
     return syscaller(SYS_REGISTER_SEM, (uint64_t) sem_id, (uint64_t) value, NULL , NULL );
 }
+
+uint64_t  sys_register_sem_available(unsigned int value){
+    return syscaller(SYS_REGISTER_SEM_AVAILABLE, (uint64_t) value, NULL, NULL , NULL );
+}
+
 uint64_t  sys_print_sem(){
     return syscaller(SYS_PRINT_SEM, NULL, NULL, NULL , NULL );
 }
