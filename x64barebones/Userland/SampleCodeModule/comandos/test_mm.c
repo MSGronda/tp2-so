@@ -34,6 +34,8 @@ void test_mm(){
 
     max_memory = MAX_MEMORY;
     int test = 0;
+    puts("Testing Memory Manager...");
+    puts("Press ESC to finish test");
     while (1) {
         test++;
         rq = 0;
