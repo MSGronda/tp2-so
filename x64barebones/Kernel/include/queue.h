@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <memoryManager.h>
+#include <stdbool.h>
 
 typedef struct queueADT{
     uint64_t  * array;

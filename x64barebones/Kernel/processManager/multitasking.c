@@ -59,14 +59,14 @@ static unsigned int currentDimTasks = 0;
 /* --- Init --- */
 
 void idleTask(){
-	while(1)
+	while(true)
 		_hlt();
 }
 
 char * idleArg[] = {"idle", NULL};
 void enableMultiTasking(){
 
-	add_task((uint64_t)&idleTask, 1, BACKGROUND, 1, IMMORTAL,idleArg);
+	add_task((uint64_t)&idleTask, STDIN, BACKGROUND, DEFAULT_PRIORITY, IMMORTAL,idleArg);
 	forceCurrentTask();
 }
 
@@ -239,13 +239,13 @@ void pauseScreenProcess(unsigned int screen){
 }
 
 void kill_screen_processes(){
-	uint8_t currentTaskKilled = 0;
+	uint8_t currentTaskKilled = false;
 	for(int i=0; i< TOTAL_TASKS; i++){
 		if(tasks[i].state != DEAD_PROCESS &&  tasks[i].immortal != IMMORTAL ){		//TODO: que vuelva a ser solo los screen processes
 			destroy_process(i);
 
 			if(i == currentTask){
-				currentTaskKilled = 1;
+				currentTaskKilled = true;
 			}
 		}
 	}
@@ -266,7 +266,7 @@ int pauseOrUnpauseProcess(unsigned int pid){
 		return NO_TASK_FOUND;
 
 	if(tasks[pos].immortal)
-		return -1;
+		return TASK_NOT_ALTERED;
 
 	tasks[pos].state = tasks[pos].state==PAUSED_PROCESS ? ACTIVE_PROCESS : PAUSED_PROCESS; 	// pausado -> despausado  | despausado -> pausado
 
@@ -284,7 +284,7 @@ int removeTask(unsigned int pid){
 		return NO_TASK_FOUND;
 
 	if(tasks[pos].immortal)
-		return -1;
+		return TASK_NOT_ALTERED;
 
 	destroy_process(pos);
 
@@ -307,7 +307,7 @@ unsigned int change_priority(unsigned int pid, int delta){
 	else 	
 		tasks[pos].priority = delta;
 
-	return 1;
+	return true;
 }
 
 
@@ -320,9 +320,9 @@ uint8_t has_or_decrease_time(){
 	if(currentRemainingTicks < tasks[currentTask].priority - 1){
 		tasks[currentTask].ticks++;
 		currentRemainingTicks++;
-		return 1;
+		return true;
 	}
-	return 0;
+	return false;
 
 }
 /*	

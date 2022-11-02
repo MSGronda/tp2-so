@@ -15,7 +15,7 @@
 #include <locks.h>
 #include <queue.h>
 #include <data_types.h>
-
+#include <stdbool.h>
 
 unsigned int get_blocked_by_sem_id(unsigned int sem_id, unsigned int * blocked_pids);
 unsigned int get_sem_blocked_process(unsigned int i, unsigned int * blocked_pids);

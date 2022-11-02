@@ -26,7 +26,7 @@ int find_sem(unsigned int sem_id){
 			return i;
 		}
 	}
-	return -1;
+	return INVALID_SEM_ID;
 }
 
 int find_available_sem_id(){
@@ -92,7 +92,7 @@ int create_sem(unsigned int sem_id, unsigned int value){
 
 void destroy_sem(unsigned int sem_id){
 	int pos = find_sem(sem_id);
-	if(pos == -1)
+	if(pos == INVALID_SEM_ID)
 		return;
 
 	lock(&(sem_info[pos].lock));
@@ -106,8 +106,8 @@ void destroy_sem(unsigned int sem_id){
 
 unsigned int wait_sem(unsigned int sem_id){
 	int pos = find_sem(sem_id);
-	if(pos == -1)
-		return -1;
+	if(pos == INVALID_SEM_ID)
+		return INVALID_SEM_ID;
 
 	lock(&(sem_info[pos].lock));
 	if(sem_info[pos].sem_value > 0){
@@ -120,18 +120,18 @@ unsigned int wait_sem(unsigned int sem_id){
 
 		unlock(&(sem_info[pos].lock));
 		forceChangeTask();
-		return 1;
+		return true;
 	}
 
 
 	unlock(&(sem_info[pos].lock));
 
-	return 1;
+	return true;
 }
 
 unsigned int signal_sem(unsigned int sem_id){
 	int pos = find_sem(sem_id);
-	if(pos == -1){
+	if(pos == INVALID_SEM_ID){
 		return INVALID_SEM_ID;
 	}
 
@@ -146,7 +146,7 @@ unsigned int signal_sem(unsigned int sem_id){
 	}
 
 	unlock(&(sem_info[pos].lock));
-	return 1;
+	return true;
 }
 
 
@@ -184,8 +184,8 @@ uint64_t get_semaphore_info(semaphore_info * info){
 
 unsigned int get_blocked_by_sem_id(unsigned int sem_id, unsigned int * blocked_pids){
 	int pos = find_sem(sem_id);
-	if(pos == -1)
-		return 0;
+	if(pos == INVALID_SEM_ID)
+		return INVALID_SEM_ID;
 
 	return get_sem_blocked_process((unsigned int)pos, blocked_pids);
 }

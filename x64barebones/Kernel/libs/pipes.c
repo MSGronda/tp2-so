@@ -3,7 +3,6 @@
 #define MAX_PIPES 20
 #define PIPE_SIZE 1024
 
-#define EOF -1
 
 /* 
 	A clear example of producers and consumers.
@@ -36,21 +35,21 @@ int find_pipe(unsigned int pipe_id){
 			return i;
 		}
 	}
-	return -1;
+	return INVALID_PIPE_ID;
 }
 
 int find_available_pipe_id(){
 	if(num_pipes == MAX_PIPES)
 		return ERROR_NO_MORE_SPACE;
 
-	uint8_t found = 0;
+	uint8_t found = false;
 	int pipe_id = 10;
 
 	while(!found){
-		found = 1;
+		found = true;
 		for(int i=0; i<MAX_PIPES; i++){
 			if(pipe_info[i].pipe_id == pipe_id){
-				found = 0;
+				found = false;
 				pipe_id++;
 				break;
 			}
@@ -93,7 +92,7 @@ int create_pipe(unsigned int pipe_id){
 	// create semaphore
 	int sem_id1 = create_sem_available(0);
 	int sem_id2 = create_sem_available(PIPE_SIZE);
-	if(sem_id1 == -1 || sem_id2 == -1){
+	if(sem_id1 == INVALID_SEM_ID || sem_id2 == INVALID_SEM_ID){
 		destroy_sem(sem_id1);
 		destroy_sem(sem_id2);
 		return ERROR_NO_MORE_SPACE;
@@ -122,7 +121,7 @@ int create_pipe(unsigned int pipe_id){
 
 void destroy_pipe(unsigned int pipe_id){
 	int pos = find_pipe(pipe_id);
-	if(pos == -1)
+	if(pos == INVALID_PIPE_ID)
 		return;
 	destroy_sem(pipe_info[pos].write_sem_id);	
 	destroy_sem(pipe_info[pos].read_sem_id);
@@ -145,7 +144,7 @@ void destroy_pipe(unsigned int pipe_id){
 
 void signal_eof(unsigned int pipe_id){
 	int pos = find_pipe(pipe_id);
-	if(pos == -1)
+	if(pos == INVALID_PIPE_ID)
 		return;
 
 	pipe_info[pos].eof = 1;
@@ -153,8 +152,8 @@ void signal_eof(unsigned int pipe_id){
 
 int write_to_pipe(unsigned int pipe_id, const char * src, unsigned int count){
 	int pos = find_pipe(pipe_id);
-	if(pos == -1)
-		return -1;
+	if(pos == INVALID_PIPE_ID)
+		return INVALID_PIPE_ID;
 	
 	for(int i=0; i<count; i++){
 		wait_sem(pipe_info[pos].write_sem_id);
@@ -170,8 +169,8 @@ int write_to_pipe(unsigned int pipe_id, const char * src, unsigned int count){
 
 int read_from_pipe(unsigned int pipe_id, char * dest, unsigned int count){
 	int pos = find_pipe(pipe_id);
-	if(pos == -1)
-		return -1;
+	if(pos == INVALID_PIPE_ID)
+		return INVALID_PIPE_ID;
 
 	// The conditions mean that a pipe was being piped and has
 	// now finished. Nothing else will be read from the pipe.

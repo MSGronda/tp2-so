@@ -33,6 +33,7 @@ typedef struct program_info{
 static program_info programs[] = {
     {.name = "fibonacci", .ptr = (uint64_t) &fibonacci, .min_args = 0, .max_args = 0, .pipeable = 0},
     {.name = "primos", .ptr = (uint64_t) &primos, .min_args = 0, .max_args = 0, .pipeable = 0},
+    {.name = "phylo", .ptr = (uint64_t) &phylo, .min_args = 0, .max_args = 0, .pipeable = 0},
 
     {.name = "help", .ptr = (uint64_t) &help, .min_args = 0, .max_args = 0, .pipeable = 0},
     {.name = "time", .ptr = (uint64_t) &time, .min_args = 0, .max_args = 0, .pipeable = 1},
@@ -43,6 +44,7 @@ static program_info programs[] = {
     {.name = "printargs", .ptr = (uint64_t) &printargs, .min_args = 0, .max_args = MAX_WORDS, .pipeable = 0},
     {.name = "pipe", .ptr = (uint64_t) &pipe, .min_args = 0, .max_args = 0, .pipeable = 0},
     {.name = "sem", .ptr = (uint64_t) &sem, .min_args = 0, .max_args = 0, .pipeable = 0},
+    {.name = "mmstatus", .ptr = (uint64_t) &mmstatus, .min_args = 0, .max_args = 0},
 
     {.name = "ps", .ptr = (uint64_t) &ps, .min_args = 0, .max_args = 0, .pipeable = 1},
     {.name = "kill", .ptr = (uint64_t) &kill, .min_args = 1, .max_args = 1, .pipeable = 0},
@@ -60,9 +62,6 @@ static program_info programs[] = {
     {.name = "loop", .ptr = (uint64_t) &loop, .min_args = 0, .max_args = 0, .pipeable = 1},
     {.name = "filter", .ptr = (uint64_t) &filter, .min_args = 0, .max_args = 0, .pipeable = 1},
     {.name = "wc", .ptr = (uint64_t) &wc, .min_args = 0, .max_args = 0, .pipeable = 0},
-    {.name = "phylo", .ptr = (uint64_t) &phylo, .min_args = 0, .max_args = 0, .pipeable = 0},
-
-    {.name = "mmstatus", .ptr = (uint64_t) &mmstatus, .min_args = 0, .max_args = 0},
 };
 
 /* = = = = = = = = = CODIGO = = = = = = = = = */
@@ -213,8 +212,7 @@ void shell(){
         int amount_of_words = tokenize(buffer, words);
 
         if(amount_of_words  == 0){
-            puts(NO_STRING);
-            continue;                 // mas legible asi, no rompas los huevos
+            continue;
         }
 
         if(piped_process_handle(words,amount_of_words) == 0){

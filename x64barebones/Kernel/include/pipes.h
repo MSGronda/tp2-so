@@ -5,8 +5,12 @@
 #include <memoryManager.h>
 #include <stdint.h>
 #include <lib.h>
+#include <stdbool.h>
 
-#define INVALID_PIPE_ID 2
+#define INVALID_PIPE_ID -1
+#define EOF -1
+
+
 
 uint64_t get_pipe_info(pipes_info * info);
 

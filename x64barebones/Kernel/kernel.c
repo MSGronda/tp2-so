@@ -6,6 +6,8 @@
 #include <multitasking.h>
 #include <syscalls.h>
 #include <memoryManager.h>
+#include <video.h>
+#include <io.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -59,7 +61,7 @@ int main()
 
 	mm_init();
 
-    add_task((uint64_t)sampleCodeModuleAddress,1, 1,1, 1,shellArg);	// llamada a userland
+    add_task((uint64_t)sampleCodeModuleAddress,STDIN, STDOUT,DEFAULT_PRIORITY, IMMORTAL, shellArg);	// llamada a userland
 	
 	enableMultiTasking();
 	

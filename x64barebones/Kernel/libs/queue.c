@@ -24,7 +24,7 @@ void enqueue(queueADT * q, uint64_t elem){
 
 uint64_t dequeue(queueADT * q){
     if(q->amount == 0)
-        return 0;
+        return (uint64_t) NULL;
     uint64_t resp = q->array[q->readPos];
     q->readPos = (q->readPos + 1) % (q->size);
     q->amount--;
@@ -35,10 +35,10 @@ uint64_t dequeue(queueADT * q){
 uint8_t contais_queue(queueADT * q, uint64_t elem){
     for(unsigned int i=q->readPos, j=0;  j < q->amount; j++){
         if(q->array[i] == elem)
-            return 1;
+            return true;
         i = (i + 1) % q->size;
     }
-    return 0;
+    return false;
 }
 
 void destroy_queue(queueADT * q){
