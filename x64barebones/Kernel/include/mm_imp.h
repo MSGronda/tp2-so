@@ -31,8 +31,6 @@ typedef union header_t {
 // so we can check if *ptr == 1 bc 1 = 000...001
 #define IS_EOL(size) ( !(GET_SIZE(size) > 0) )
 
-#define SUM_PTR(ptr, num) ( (header_t *) ((uint64_t) (ptr) + (num)) )
-
 /*
  * << freeBlock >>
  * ----------------------------------------------------------------------

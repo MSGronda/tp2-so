@@ -64,10 +64,10 @@ uint64_t sys_register_pipe_available(){
 uint64_t sys_destroy_pipe(unsigned int pipe_id){
     return syscaller(SYS_DESTROY_PIPE, (uint64_t) pipe_id, NULL, NULL , NULL );
 }
-uint64_t sys_read_pipe(unsigned int pipe_id, uint8_t * dest, unsigned int count){
+uint64_t sys_read_pipe(unsigned int pipe_id, char * dest, unsigned int count){
     return syscaller(SYS_READ_PIPE, (uint64_t) pipe_id, (uint64_t) dest, (uint64_t) count , NULL );
 }
-uint64_t sys_write_pipe(unsigned int pipe_id, uint8_t * src, unsigned int count){
+uint64_t sys_write_pipe(unsigned int pipe_id, const char * src, unsigned int count){
     return syscaller(SYS_WRITE_PIPE, (uint64_t) pipe_id, (uint64_t) src, (uint64_t) count , NULL );
 }
 uint64_t sys_register_pipe(unsigned int pipe_id){

@@ -9,7 +9,7 @@ static unsigned int a = 0;
 #define PROCESS_AMOUNT 2
 #define SEM_ID 26984
 
-void slowInc(int * a, int inc){
+void slowInc(unsigned int * a, int inc){
     int b;
     b = *a;
     b += inc;
@@ -50,7 +50,7 @@ void semtest(uint8_t sem){
         args[1] = "f";
 
     for(int i=0; i<PROCESS_AMOUNT; i++){
-        int error = sys_register_child_process(&incTest,STDIN, BACKGROUND, args);
+        int error = sys_register_child_process((uint64_t) &incTest,STDIN, BACKGROUND, (uint64_t) args);
         if(error <= 0){
             puts("error creating children");
         }

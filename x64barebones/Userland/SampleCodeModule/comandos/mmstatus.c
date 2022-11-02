@@ -16,7 +16,7 @@ void mmstatus(){
     for(int i = 0 ; i < 3 ; i++){
         char buf[16] = {0};
         print(mmInfo[i], strlen(mmInfo[i]));
-        int len = num_to_string(info[i], buf);
+        num_to_string(info[i], buf);
         puts(buf);
     }
 

@@ -17,7 +17,7 @@ void test_prio(){
   uint64_t i;
 
   for(i = 0; i < TOTAL_PROCESSES; i++)
-    pids[i] = (uint8_t) sys_register_process(&endless_loop_print, 1,1, NULL);
+    pids[i] = (uint8_t) sys_register_process((uint64_t) &endless_loop_print, 1,1, NULL);
 
   bussy_wait(WAIT);
   puts("\nCHANGING PRIORITIES...");

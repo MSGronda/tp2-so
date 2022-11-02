@@ -4,7 +4,7 @@
 #include <mm_imp.h>
 #include <stddef.h>
 
-static memStatus mmStatusInfo = {{ 0 }};
+static memStatus mmStatusInfo = { 0 };
 
 memStatus * getMemStatus() {
     return &mmStatusInfo;
@@ -12,7 +12,6 @@ memStatus * getMemStatus() {
 
  // WE ALWAYS WANT BYTES!!!!
  void mm_init() {
-     memStatus * status = getMemStatus();
      mmStatusInfo.freeBytes = HEAP_SIZE;
 
     addEOL((header_t *) HEAP_START);

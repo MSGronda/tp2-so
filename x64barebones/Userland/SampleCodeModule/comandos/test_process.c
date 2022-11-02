@@ -32,7 +32,7 @@ void test_processes(char ** argv){
 
     // Create max_processes processes
     for(rq = 0; rq < max_processes; rq++){
-      p_rqs[rq].pid = sys_register_child_process(&endless_loop, 1, 1, NULL);
+      p_rqs[rq].pid = sys_register_child_process((uint64_t) &endless_loop, 1, 1, NULL);
 
       if (p_rqs[rq].pid == -1){
         puts("test_processes: ERROR creating process");

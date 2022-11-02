@@ -6,8 +6,6 @@
 
 #define MAX_PRIORITY 5
 
-#define NULL 0 // !!!! REMOVE !!!!
-
 // ---- Valores default para el armado del stack ----
 #define FLAG_VALUES 0x202
 #define SS_VALUE 0x0				// en nuestro caso se mantiene constante
@@ -128,7 +126,7 @@ int add_task(uint64_t entrypoint, uint8_t input, uint8_t output, uint8_t priorit
 
 
 	// --- Parametros de funcion ---
-	*(STACK_POS(RDI_POS)) = arg0;
+	*(STACK_POS(RDI_POS)) = (uint64_t) arg0;
 
 	// --- Pongo todos los registros que no se usan en 0 ---
 	for(int i=7 ; i<21 ; i++){
@@ -370,7 +368,7 @@ int get_process_info(process_info * info){
 			info[j].id = tasks[i].pid;
 			info[j].state = tasks[i].state;
 			info[j].priority = tasks[i].priority;
-			info[j].stack = tasks[i].stackStart;
+			info[j].stack = (uint64_t) tasks[i].stackStart;
 			info[j].rsp = tasks[i].stackPointer;
 			info[j].pickd = tasks[i].ticks;
 			info[j].screen = tasks[i].output;

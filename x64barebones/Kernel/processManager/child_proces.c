@@ -12,7 +12,7 @@ typedef struct wait_info{
 	uint8_t state;
 }wait_info;
 
-static wait_info wait_table[MAX_WAIT_TASKS] = {0};		// TODO: tira warning
+static wait_info wait_table[MAX_WAIT_TASKS] = {{0}};	
 
 uint8_t has_children(unsigned int pid){
 	for(int i=0; i<MAX_WAIT_TASKS; i++){

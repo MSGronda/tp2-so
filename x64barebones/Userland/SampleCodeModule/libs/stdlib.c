@@ -2,7 +2,7 @@
 
 
 void * malloc(uint64_t size){
-    return sys_alloc(size);
+    return (void *)sys_alloc(size);
 }
 
 void free(void * ptr){

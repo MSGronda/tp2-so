@@ -57,9 +57,9 @@ uint64_t swIntDispatcher(uint64_t mode, uint64_t arg0, uint64_t arg1,
 		case SYS_REGISTER_PIPE:
 				return sys_register_pipe((unsigned int) arg0);
 		case SYS_WRITE_PIPE:
-			return sys_write_pipe((unsigned int) arg0, (uint8_t *)arg1, (unsigned int) arg2);
+			return sys_write_pipe((unsigned int) arg0, (char *)arg1, (unsigned int) arg2);
 		case SYS_READ_PIPE:
-			return sys_read_pipe((unsigned int) arg0, (uint8_t *)arg1, (unsigned int) arg2);
+			return sys_read_pipe((unsigned int) arg0, (char *)arg1, (unsigned int) arg2);
 		case SYS_DESTROY_PIPE:
 			return sys_destroy_pipe((unsigned int) arg0);
 		case SYS_REGISTER_PIPE_AVAILABLE:

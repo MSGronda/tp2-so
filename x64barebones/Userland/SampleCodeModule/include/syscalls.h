@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <data_types.h>
 
+uint64_t sys_pipe_info(pipes_info * info);
 uint64_t sys_semaphore_info(semaphore_info * info);
 uint64_t sys_process_info(process_info * info);
 uint64_t sys_mm_status(uint64_t * buffer);
@@ -22,8 +23,8 @@ uint64_t sys_alloc(uint64_t len);
 
 
 uint64_t sys_destroy_pipe(unsigned int pipe_id);
-uint64_t sys_read_pipe(unsigned int pipe_id, uint8_t * dest, unsigned int count);
-uint64_t sys_write_pipe(unsigned int pipe_id, uint8_t * src, unsigned int count);
+uint64_t sys_read_pipe(unsigned int pipe_id, char * dest, unsigned int count);
+uint64_t sys_write_pipe(unsigned int pipe_id, const char * src, unsigned int count);
 uint64_t sys_register_pipe(unsigned int pipe_id);
 uint64_t sys_register_pipe_available();
 
