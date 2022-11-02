@@ -46,6 +46,8 @@
 #define SYS_SEMAPHORE_INFO 34
 #define SYS_PIPE_INFO 35
 
+#define SYS_REGISTER_SEM_AVAILABLE 36
+
 // Return values
 #define INVALID_SCREEN -1
 

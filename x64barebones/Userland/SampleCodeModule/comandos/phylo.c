@@ -19,7 +19,7 @@ typedef int sem_t;
 int state[N] = { 0 };
 sem_t s[N] = { 0 };
 
-void philosopher(int i);
+void philosopher(char ** num);
 void takeForks(int i);
 void putForks(int i);
 void test(int i);
@@ -34,8 +34,19 @@ void phylo() {
         s[i] = sys_register_sem_available(0);
     }
 
-    for(int j = 0; j < N; j++) {
-        if(sys_register_child_process(&philosopher, STDIN, NORMAL_SCREEN, j) <= 0) {
+    char string[12] = { "philosopher" };
+    char ** philos[N] = { 0 };
+    for(int i = 0; i < N; i++) {
+        char ** args = (char **) sys_alloc(3 * sizeof(char *));
+        char * buf = (char *) sys_alloc(8);
+        num_to_string(i, buf);
+
+        args[0] = strncpy(args[0], string, 12);
+        args[1] = buf;
+        // args = { "philosopher", i, NULL }
+        philos[i] = args;
+
+        if(sys_register_child_process(&philosopher, STDIN, NORMAL_SCREEN, philos[i]) <= 0) {
             puts("error creating philosopher. aborting");
             return;
         }
@@ -48,13 +59,12 @@ void phylo() {
 }
 
 
-void philosopher(int i) {
+void philosopher(char ** num) {
+    int i = atoi(num[1]);
     while(TRUE) {
         think();
         takeForks(i);
-        sys_wait_sem(EAT_MUTEX);
         eat();
-        sys_signal_sem(EAT_MUTEX);
         putForks(i);
     }
 }
@@ -87,11 +97,9 @@ void test(int i) {
 
 void eat() {
     for(int i = 0; i < 5000000; i++);
-
     for(int i = 0; i < N; i++) {
         print(state[i] == EATING? "E " : ". ", 2);
     }
-
     puts("");
 }
 

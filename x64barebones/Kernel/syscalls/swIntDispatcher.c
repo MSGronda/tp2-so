@@ -52,6 +52,8 @@ uint64_t swIntDispatcher(uint64_t mode, uint64_t arg0, uint64_t arg1,
 			return sys_destroy_sem((unsigned int) arg0);
 		case SYS_SEMAPHORE_INFO:
 			return sys_semaphore_info((semaphore_info *) arg0);
+		case SYS_REGISTER_SEM_AVAILABLE:
+			return sys_register_sem_available((unsigned int) arg0);
 
 		// Pipes
 		case SYS_REGISTER_PIPE:
