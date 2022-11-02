@@ -15,4 +15,21 @@ typedef struct process_info{
 }process_info;
 
 
+typedef struct semaphore_info{
+	unsigned int id;
+	unsigned int value;
+	unsigned int num_blocked;
+	unsigned int blocked_pids[10];
+}semaphore_info;
+
+
+typedef struct pipes_info{
+	unsigned int id;
+	unsigned int usage;
+	unsigned int read_num_blocked;
+	unsigned int read_blocked_pids[10];
+	unsigned int write_num_blocked;
+	unsigned int write_blocked_pids[10];
+}pipes_info;
+
 #endif

@@ -8,6 +8,8 @@
 #define BUFF_SIZE 20
 #define BUFFER_LENGTH 150
 
+
+
 void test_pipe();
 void test_prio();
 void test_processes(char ** argv);
@@ -16,6 +18,8 @@ void test_sem();
 void test_mm();
 
 void pipe();
+
+void print_blocked_processes(unsigned int * blocked_pids, unsigned int amount);
 void sem();
 
 void wc();

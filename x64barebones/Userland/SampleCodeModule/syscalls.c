@@ -20,24 +20,35 @@
 #define SYS_REGISTER_SEM 21
 #define SYS_REGISTER_SEM_AVAILABLE 32
 #define SYS_SIGNAL_SEM 22
-#define SYS_PRINT_SEM 23
+
 #define SYS_DESTROY_SEM 24
 
 #define SYS_WRITE_PIPE 25
 #define SYS_REGISTER_PIPE 26
 #define SYS_READ_PIPE 27
-#define SYS_PRINT_PIPE 28
+
 #define SYS_DESTROY_PIPE 29
 #define SYS_REGISTER_PIPE_AVAILABLE 30
 #define SYS_MM_STATUS 31
 #define SYS_PROCESS_ALIVE 32
-#define SYS_PROCESS_INFO 33
 
+#define SYS_PROCESS_INFO 33
+#define SYS_SEMAPHORE_INFO 34
+#define SYS_PIPE_INFO 35
 
 
 #define NULL 0
 
 extern uint64_t syscaller(uint64_t syscallID, uint64_t param1, uint64_t param2, uint64_t param3, uint64_t param4);
+
+
+uint64_t sys_pipe_info(pipes_info * info){
+     return syscaller(SYS_PIPE_INFO, (uint64_t) info, NULL, NULL , NULL );    
+}
+
+uint64_t sys_semaphore_info(semaphore_info * info){
+    return syscaller(SYS_SEMAPHORE_INFO, (uint64_t) info, NULL, NULL , NULL );    
+}
 
 uint64_t sys_process_info(process_info * info){
     return syscaller(SYS_PROCESS_INFO, (uint64_t) info, NULL, NULL , NULL );    
@@ -49,9 +60,6 @@ uint64_t sys_process_alive(unsigned int pid){
 
 uint64_t sys_register_pipe_available(){
     return syscaller(SYS_REGISTER_PIPE_AVAILABLE, NULL, NULL, NULL , NULL );    
-}
-uint64_t sys_print_pipe(){
-    return syscaller(SYS_PRINT_PIPE, NULL, NULL, NULL , NULL );
 }
 uint64_t sys_destroy_pipe(unsigned int pipe_id){
     return syscaller(SYS_DESTROY_PIPE, (uint64_t) pipe_id, NULL, NULL , NULL );
@@ -87,10 +95,6 @@ uint64_t  sys_register_sem(unsigned int sem_id, unsigned int value){
 
 uint64_t  sys_register_sem_available(unsigned int value){
     return syscaller(SYS_REGISTER_SEM_AVAILABLE, (uint64_t) value, NULL, NULL , NULL );
-}
-
-uint64_t  sys_print_sem(){
-    return syscaller(SYS_PRINT_SEM, NULL, NULL, NULL , NULL );
 }
 
 uint64_t sys_free(void * ptr){

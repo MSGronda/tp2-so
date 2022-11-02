@@ -2,7 +2,7 @@
 #define LOCKS_H_
 
 
-void lock(int * lock);
-void unlock(int * lock);
+void lock(unsigned int * lock);
+void unlock(unsigned int * lock);
 
 #endif

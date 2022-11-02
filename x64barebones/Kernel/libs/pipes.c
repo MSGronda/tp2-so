@@ -191,34 +191,19 @@ int read_from_pipe(unsigned int pipe_id, uint8_t * dest, unsigned int count){
 	return i;
 }
 
-void print_pipe(){
-	int len;
-	char buffer[20];
 
-	int out = get_current_output();
-
-	writeDispatcher(out,"-=-=-=-=-= Pipe Info =-=-=-=-=-\n", 32);
-
+uint64_t get_pipe_info(pipes_info * info){
+	int j = 0;
 	for(int i=0; i<MAX_PIPES; i++){
 		if(pipe_info[i].pipe_id != 0){
-			writeDispatcher(out,"Pipe Id: ",9);
-			len = num_to_string(pipe_info[i].pipe_id, buffer);
-			writeDispatcher(out, buffer, len);
-
-			writeDispatcher(out," | Usage: ",10);
-
-			len = num_to_string(pipe_info[i].amount , buffer);
-			writeDispatcher(out, buffer, len);
-
-			writeDispatcher(out, "\n\n--Read semaphore--\n",20);
-			print_blocked_by_id(pipe_info[i].read_sem_id);
-
-			writeDispatcher(out, "--Write semaphore--",19);
-			print_blocked_by_id(pipe_info[i].write_sem_id);
-
-			writeDispatcher(out,"\n",1);
+			info[j].id = pipe_info[i].pipe_id;
+			info[j].usage = pipe_info[i].amount;
+			info[j].read_num_blocked = get_blocked_by_sem_id(pipe_info[i].read_sem_id, info[j].read_blocked_pids);
+			info[j].write_num_blocked = get_blocked_by_sem_id(pipe_info[i].write_sem_id, info[j].write_blocked_pids);
+			j++;
 		}
 	}
+	return j;
 }
 
 

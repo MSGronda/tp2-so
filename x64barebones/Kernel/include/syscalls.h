@@ -30,39 +30,46 @@
 #define SYS_WAIT_SEM 20
 #define SYS_REGISTER_SEM 21
 #define SYS_SIGNAL_SEM 22
-#define SYS_PRINT_SEM 23
+
 #define SYS_DESTROY_SEM 24
 
 #define SYS_WRITE_PIPE 25
 #define SYS_REGISTER_PIPE 26
 #define SYS_READ_PIPE 27
-#define SYS_PRINT_PIPE 28
+
 #define SYS_DESTROY_PIPE 29
 #define SYS_REGISTER_PIPE_AVAILABLE 30
 #define SYS_MM_STATUS 31
 #define SYS_PROCESS_ALIVE 32
+
 #define SYS_PROCESS_INFO 33
+#define SYS_SEMAPHORE_INFO 34
+#define SYS_PIPE_INFO 35
 
 // Return values
 #define INVALID_SCREEN -1
 
+uint64_t sys_pipe_info(pipes_info * info);
+uint64_t sys_semaphore_info(semaphore_info * info);
 uint64_t sys_process_info(process_info * info);
+uint64_t sys_mm_status(uint64_t * buffer);
+
+
 uint64_t sys_process_alive(unsigned int pid);
 
 uint64_t sys_register_pipe_available();
-uint64_t sys_print_pipe();
+
 uint64_t sys_destroy_pipe(unsigned int pipe_id);
 uint64_t sys_read_pipe(unsigned int pipe_id, uint8_t * dest, unsigned int count);
 uint64_t sys_write_pipe(unsigned int pipe_id, uint8_t * src, unsigned int count);
 uint64_t sys_register_pipe(unsigned int pipe_id);
 
 uint64_t sys_destroy_sem(unsigned int sem_id);
-uint64_t sys_print_sem();
+
 uint64_t sys_signal_sem(unsigned int sem_id);
 uint64_t sys_register_sem(unsigned int sem_id, unsigned int value);
 uint64_t sys_wait_sem(unsigned int sem_id);
 
-uint64_t sys_mm_status(uint64_t * buffer);
 
 uint64_t sys_free(void * ptr);
 

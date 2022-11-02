@@ -17,6 +17,6 @@ void destroy_pipe(unsigned int pipe_id);
 int read_from_pipe(unsigned int pipe_id, uint8_t * dest, unsigned int count);
 int write_to_pipe(unsigned int pipe_id, uint8_t * src, unsigned int count);
 
-void print_pipe();
+
 
 #endif

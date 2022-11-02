@@ -155,60 +155,41 @@ unsigned int signal_sem(unsigned int sem_id){
 
 /* - - - Print info - - - */
 
-
-void print_blocked_processes(int out, int i){
-	int len;
-	char buffer[20];
-
-	writeDispatcher(out,"\nBlocked processes: \n", 21);
+unsigned int get_sem_blocked_process(unsigned int i, unsigned int * blocked_pids){	
 	if(size_queue(&(sem_info[i].queue)) > 0){
 		unsigned int pos;
 		new_iterator_queue(&(sem_info[i].queue), &pos);
 
-		while(has_next_queue(&(sem_info[i].queue), &pos)){
-			unsigned int id = (unsigned int) next_queue(&(sem_info[i].queue), &pos);
-			writeDispatcher(out,"     -Pid: ", 11);
-			len = num_to_string(id, buffer);
-			writeDispatcher(out, buffer, len);
-			writeDispatcher(out,"\n",1);
+		int k=0;
+		for( ;has_next_queue(&(sem_info[i].queue), &pos); k++ ){
+			blocked_pids[k] = (unsigned int) next_queue(&(sem_info[i].queue), &pos);
 		}
+		return k;
 	}
-	writeDispatcher(out,"\n",1);
+	return 0;
 }
 
+uint64_t get_semaphore_info(semaphore_info * info){
+	int j=0;
+	for(int i=0; i<MAX_SEMAPHORES; i++){
+		if(sem_info[i].sem_id != 0){
+			info[j].id = sem_info[i].sem_id;
+			info[j].value = sem_info[i].sem_value;
 
-void print_blocked_by_id(unsigned int sem_id){
+			info[j].num_blocked = get_sem_blocked_process(i, info[j].blocked_pids);
+
+			j++;
+		}
+	}
+	return j;
+}
+
+unsigned int get_blocked_by_sem_id(unsigned int sem_id, unsigned int * blocked_pids){
 	int pos = find_sem(sem_id);
 	if(pos == -1)
 		return;
 
-	int len;
-	char buffer[20];
-
-	int out = get_current_output();
-	print_blocked_processes(out, pos);
+	return get_sem_blocked_process((unsigned int)pos, blocked_pids);
 }
 
-void print_sem(){
-	int len;
-	char buffer[20];
 
-	int out = get_current_output();
-
-	writeDispatcher(out,"-=-=-=-=-= Sem Info =-=-=-=-=-\n", 31);
-
-	for(int i=0; i<MAX_SEMAPHORES; i++){
-		if(sem_info[i].sem_id != 0){
-			writeDispatcher(out,"Sem Id: ",8);
-			len = num_to_string(sem_info[i].sem_id, buffer);
-			writeDispatcher(out, buffer, len);
-
-			writeDispatcher(out," | Value: ",10);
-
-			len = num_to_string(sem_info[i].sem_value, buffer);
-			writeDispatcher(out, buffer, len);
-
-			print_blocked_processes(out, i);
-		}
-	}
-}

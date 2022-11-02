@@ -14,6 +14,12 @@
 #include <interrupts.h>
 #include <locks.h>
 #include <queue.h>
+#include <data_types.h>
+
+
+unsigned int get_blocked_by_sem_id(unsigned int sem_id, unsigned int * blocked_pids);
+unsigned int get_sem_blocked_process(unsigned int i, unsigned int * blocked_pids);
+uint64_t get_semaphore_info(semaphore_info * info);
 
 int create_sem_available(unsigned int value);
 
@@ -23,5 +29,4 @@ void destroy_sem(unsigned int sem_id);
 unsigned int signal_sem(unsigned int sem_id);
 unsigned int wait_sem(unsigned int sem_id);
 
-void print_sem();
 #endif

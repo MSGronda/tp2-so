@@ -4,10 +4,12 @@
 #include <stdint.h>
 #include <data_types.h>
 
+uint64_t sys_semaphore_info(semaphore_info * info);
 uint64_t sys_process_info(process_info * info);
-uint64_t sys_process_alive(unsigned int pid);
-
 uint64_t sys_mm_status(uint64_t * buffer);
+
+
+uint64_t sys_process_alive(unsigned int pid);
 
 uint64_t sys_register_sem_available(unsigned int value);
 uint64_t sys_register_sem(unsigned int sem_id, unsigned int value);

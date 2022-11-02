@@ -48,10 +48,10 @@ uint64_t swIntDispatcher(uint64_t mode, uint64_t arg0, uint64_t arg1,
 			return sys_wait_sem((unsigned int) arg0);
 		case SYS_SIGNAL_SEM:
 			return sys_signal_sem((unsigned int) arg0);
-		case SYS_PRINT_SEM:
-			return sys_print_sem();
 		case SYS_DESTROY_SEM:
 			return sys_destroy_sem((unsigned int) arg0);
+		case SYS_SEMAPHORE_INFO:
+			return sys_semaphore_info((semaphore_info *) arg0);
 
 		// Pipes
 		case SYS_REGISTER_PIPE:
@@ -60,12 +60,12 @@ uint64_t swIntDispatcher(uint64_t mode, uint64_t arg0, uint64_t arg1,
 			return sys_write_pipe((unsigned int) arg0, (uint8_t *)arg1, (unsigned int) arg2);
 		case SYS_READ_PIPE:
 			return sys_read_pipe((unsigned int) arg0, (uint8_t *)arg1, (unsigned int) arg2);
-		case SYS_PRINT_PIPE:
-			return sys_print_pipe();
 		case SYS_DESTROY_PIPE:
 			return sys_destroy_pipe((unsigned int) arg0);
 		case SYS_REGISTER_PIPE_AVAILABLE:
 			return sys_register_pipe_available();
+		case SYS_PIPE_INFO:
+			return sys_pipe_info((pipes_info * )arg0);
 
 		// MM
 		case SYS_ALLOC:

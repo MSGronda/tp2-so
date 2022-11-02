@@ -1,11 +1,11 @@
 #include <locks.h>
 
 
-void lock(int * lock){
+void lock(unsigned int * lock){
 	while(_xchg(lock, 1) != 0);
 }
 
 
-void unlock(int * lock){
+void unlock(unsigned int * lock){
 	_xchg(lock,0);
 }
