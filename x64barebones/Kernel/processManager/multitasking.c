@@ -304,17 +304,15 @@ unsigned int change_priority(unsigned int pid, int delta){
 	if(pos < 0)
 		return NO_TASK_FOUND;
 
-	int newPriority = tasks[pos].priority + delta;
-	if(newPriority > MAX_PRIORITY)
-		newPriority = MAX_PRIORITY;
-	else if(newPriority < 1)
-		newPriority = DEFAULT_PRIORITY;
-	
-	tasks[pos].priority = newPriority;
+	if(delta > MAX_PRIORITY)
+		tasks[pos].priority = MAX_PRIORITY;
+	else if(delta < 1)
+		tasks[pos].priority = DEFAULT_PRIORITY;
+	else 	
+		tasks[pos].priority = delta;
 
 	return 1;
 }
-
 
 
 
@@ -343,25 +341,13 @@ uint64_t next_task(uint64_t stackPointer, uint64_t stackSegment){
 	
 	char found=0;
 	while( !found  ){			// busco el proximo stack
+		
 		currentTask = (currentTask +  1) % TOTAL_TASKS;
 
-		switch(tasks[currentTask].state){
-
-			case ACTIVE_PROCESS:
-				found = 1;
-				tasks[currentTask].ticks++;
-				break;
-
-			case WAITING_FOR_CHILD:
-				if(children_finished(tasks[currentTask].pid)){
-					
-					remove_children(tasks[currentTask].pid);
-
-					tasks[currentTask].state = ACTIVE_PROCESS;
-
-					found = 1;
-				}
-				break;
+		if(tasks[currentTask].state == ACTIVE_PROCESS){
+			found = 1;
+			tasks[currentTask].ticks++;
+			break;
 		}
 	}
 

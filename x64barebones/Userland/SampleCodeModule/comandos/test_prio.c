@@ -3,17 +3,14 @@
 #include "../include/syscalls.h"
 
 #define MINOR_WAIT 1000000 // TODO: Change this value to prevent a process from flooding the screen
-#define WAIT      10000000 // TODO: Change this value to make the wait long enough to see theese processes beeing run at least twice
+#define WAIT      50000000 // TODO: Change this value to make the wait long enough to see theese processes beeing run at least twice
 
 #define TOTAL_PROCESSES 3
 #define LOWEST 0
 #define MEDIUM 2
 #define HIGHEST 4
 
-// Our nice does += delta and not = 
-// The max priority value is 5 and the lowest is 1
-
-int prio[TOTAL_PROCESSES] = {LOWEST, MEDIUM, HIGHEST};
+int prio[TOTAL_PROCESSES] = {LOWEST, MEDIUM,  HIGHEST};
 
 void test_prio(){
   uint8_t pids[TOTAL_PROCESSES];
@@ -46,7 +43,9 @@ void test_prio(){
     sys_pause_process(pids[i]);
 
   bussy_wait(WAIT);
-  puts("\nKILLING...");
+  puts("\nKILLING...\n");
+
+  sys_list_process();
 
   for(i = 0; i < TOTAL_PROCESSES; i++)
     sys_kill_process(pids[i]);

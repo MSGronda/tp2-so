@@ -28,6 +28,16 @@ void signal_process_finished(unsigned int pid){
 	for(int i=0 ; i<MAX_WAIT_TASKS; i++){
 		if( wait_table[i].state == RUNNING && wait_table[i].childPid == pid){
 			wait_table[i].state = FINISHED;
+
+
+			// Check if siblings are alive. If they're all dead wake up parent.
+
+			unsigned int father = wait_table[i].fatherPid;
+			if(children_finished(father)){
+				remove_children(father);
+				alter_process_state(father, ACTIVE_PROCESS);
+			}
+
 			return;
 		}
 	}

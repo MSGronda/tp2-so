@@ -62,7 +62,7 @@ void endless_loop(){
 
 void endless_loop_print(){
   int64_t pid = sys_get_pid();
-  char buf[64] = {0};
+  char buf[20] = {0};
   int len = num_to_string(pid, buf);
 
   while(1){
