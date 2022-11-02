@@ -46,14 +46,14 @@ unsigned int write(const char * buf, char format, unsigned int count, unsigned i
 	return i;
 }
 
-int * normalOffset(){
+unsigned int * normalOffset(){
 	return &currentVideoPosOffset;
 }
-int * leftOffset(){
+unsigned int * leftOffset(){
 	return &currentVideoPosLeftOffset;
 }
 
-int * rightOffset(){
+unsigned int * rightOffset(){
 	return &currentVideoPosRightOffset;
 }
 

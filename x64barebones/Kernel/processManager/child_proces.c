@@ -90,7 +90,7 @@ void wait_for_children(){
 }
 
 
-unsigned int add_child_task(uint64_t entrypoint, uint8_t input, uint8_t output, uint64_t arg0){
+unsigned int add_child_task(uint64_t entrypoint, uint8_t input, uint8_t output, char ** arg0){
 	unsigned int child_pid = add_task(entrypoint, input, output, DEFAULT_PRIORITY, MORTAL , arg0);
 
 	add_child(get_current_pid(), child_pid);

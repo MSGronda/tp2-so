@@ -151,7 +151,7 @@ void signal_eof(unsigned int pipe_id){
 	pipe_info[pos].eof = 1;
 }
 
-int write_to_pipe(unsigned int pipe_id, uint8_t * src, unsigned int count){
+int write_to_pipe(unsigned int pipe_id, const char * src, unsigned int count){
 	int pos = find_pipe(pipe_id);
 	if(pos == -1)
 		return -1;
@@ -168,7 +168,7 @@ int write_to_pipe(unsigned int pipe_id, uint8_t * src, unsigned int count){
 	return count;
 }
 
-int read_from_pipe(unsigned int pipe_id, uint8_t * dest, unsigned int count){
+int read_from_pipe(unsigned int pipe_id, char * dest, unsigned int count){
 	int pos = find_pipe(pipe_id);
 	if(pos == -1)
 		return -1;

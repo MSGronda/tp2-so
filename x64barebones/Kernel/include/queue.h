@@ -15,6 +15,7 @@ typedef struct queueADT{
 void init_queue(queueADT * q, unsigned int size);
 unsigned int size_queue(queueADT * q);
 uint64_t dequeue(queueADT * q);
+void enqueue(queueADT * q, uint64_t elem);
 uint8_t contais_queue(queueADT * q, uint64_t elem);
 void destroy_queue(queueADT * q);
 

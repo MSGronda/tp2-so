@@ -18,9 +18,9 @@ static const uint64_t PageSize = 0x1000;
 
 static void * const sampleCodeModuleAddress = (void*)0x400000;
 static void * const sampleDataModuleAddress = (void*)0x500000;
+static char * shellArg[] = {"shell", NULL};
 
 typedef int (*EntryPoint)();
-
 
 void clearBSS(void * bssAddress, uint64_t bssSize) {
 	memset(bssAddress, 0, bssSize);
@@ -49,7 +49,7 @@ void * initializeKernelBinary()
 	return getStackBase();
 }
 
-char * shellArg[] = {"shell", NULL};
+
 
 int main()
 {	

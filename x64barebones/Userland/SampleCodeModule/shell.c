@@ -16,7 +16,7 @@ extern void opCodeError();          // exception_test.asm
 #define MALLOC_ERROR "Error allocating space for args!"
 
 // --- Dimensiones ---
-#define BUFFER_LENGTH 400
+#define BUFF_LENGTH 400
 #define MAX_WORDS 30
 
 #define MIN(a,b) ((a) <= (b) ? (a) : (b))
@@ -200,14 +200,14 @@ void single_process_handle(char ** words, unsigned int amount_of_words){
 
 
 void shell(){
-    char buffer[BUFFER_LENGTH];
+    char buffer[BUFF_LENGTH];
     char * words[MAX_WORDS];
 
     while(1){
         puts("");
         print(SYMBOL, SYMBOL_LENGTH);
 
-        read_line(buffer, BUFFER_LENGTH);
+        read_line(buffer, BUFF_LENGTH);
         puts("");
 
         int amount_of_words = tokenize(buffer, words);

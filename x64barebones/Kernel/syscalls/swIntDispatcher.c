@@ -21,9 +21,9 @@ uint64_t swIntDispatcher(uint64_t mode, uint64_t arg0, uint64_t arg1,
 
 		// Procesos
 		case SYS_REGISTER_PROCESS:
-			return sys_register_process(arg0, (uint8_t) arg1, (uint8_t) arg2, arg3);
+			return sys_register_process(arg0, (uint8_t) arg1, (uint8_t) arg2, (char **) arg3);
 		case SYS_REGISTER_CHILD_PROCESS:
-			return sys_register_child_process(arg0, (uint8_t) arg1, (uint8_t) arg2, arg3);
+			return sys_register_child_process(arg0, (uint8_t) arg1, (uint8_t) arg2, (char **) arg3);
 		case SYS_WAIT_FOR_CHILDREN:
 			return sys_wait_for_children();
 		case SYS_PAUSE_PROCESS:
@@ -71,7 +71,7 @@ uint64_t swIntDispatcher(uint64_t mode, uint64_t arg0, uint64_t arg1,
 		case SYS_ALLOC:
 			return sys_alloc(arg0);
 		case SYS_FREE:
-			return sys_free(arg0);
+			return sys_free( (void*) arg0);
 
 		// Otros
 		case SYS_RTC:

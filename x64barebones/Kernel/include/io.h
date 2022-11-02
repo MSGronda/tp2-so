@@ -8,6 +8,7 @@
 #include <keyboard.h>
 #include <video.h>
 #include <multitasking.h>
+#include <video.h>
 
 /*
  * << writeDispatcher >>

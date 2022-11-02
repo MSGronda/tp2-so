@@ -16,16 +16,16 @@ uint64_t sys_register_sem(unsigned int sem_id, unsigned int value);
 uint64_t  sys_signal_sem(unsigned int sem_id);
 uint64_t  sys_wait_sem(unsigned int sem_id);
 uint64_t sys_destroy_sem(unsigned int semId);
-uint64_t sys_print_sem();
 
 uint64_t sys_free(void * ptr);
 uint64_t sys_alloc(uint64_t len);
 
-uint64_t sys_print_pipe();
+
 uint64_t sys_destroy_pipe(unsigned int pipe_id);
 uint64_t sys_read_pipe(unsigned int pipe_id, uint8_t * dest, unsigned int count);
 uint64_t sys_write_pipe(unsigned int pipe_id, uint8_t * src, unsigned int count);
 uint64_t sys_register_pipe(unsigned int pipe_id);
+uint64_t sys_register_pipe_available();
 
 uint64_t  sys_get_pid();
 uint64_t  sys_nice(uint8_t pid, int delta);

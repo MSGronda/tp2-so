@@ -16,7 +16,7 @@ typedef struct sem_record{
 	queueADT queue;
 }sem_record;
 
-static sem_record sem_info[MAX_SEMAPHORES] = {0};
+static sem_record sem_info[MAX_SEMAPHORES] = {{0}};
 
 static unsigned int active_sem = 0;
 
@@ -111,7 +111,6 @@ unsigned int wait_sem(unsigned int sem_id){
 
 	lock(&(sem_info[pos].lock));
 	if(sem_info[pos].sem_value > 0){
-		int sem = sem_info[pos].sem_value;
 		sem_info[pos].sem_value--;
 	}
 	else{
@@ -143,7 +142,6 @@ unsigned int signal_sem(unsigned int sem_id){
 		alter_process_state(blocked_pid, ACTIVE_PROCESS);
 	}
 	else{
-		int sem = sem_info[pos].sem_value;
 		sem_info[pos].sem_value++;
 	}
 
@@ -187,7 +185,7 @@ uint64_t get_semaphore_info(semaphore_info * info){
 unsigned int get_blocked_by_sem_id(unsigned int sem_id, unsigned int * blocked_pids){
 	int pos = find_sem(sem_id);
 	if(pos == -1)
-		return;
+		return 0;
 
 	return get_sem_blocked_process((unsigned int)pos, blocked_pids);
 }

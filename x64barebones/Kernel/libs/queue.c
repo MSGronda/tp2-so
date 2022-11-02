@@ -24,7 +24,7 @@ void enqueue(queueADT * q, uint64_t elem){
 
 uint64_t dequeue(queueADT * q){
     if(q->amount == 0)
-        return NULL;
+        return 0;
     uint64_t resp = q->array[q->readPos];
     q->readPos = (q->readPos + 1) % (q->size);
     q->amount--;
@@ -61,7 +61,7 @@ uint8_t has_next_queue(queueADT * q, unsigned int * pos){
 
 uint64_t next_queue(queueADT * q, unsigned int * pos){ 
     if(*pos >= q->size)
-        return NULL;
+        return 0;
 
     uint64_t resp = q->array[*pos];
     *pos = ((*pos) + 1) % q->size;

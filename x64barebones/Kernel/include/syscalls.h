@@ -60,8 +60,8 @@ uint64_t sys_process_alive(unsigned int pid);
 uint64_t sys_register_pipe_available();
 
 uint64_t sys_destroy_pipe(unsigned int pipe_id);
-uint64_t sys_read_pipe(unsigned int pipe_id, uint8_t * dest, unsigned int count);
-uint64_t sys_write_pipe(unsigned int pipe_id, uint8_t * src, unsigned int count);
+uint64_t sys_read_pipe(unsigned int pipe_id, char * dest, unsigned int count);
+uint64_t sys_write_pipe(unsigned int pipe_id, const char * src, unsigned int count);
 uint64_t sys_register_pipe(unsigned int pipe_id);
 
 uint64_t sys_destroy_sem(unsigned int sem_id);
@@ -83,7 +83,7 @@ uint64_t sys_renounce_cpu();
 
 uint64_t sys_wait_for_children();
 
-uint64_t sys_register_child_process(uint64_t entryPoint, uint8_t input, uint8_t output, uint64_t arg0);
+uint64_t sys_register_child_process(uint64_t entryPoint, uint8_t input, uint8_t output, char ** arg0);
 
 /*
  * << sys_write >>
@@ -182,7 +182,7 @@ uint64_t sys_read_from_screen(char *buf, unsigned int count);
  * Returns: 
  *      (uint) pid
  */
-uint64_t sys_register_process(uint64_t entrypoint, uint8_t input, uint8_t output, uint64_t arg0);
+uint64_t sys_register_process(uint64_t entrypoint, uint8_t input, uint8_t output, char **  arg0);
 
 /*
  * << sys_kill_process >>

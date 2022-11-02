@@ -112,7 +112,7 @@ int findTask(unsigned int pid){
 
 /* --- Creation and destruction --- */
 
-int add_task(uint64_t entrypoint, uint8_t input, uint8_t output, uint8_t priority, uint8_t immortal, uint64_t arg0){
+int add_task(uint64_t entrypoint, uint8_t input, uint8_t output, uint8_t priority, uint8_t immortal, char ** arg0){
 	if(currentDimTasks>=TOTAL_TASKS){		// no acepto mas tasks al estar lleno
 		return ERROR_NO_SPACE_FOR_TASK;
 	}

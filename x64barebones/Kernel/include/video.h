@@ -37,13 +37,13 @@
 #define NORMAL_MODE_STEP 0
 #define SPLIT_MODE_STEP 80
 
-int * normalOffset();
-int * leftOffset();
-int * rightOffset();
+unsigned int * normalOffset();
+unsigned int * leftOffset();
+unsigned int * rightOffset();
 
 void resetNormal();
 void resetLeft();
-void resetNormal();
+void resetRight();
 
 /*
  * << write >>
