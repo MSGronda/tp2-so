@@ -3,8 +3,9 @@
 
 /*--------  DEPENDENCIES --------*/
 #include <stdint.h>
+#include <multitasking.h>
 #include <video.h>
-
+#include <data_types.h>
 
 /* --- CONSTANTS  --- */
 #define SYS_READ_FROM_SCREEN 0
@@ -22,7 +23,6 @@
 
 #define SYS_NICE 15
 #define SYS_GET_PID 16
-#define SYS_LIST_PROCESS 17
 
 #define SYS_ALLOC 18
 #define SYS_FREE 19
@@ -41,11 +41,12 @@
 #define SYS_REGISTER_PIPE_AVAILABLE 30
 #define SYS_MM_STATUS 31
 #define SYS_PROCESS_ALIVE 32
+#define SYS_PROCESS_INFO 33
 
 // Return values
 #define INVALID_SCREEN -1
 
-
+uint64_t sys_process_info(process_info * info);
 uint64_t sys_process_alive(unsigned int pid);
 
 uint64_t sys_register_pipe_available();
@@ -66,8 +67,6 @@ uint64_t sys_mm_status(uint64_t * buffer);
 uint64_t sys_free(void * ptr);
 
 uint64_t sys_alloc(uint64_t len);
-
-uint64_t sys_list_process();
 
 uint64_t sys_get_pid();
 

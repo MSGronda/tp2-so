@@ -45,8 +45,6 @@ void test_prio(){
   bussy_wait(WAIT);
   puts("\nKILLING...\n");
 
-  sys_list_process();
-
   for(i = 0; i < TOTAL_PROCESSES; i++)
     sys_kill_process(pids[i]);
 }

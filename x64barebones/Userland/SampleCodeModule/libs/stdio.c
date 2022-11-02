@@ -1,5 +1,9 @@
 #include "../include/stdio.h"
 
+void printl(char * string){
+    sys_write(string, strlen(string));
+}
+
 void print(char * string, int length) {
     sys_write(string, length);
 }

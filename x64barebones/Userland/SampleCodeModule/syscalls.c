@@ -14,7 +14,6 @@
 #define SYS_RENOUNCE_CPU 14
 #define SYS_NICE 15
 #define SYS_GET_PID 16
-#define SYS_LIST_PROCESS 17
 #define SYS_ALLOC 18
 #define SYS_FREE 19
 #define SYS_WAIT_SEM 20
@@ -32,10 +31,17 @@
 #define SYS_REGISTER_PIPE_AVAILABLE 30
 #define SYS_MM_STATUS 31
 #define SYS_PROCESS_ALIVE 32
+#define SYS_PROCESS_INFO 33
+
+
 
 #define NULL 0
 
 extern uint64_t syscaller(uint64_t syscallID, uint64_t param1, uint64_t param2, uint64_t param3, uint64_t param4);
+
+uint64_t sys_process_info(process_info * info){
+    return syscaller(SYS_PROCESS_INFO, (uint64_t) info, NULL, NULL , NULL );    
+}
 
 uint64_t sys_process_alive(unsigned int pid){
     return syscaller(SYS_PROCESS_ALIVE, (uint64_t) pid, NULL, NULL , NULL );    
@@ -93,11 +99,6 @@ uint64_t sys_free(void * ptr){
 uint64_t sys_alloc(uint64_t len){
     return syscaller(SYS_ALLOC, (uint64_t)len, NULL, NULL, NULL );
 }
-
-uint64_t  sys_list_process(){
-    return syscaller(SYS_LIST_PROCESS, NULL, NULL, NULL, NULL );
-}
-
 
 uint64_t  sys_write(const char * string, unsigned int length){
     return syscaller(SYS_WRITE_TO_SCREEN, (uint64_t) string, (uint64_t) length, NULL, NULL );      

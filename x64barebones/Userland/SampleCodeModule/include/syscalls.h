@@ -2,9 +2,11 @@
 #define _SYSCALLS_H
 
 #include <stdint.h>
+#include <data_types.h>
 
-
+uint64_t sys_process_info(process_info * info);
 uint64_t sys_process_alive(unsigned int pid);
+
 uint64_t sys_mm_status(uint64_t * buffer);
 
 uint64_t sys_register_sem_available(unsigned int value);
@@ -23,7 +25,6 @@ uint64_t sys_read_pipe(unsigned int pipe_id, uint8_t * dest, unsigned int count)
 uint64_t sys_write_pipe(unsigned int pipe_id, uint8_t * src, unsigned int count);
 uint64_t sys_register_pipe(unsigned int pipe_id);
 
-uint64_t  sys_list_process();
 uint64_t  sys_get_pid();
 uint64_t  sys_nice(uint8_t pid, int delta);
 uint64_t  sys_renounce_cpu();

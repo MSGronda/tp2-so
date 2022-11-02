@@ -38,6 +38,8 @@ uint64_t swIntDispatcher(uint64_t mode, uint64_t arg0, uint64_t arg1,
 			return sys_get_pid();
 		case SYS_PROCESS_ALIVE:
 			return sys_process_alive((unsigned int) arg0);
+		case SYS_PROCESS_INFO:
+			return sys_process_info((process_info *) arg0);
 
 		// Semaphore
 		case SYS_REGISTER_SEM:
@@ -74,10 +76,6 @@ uint64_t swIntDispatcher(uint64_t mode, uint64_t arg0, uint64_t arg1,
 		// Otros
 		case SYS_RTC:
 			return sys_rtc((unsigned int) arg0);
-
-		case SYS_LIST_PROCESS:
-			return sys_list_process();
-
 		case SYS_MM_STATUS:
 			return sys_mm_status((uint64_t *) arg0);
 

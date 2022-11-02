@@ -9,6 +9,8 @@
 #include <semaphore.h>
 #include <pipes.h>
 
+#include <data_types.h>
+
 /* --- CONSTANTS  --- */
 // Return values
 #define NO_TASKS 0
@@ -31,6 +33,7 @@
 #define WAITING_FOR_SEM 4
 #define WAITING_FOR_INPUT 5
 
+int get_process_info(process_info * info);
 
 void list_process();
 

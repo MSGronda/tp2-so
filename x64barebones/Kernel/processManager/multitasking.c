@@ -73,8 +73,6 @@ void enableMultiTasking(){
 }
 
 
-
-
 /* --- Getters --- */
 unsigned int get_current_pid(){
 	return tasks[currentTask].pid;
@@ -361,77 +359,26 @@ uint64_t next_task(uint64_t stackPointer, uint64_t stackSegment){
 
 /* --- Other --- */
 
-void list_process(){
-	int len;
-	char buffer[100];
-
-	writeDispatcher(tasks[currentTask].output, "Name     |  ID  |  State  |  Prty  |  Stack  |   RSP   |  Pickd  |  Screen\n", 75);
-	writeDispatcher(tasks[currentTask].output, "---------------------------------------------------------------------------\n", 76);
-
-	for(int i=0; i<TOTAL_TASKS -1 ; i++){
+int get_process_info(process_info * info){
+	int j=0;
+	for(int i=0; i<TOTAL_TASKS; i++){
 		if(tasks[i].state != DEAD_PROCESS){
 
-			int len = 0;
 			if(tasks[i].params !=NULL){
-				len = str_len(tasks[i].params[0]);
-				writeDispatcher(tasks[currentTask].output, tasks[i].params[0], len );
+				info[j].name = tasks[i].params[0];		// params[0] is alocated by user in heap. we are not sharing data from kernel space.
 			}
-			writeDispatcher(tasks[currentTask].output, "                  ", 12 - len);
-			len = num_to_string(tasks[i].pid, buffer);
-			writeDispatcher(tasks[currentTask].output, buffer, len);
-			writeDispatcher(tasks[currentTask].output, "                  ", 5 - ((tasks[i].pid >= 10) ? 1 : 0));
+			info[j].id = tasks[i].pid;
+			info[j].state = tasks[i].state;
+			info[j].priority = tasks[i].priority;
+			info[j].stack = tasks[i].stackStart;
+			info[j].rsp = tasks[i].stackPointer;
+			info[j].pickd = tasks[i].ticks;
+			info[j].screen = tasks[i].output;
 
-			switch(tasks[i].state){
-				case ACTIVE_PROCESS: 
-					writeDispatcher(tasks[currentTask].output, "Active ", 7);
-					break;
-				case PAUSED_PROCESS:
-					writeDispatcher(tasks[currentTask].output, "Paused ", 7);
-					break;
-
-				default:
-					writeDispatcher(tasks[currentTask].output, "Blocked", 7);
-					break;
-
-			}
-			writeDispatcher(tasks[currentTask].output, "                  ", 6);
-
-			len = num_to_string(tasks[i].priority, buffer);
-			writeDispatcher(tasks[currentTask].output, buffer, len);
-			writeDispatcher(tasks[currentTask].output, "                  ", 4);
-
-
-			len = num_to_string(tasks[i].stackStart, buffer);
-			writeDispatcher(tasks[currentTask].output, buffer, len);
-			writeDispatcher(tasks[currentTask].output, "                  ",3);
-
-			len = num_to_string(tasks[i].stackPointer, buffer);
-			writeDispatcher(tasks[currentTask].output, buffer, len);
-			writeDispatcher(tasks[currentTask].output, "                  ",4);
-
-			len = num_to_string(tasks[i].ticks, buffer);
-			writeDispatcher(tasks[currentTask].output, buffer, len);
-			writeDispatcher(tasks[currentTask].output, "                  ",8 - len);
-
-			switch(tasks[i].output){
-				case BACKGROUND:
-					writeDispatcher(tasks[currentTask].output, "Background", 10);
-					break;
-				case STDOUT:
-					writeDispatcher(tasks[currentTask].output, "Stdout", 6);
-					break;
-				case STDOUT_LEFT:
-					writeDispatcher(tasks[currentTask].output, "Stdout left", 11);
-					break;
-				case STDOUT_RIGHT:
-					writeDispatcher(tasks[currentTask].output, "Stdout right", 12);
-					break;
-				default:
-					writeDispatcher(tasks[currentTask].output, "Pipe", 4);
-					break;
-			}
-			writeDispatcher(tasks[currentTask].output, "\n", 1);
+			j++;
 		}
 	}
+	return j;
 }
+
 
