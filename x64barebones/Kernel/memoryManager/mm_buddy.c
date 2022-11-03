@@ -136,9 +136,10 @@ int idxToClass(unsigned int idx){
     for(i = maxSizeClass ; i >= MIN_SIZE_CLASS ; i--){
         int firstClassIdx = getFirstIdxOfClass(i);
         int idxClassCount = getFirstIdxOfClass(i-1) - firstClassIdx;
-        if(idx > firstClassIdx && idx < firstClassIdx + idxClassCount)
+        if(idx >= firstClassIdx && idx < firstClassIdx + idxClassCount)
             return i;
     }
+    return i; // shouldnt happen
 }
 
 void mm_free(void * ptr) {
