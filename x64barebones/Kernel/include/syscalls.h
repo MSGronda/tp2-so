@@ -51,6 +51,8 @@
 // Return values
 #define INVALID_SCREEN -1
 
+uint64_t sys_register_sem_available(unsigned int value);
+
 uint64_t sys_pipe_info(pipes_info * info);
 uint64_t sys_semaphore_info(semaphore_info * info);
 uint64_t sys_process_info(process_info * info);

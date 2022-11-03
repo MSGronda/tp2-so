@@ -22,9 +22,10 @@
 #define SP_POS 	  (3*8)					/*  	|	 RSP	  |		*/
 #define SS_POS	  (2*8)					/*  	|	  SS	  |		*/
 #define RET_POS 	8 					/*  	|	 RET	  |		*/
-										/*   	 -------------		*/
+#define ALINGMENT 8		 				/*   	 -------------		*/
 
-#define STACK_POS(POS) (uint64_t *) (stackStart + STACK_SIZE - (POS))
+#define STACK_POS(POS) (uint64_t *) (stackStart - (POS))
+
 
 // -----Informacion sobre cada task-----
 typedef struct process_control_block{
@@ -33,6 +34,7 @@ typedef struct process_control_block{
 		uint64_t  stackPointer;			// value of rsp 
 		uint64_t  stackSegment;  		// value of ss. This one is constant = 0
 		void * stackStart;
+		void * stackEnd;
 		char ** params;
 
 		uint8_t state;
@@ -57,13 +59,13 @@ static unsigned int currentDimTasks = 0;
 /* =========== CODE =========== */
 
 /* --- Init --- */
+static char * idleArg[] = {"idle", NULL};
 
 void idleTask(){
 	while(true)
 		_hlt();
 }
 
-char * idleArg[] = {"idle", NULL};
 void enableMultiTasking(){
 
 	add_task((uint64_t)&idleTask, STDIN, BACKGROUND, DEFAULT_PRIORITY, IMMORTAL,idleArg);
@@ -110,50 +112,64 @@ int findTask(unsigned int pid){
 
 /* --- Creation and destruction --- */
 
-int add_task(uint64_t entrypoint, uint8_t input, uint8_t output, uint8_t priority, uint8_t immortal, char ** arg0){
-	if(currentDimTasks>=TOTAL_TASKS){		// no acepto mas tasks al estar lleno
-		return ERROR_NO_SPACE_FOR_TASK;
-	}
-	currentDimTasks++;
+uint64_t build_stack(uint64_t entrypoint, char ** arg0, uint64_t stackEnd){
 
-	int pos;
-	for(pos=0; tasks[pos].state!=DEAD_PROCESS ;pos++);											// encuentro posicion libre en el array de tasks
+	// Get end of stack and allign it 
+	uint64_t stackStart = stackEnd + STACK_SIZE;
+	stackStart -= stackStart % ALINGMENT;
 
-	uint8_t * stackStart = mm_malloc(STACK_SIZE);
-
-	if(stackStart == NULL)
-		return ERROR_NO_SPACE_FOR_TASK;
-
-
-	// --- Parametros de funcion ---
+	// --- Function parameters ---
 	*(STACK_POS(RDI_POS)) = (uint64_t) arg0;
 
-	// --- Pongo todos los registros que no se usan en 0 ---
+	// --- We put all registers to 0 ---
 	for(int i=7 ; i<21 ; i++){
 		if(i!=12)
 			*(STACK_POS(i * 8)) = 0;
 	}
 
-	// --- "Stack frame" minimo para la funcion ---
+	// --- "Stack frame" for process ---
 
-	*(STACK_POS(IP_POS)) = entrypoint;							// puntero al proceso que se va a correr
+	*(STACK_POS(IP_POS)) = entrypoint;	
 	*(STACK_POS(CS_POS)) = CS_VALUE;				
 	
-	*(STACK_POS(FLAGS_POS)) = FLAG_VALUES;						// tenemos que poner el flag de interrupcion en 1 y otros obligatorios
+	*(STACK_POS(FLAGS_POS)) = FLAG_VALUES;
 	
-	*(STACK_POS(SP_POS)) = (uint64_t) stackStart + STACK_SIZE - RET_POS;	// agarro el comienzo del stack
+	*(STACK_POS(SP_POS)) = stackStart - RET_POS;
 	*(STACK_POS(SS_POS)) = SS_VALUE;
 	
-	*(STACK_POS(RET_POS)) = (uint64_t) &removeCurrentTask;		// para el RET que vaya y se remueva automaticamente de los tasks
+	*(STACK_POS(RET_POS)) = (uint64_t) &removeCurrentTask;		// the RET of the function will automatically remove it from the queue
+
+	return stackStart;
+}
+
+int add_task(uint64_t entrypoint, uint8_t input, uint8_t output, uint8_t priority, uint8_t immortal, char ** arg0){
+	if(currentDimTasks>=TOTAL_TASKS){
+		return ERROR_NO_SPACE_FOR_TASK;
+	}
+	currentDimTasks++;
+
+	int pos;
+	for(pos=0; tasks[pos].state!=DEAD_PROCESS ;pos++);	// find a free space
+
+	uint8_t * stackEnd = mm_malloc(STACK_SIZE);
+
+	if(stackEnd == NULL)
+		return ERROR_NO_SPACE_FOR_TASK;
+
+	uint8_t * stackStart = (uint8_t *) build_stack(entrypoint, arg0, (uint64_t) stackEnd);
 
 	// --- Datos de task ---
-	tasks[pos].stackPointer = (uint64_t) stackStart + STACK_SIZE - STACK_POINT_OF_ENTRY;					// comienzo del stack
-	tasks[pos].stackSegment = SS_VALUE;				// se mantiene constante
+	tasks[pos].stackPointer = (uint64_t) stackStart - STACK_POINT_OF_ENTRY;	// stack start
+	tasks[pos].stackSegment = SS_VALUE;							// is constant
+
 	tasks[pos].pid = newPidValue++;
 	tasks[pos].state = ACTIVE_PROCESS;
 	tasks[pos].priority = priority;
 	tasks[pos].immortal = immortal;
+
 	tasks[pos].stackStart = stackStart;
+	tasks[pos].stackEnd = stackEnd;
+
 	tasks[pos].params = arg0;
 	tasks[pos].ticks = 1;
 
@@ -180,7 +196,7 @@ void destroy_process(unsigned int pos){
 	free_params(tasks[pos].params);
 	tasks[pos].state = DEAD_PROCESS;
 	currentDimTasks--;
-	mm_free(tasks[pos].stackStart);
+	mm_free(tasks[pos].stackEnd);
 }
 
 void removeCurrentTask(){
