@@ -9,6 +9,15 @@ typedef struct memStatus{
     uint64_t allocatedBlocks;
 } memStatus;
 
+/*
+ * << printMemStatus >>
+ * ----------------------------------------------------------------------
+ * Description: leaves the memory status in [buffer]
+ * ----------------------------------------------------------------------
+ * Receives: 
+ *      [buffer] = buffer to leave ans
+ * Returns: --
+ */
 void printMemStatus(uint64_t * buffer);
 
 #endif

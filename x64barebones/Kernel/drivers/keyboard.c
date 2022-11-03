@@ -40,6 +40,10 @@ static char scanCodeTable[] = {
 
 // ---------------------------------------
 
+static char checkIfAvailableKey() {
+	return keyBuffer[readPos] != 0;
+}
+
 /* Consumo letra del buffer y sobreescribe con 0 para denotar una posicion vacia. */
 char get_key()
 {
@@ -65,14 +69,7 @@ unsigned int consume_kb_buffer(char * buf, unsigned int count)
 	return i;
 }
 
-
-char checkIfAvailableKey() {
-	return keyBuffer[readPos] != 0;
-}
-
-
 // ---------------------------------------
-
 
 /* Usa un array circular. Si se llega a la capacidad maxima, no sobre-escribe. */
 void keyboard_handler() {

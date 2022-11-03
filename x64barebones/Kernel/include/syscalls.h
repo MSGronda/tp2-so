@@ -51,32 +51,94 @@
 // Return values
 #define INVALID_SCREEN -1
 
-uint64_t sys_register_sem_available(unsigned int value);
 
 uint64_t sys_pipe_info(pipes_info * info);
 uint64_t sys_semaphore_info(semaphore_info * info);
 uint64_t sys_process_info(process_info * info);
 uint64_t sys_mm_status(uint64_t * buffer);
-
-
 uint64_t sys_process_alive(unsigned int pid);
 
-uint64_t sys_register_pipe_available();
 
+/*------------ PIPES ------------*/
+
+uint64_t sys_register_pipe_available();
 uint64_t sys_destroy_pipe(unsigned int pipe_id);
 uint64_t sys_read_pipe(unsigned int pipe_id, char * dest, unsigned int count);
 uint64_t sys_write_pipe(unsigned int pipe_id, const char * src, unsigned int count);
 uint64_t sys_register_pipe(unsigned int pipe_id);
 
+
+/*------------ SEMAPHORES ------------*/
+
 uint64_t sys_destroy_sem(unsigned int sem_id);
 
+/*
+ * << sys_signal_sem >>
+ * ----------------------------------------------------------------------
+ * Description: same as sem_post from UNIX
+ * ----------------------------------------------------------------------
+ */
 uint64_t sys_signal_sem(unsigned int sem_id);
+
+/*
+ * << sys_register_sem >>
+ * ----------------------------------------------------------------------
+ * Description: registers semaphore [sem_id] with starting value [value]
+ * ----------------------------------------------------------------------
+ * Receives: 
+ *      [sem_id] = id of semaphore to register
+ *      [value] = starting value of semaphore 
+ * Returns: 
+ *      (uint) sem_id
+ */
 uint64_t sys_register_sem(unsigned int sem_id, unsigned int value);
+
+/*
+ * << sys_wait_sem >>
+ * ----------------------------------------------------------------------
+ * Description: same as sem_wait from UNIX
+ * ----------------------------------------------------------------------
+ */
 uint64_t sys_wait_sem(unsigned int sem_id);
 
+/*
+ * << sys_register_sem_available >>
+ * ----------------------------------------------------------------------
+ * Description: registers an available semaphore id which starts with
+ * [value]
+ * ----------------------------------------------------------------------
+ * Receives: 
+ *      [value] = starting value of semaphore 
+ * Returns: 
+ *      (uint) sem_id
+ */
+uint64_t sys_register_sem_available(unsigned int value);
 
+
+/*------------ MEMORY MANAGEMENT ------------*/
+
+/*
+ * << sys_free >>
+ * ----------------------------------------------------------------------
+ * Description: frees memory location pointed by [ptr]
+ * ----------------------------------------------------------------------
+ * Receives: 
+ *      [ptr] = mem location to free
+ * Returns: --
+*/
 uint64_t sys_free(void * ptr);
 
+/*
+ * << sys_alloc >>
+ * ----------------------------------------------------------------------
+ * Description: allocates memory block of size [len]
+ * ----------------------------------------------------------------------
+ * Receives: 
+ *      [len] = size of memory block to allocate
+ * Returns:
+ *      (void *) ptr of mem block
+ *      NULL <=> error
+*/
 uint64_t sys_alloc(uint64_t len);
 
 uint64_t sys_get_pid();

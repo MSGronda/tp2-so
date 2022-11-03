@@ -45,6 +45,7 @@ void haltcpu();
 void forceNextTask(uint64_t rsp, uint64_t ss);
 void forceCurrentTask();
 void forceTimerTick();
+
 /*
  * < _swIntHandler >
  * ----------------------------------------------------

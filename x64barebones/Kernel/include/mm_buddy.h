@@ -2,6 +2,12 @@
 #ifndef _MM_BUDDY_H_
 #define _MM_BUDDY_H_
 
+/*
+ * This implementation of the buddy algorithm
+ * uses a linearized binary tree to keep track
+ * of which blocks are allocated and split
+*/
+
 #define MIN_SIZE_CLASS 6
 
 #define HEADER_SIZE (sizeof(uint64_t)) // in order to stay alligned

@@ -12,12 +12,32 @@
 
 
 /*--------- FUNCTIONS ----------*/
+
+/*
+ * << num_to_string >>
+ * ----------------------------------------------------------------------
+ * Description: turns number [num] into a string and leaves answer in
+ * [buffer]
+ * ----------------------------------------------------------------------
+ * Receives: 
+ *      [num] = number to turn into string
+ *      [buffer] = buffer to leave answer
+ * Returns: 
+ *      (int) length of string
+ */
 int num_to_string(uint64_t num, char * buffer);
 
+/*
+ * << reverseString >>
+ * ----------------------------------------------------------------------
+ * Description: reverses given [string] with length [length]
+ * ----------------------------------------------------------------------
+ * Receives: 
+ *      [string] = string to be reversed
+ *      [length] = length of string
+ * Returns: --
+ */
 void reverseString(char * string, int length);
-
-void * memset(void * destination, int32_t character, uint64_t length);
-void * memcpy(void * destination, const void * source, uint64_t length);
 
 /*
  * << hex_to_string >>
@@ -45,7 +65,8 @@ int hex_to_string(uint64_t num, char * buffer, int fixedLength);
  */
 int str_len(const char * string);
 
-
 void printRegisters(int screen, uint64_t * registerDumpPos);
+void * memset(void * destination, int32_t character, uint64_t length);
+void * memcpy(void * destination, const void * source, uint64_t length);
 
 #endif
