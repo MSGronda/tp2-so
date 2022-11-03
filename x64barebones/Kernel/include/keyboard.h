@@ -63,4 +63,5 @@ char peek_key();
  */
 unsigned int consume_kb_buffer(char * buf, unsigned int count);
 
+char checkIfAvailableKey();
 #endif

@@ -6,11 +6,25 @@
 #include "syscalls.h"
 /* --- CONSTANTS  --- */
 #define NULL 0
+
+
 void * malloc(uint64_t size);
 void free(void * ptr);
-long long atosi(const char * string);
 
 int strncmp(const char * s1, const char * s2, int n);
+
+/*
+ * << atosi >>
+ * ----------------------------------------------------------------------
+ * Description: converts string to signed integer
+ * ----------------------------------------------------------------------
+ * Recibe: 
+ *      [string] = string to convert
+ * Devuelve: 
+ *      (long long) number
+*/
+long long atosi(const char * string);
+
 
 /*
  * << num_to_string >>

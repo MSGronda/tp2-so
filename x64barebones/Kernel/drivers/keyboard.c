@@ -40,7 +40,7 @@ static char scanCodeTable[] = {
 
 // ---------------------------------------
 
-static char checkIfAvailableKey() {
+char checkIfAvailableKey() {
 	return keyBuffer[readPos] != 0;
 }
 

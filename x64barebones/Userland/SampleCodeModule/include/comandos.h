@@ -8,8 +8,6 @@
 #define BUFF_SIZE 20
 #define BUFFER_LENGTH 150
 
-
-
 void test_pipe();
 void test_prio();
 void test_processes(char ** argv);
@@ -17,24 +15,52 @@ void test_no_sem();
 void test_sem();
 void test_mm();
 
-void pipe();
-
-void print_blocked_processes(unsigned int * blocked_pids, unsigned int amount);
-void sem();
-
-void wc();
-void filter();
-void cat();
-void loop();
-void phylo();
-
-void nice(char ** args);
 void pause(char ** args);
 void kill(char ** args);
 void printargs(char ** args);
+
 void ps();
-void test_mm();
 void mmstatus();
+void print_blocked_processes(unsigned int * blocked_pids, unsigned int amount);
+void pipe();
+void sem();
+
+void wc();
+void cat();
+
+/*
+ * << filter >>
+ * ----------------------------------------------------------------------
+ * Description: filters vowels passed as input
+ * ----------------------------------------------------------------------
+*/
+void filter();
+
+
+/*
+ * << loop >>
+ * ----------------------------------------------------------------------
+ * Description: prints its pid with a greeting periodically
+ * ----------------------------------------------------------------------
+*/
+void loop();
+
+/*
+ * << loop >>
+ * ----------------------------------------------------------------------
+ * Description: runs the philosopher's problem
+ * ----------------------------------------------------------------------
+*/
+void phylo();
+
+/*
+ * << nice >>
+ * ----------------------------------------------------------------------
+ * Description: adds 1 priority to a process
+ * ----------------------------------------------------------------------
+*/
+void nice(char ** args);
+
 
 /*
  * << printmem >>
