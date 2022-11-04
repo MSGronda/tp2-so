@@ -51,18 +51,6 @@ uint64_t  sys_write(const char *buf, unsigned int count);
 
 uint64_t  sys_read(char *buf, unsigned int count);
 
-/*
- * << sys_register_process >>
- * ----------------------------------------------------------------------
- * Description: Registers a processs to participate in multitasking
- * ----------------------------------------------------------------------
- * Receives: 
- *      (uint64_t) start of function
- *      (int) screen to print
- *      (uint64_t) argument of function (if any)
- * Returns: 
- *      (uint) pid
- */
 /**
  * @brief   Registers a process to participate in multitasking
  * 

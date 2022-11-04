@@ -49,7 +49,7 @@ void phylo();
 void nice(char ** args);
 
 /**
- * @brief Prints 32bytes of memory from a starting position
+ * @brief   Prints 32bytes of memory from a starting position
 */
 void printmem(char ** args);
 
@@ -69,7 +69,7 @@ void fibonacci();
 void help();
 
 /**
- * @brief Prints current RTC
+ * @brief   Prints current RTC
 */
 void time();
 
