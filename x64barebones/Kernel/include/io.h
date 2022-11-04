@@ -10,33 +10,24 @@
 #include <multitasking.h>
 #include <video.h>
 
-/*
- * << writeDispatcher >>
- * ----------------------------------------------------------------------
- * Descripcion: Decides how to proceed depending on screen to write
- * ----------------------------------------------------------------------
- * Recibe: 
- *      [fd] = screen to write
- *      [buf] = string to be written
- *      [count] = number of letters to be written
- * Devuelve: 
- *      0 <=> successful
- */
+/**
+ * @brief   Decides how to proceed depending on which screen to write
+ * 
+ * @param   fd Screen to write
+ * @param   buf String to be written
+ * @param   count Length of buf
+ * 
+ * @return  Bytes written
+*/
 int writeDispatcher(unsigned int fd, const char * buf, unsigned int count);
 
-
-/*
- * << readDispatcher >>
- * ----------------------------------------------------------------------
- * Descripcion: Decides how to proceed depending on screen
- * ----------------------------------------------------------------------
- * Recibe: 
- *      [fd] = screen
- *      [buf] = string to be leave answer
- *      [count] = number of letters to be read
- * Devuelve: 
- *      (uint) bytes read
- */
+/**
+ * @brief   Decides how to proceed depending on which screen is to be read
+ * 
+ * @param   fd Screen to read
+ * @param   buf Buffer to leave answer
+ * @param   count Maximum amount of bytes to read
+*/
 int readDispatcher(unsigned int fd, char * buf, unsigned int count);
 
 #endif

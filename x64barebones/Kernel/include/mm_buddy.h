@@ -19,18 +19,14 @@ typedef struct TNode{
     char isSplit;
 } TNode;
 
-/*
- * << getSmallestAvailable >>
- * ----------------------------------------------------------------------
- * Description: finds the lowest index block of [sizeClass], this
- * means we first fill the left side of the btree
- * ----------------------------------------------------------------------
- * Receives: 
- *       [sizeClass] = size of the block we are trying to find, block
- *      has size 2^sizeClass
- * Returns: 
- *      (int) idx of said block
- */
+/**
+ * @brief   Finds the lowest index block of sizeClass
+ * 
+ * @note    sizeClass is the power in 2^n
+ * @note    This means we first fill the left side of btree
+ * 
+ * @return  Index of lowest block of sizeClass
+*/
 int getSmallestAvailable(unsigned int sizeClass);
 
 #endif // _MM_BUDDY_H_

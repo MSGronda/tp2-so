@@ -14,54 +14,32 @@
 #define BUFFER_FULL 3
 #define UNMAPPED 4
 
-/*
- * << keyboard_handler >>
- * ----------------------------------------------------------------------
- *  Descripcion: Handles keyboard functionality
- * ----------------------------------------------------------------------
- *  Recibe: --
- *  Devuelve:
- *      1 <=> wrote buffer
- *      0 <=> otherwise
- */
 void keyboard_handler();
+char checkIfAvailableKey();
 
-
-/*
- * << get_key >>
- * ----------------------------------------------------------------------
- * Descripcion: OBTAINS && CONSUMES pressed key
- * ----------------------------------------------------------------------
- * Recibe: --
- * Devuelve: 
- *      (char) pressedKey <=> was a mapped key and consumed it
- *      0 <=> otherwise
- */
+/**
+ * @brief   OBTAINS and CONSUMES pressed key
+ * 
+ * @return  If pressed key is mapped, then pressed key
+ *          Otherwise, 0
+*/
 char get_key();
 
-
-/*
- * << peek_key >>
- * ----------------------------------------------------------------------
- * Descripcion: OBTAINS but DOES NOT CONSUME pressed key
- * ----------------------------------------------------------------------
- * Recibe: --
- * Devuelve:
- *      (char) pressedKey <=> was a mapped key
- *      0 <=> otherwise
- */
+/**
+ * @brief   OBTAINS but DOES NOT CONSUME pressed key
+ * 
+ * @return  If pressed key is mapped, then pressed key
+ *          Otherwise, 0
+*/
 char peek_key();
 
-/*
- * << consume_kb_buffer >>
- * ----------------------------------------------------------------------
- * Descripcion: Consumes keyboard buffer DUH
- * ----------------------------------------------------------------------
- * Recibe: --
- * Devuelve: 
- *      (uint) bytes consumed
- */
+/**
+ * @param   buf Buffer to leave answer
+ * @param   count Maximum amount of bytes to consume
+ * 
+ * @return  Bytes consumed
+ *         
+*/
 unsigned int consume_kb_buffer(char * buf, unsigned int count);
 
-char checkIfAvailableKey();
 #endif

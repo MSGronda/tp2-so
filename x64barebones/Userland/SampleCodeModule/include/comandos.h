@@ -28,84 +28,54 @@ void sem();
 void wc();
 void cat();
 
-/*
- * << filter >>
- * ----------------------------------------------------------------------
- * Description: filters vowels passed as input
- * ----------------------------------------------------------------------
+/**
+ * @brief   Filters vowels passed as input
 */
 void filter();
 
-
-/*
- * << loop >>
- * ----------------------------------------------------------------------
- * Description: prints its pid with a greeting periodically
- * ----------------------------------------------------------------------
+/**
+ * @brief   Prints its pid with a greeting periodically
 */
 void loop();
 
-/*
- * << loop >>
- * ----------------------------------------------------------------------
- * Description: runs the philosopher's problem
- * ----------------------------------------------------------------------
+/**
+ * @brief   Runs the philosophers problem
 */
 void phylo();
 
-/*
- * << nice >>
- * ----------------------------------------------------------------------
- * Description: adds 1 priority to a process
- * ----------------------------------------------------------------------
+/**
+ * @brief   Adds 1 priority to a process
 */
 void nice(char ** args);
 
-
-/*
- * << printmem >>
- * ----------------------------------------------------------------------
- * Descripcion: Prints 32bytes of memory starting from [position] 
- * ----------------------------------------------------------------------
- * Recibe:
- *      (uint64_t) starting position
- * Devuelve: -- 
- */
+/**
+ * @brief Prints 32bytes of memory from a starting position
+*/
 void printmem(char ** args);
 
-/*
- * << primos >>
- * ----------------------------------------------------------------------
- * Descripcion: Prints prime values infinitely
- */
+/**
+ * @brief   Prints prime values infinitely
+*/
 void primos();
 
-/*
- * << fibonacci >>
- * ----------------------------------------------------------------------
- * Descripcion: Prints the fibonacci sequence
- */
+/**
+ * @brief   Prints the fibonacci sequence infinitely
+*/
 void fibonacci();
 
-/*
- * << help >>
- * ----------------------------------------------------------------------
- * Descripcion: Explains all commands and kb shortcuts
+/**
+ *  @brief  Explains all commands and kb shortcuts
  */
 void help();
 
-/*
- * << time >>
- * ----------------------------------------------------------------------
- * Descripcion: Prints current RTC
- */
+/**
+ * @brief Prints current RTC
+*/
 void time();
 
-/*
- * << inforeg >>
- * ----------------------------------------------------------------------
- * Descripcion: Prints register values when a snapshot was taken
- */
+/**
+ * @brief Prints register values when a snapshot was taken
+*/
 void inforeg();
 
 #endif

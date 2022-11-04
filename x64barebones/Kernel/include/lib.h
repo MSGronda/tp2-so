@@ -13,60 +13,21 @@
 
 /*--------- FUNCTIONS ----------*/
 
-/*
- * << num_to_string >>
- * ----------------------------------------------------------------------
- * Description: turns number [num] into a string and leaves answer in
- * [buffer]
- * ----------------------------------------------------------------------
- * Receives: 
- *      [num] = number to turn into string
- *      [buffer] = buffer to leave answer
- * Returns: 
- *      (int) length of string
- */
 int num_to_string(uint64_t num, char * buffer);
-
-/*
- * << reverseString >>
- * ----------------------------------------------------------------------
- * Description: reverses given [string] with length [length]
- * ----------------------------------------------------------------------
- * Receives: 
- *      [string] = string to be reversed
- *      [length] = length of string
- * Returns: --
- */
 void reverseString(char * string, int length);
-
-/*
- * << hex_to_string >>
- * ----------------------------------------------------------------------
- * Descripcion: Converts hexadecimal value to string
- * ----------------------------------------------------------------------
- * Recibe: 
- *      (uint64_t) num : hex num to convert
- *      (char *) buf : buffer to output value
- *      (int) fixedLength : size of register (eg. 0h => 0000 0000d en 4 bytes)
- * Devuelve: 
- *      number of half_bytes written (eg 4bytes = 8 half_bytes)
- */
-int hex_to_string(uint64_t num, char * buffer, int fixedLength);
-
-/*
- * << str_len >>
- * ----------------------------------------------------------------------
- * Descripcion: Gets the length of a string
- * ----------------------------------------------------------------------
- * Recibe:
- *      (char *) string
- * Devuelve: 
- *      length of given string (excluding \0)
- */
 int str_len(const char * string);
 
 void printRegisters(int screen, uint64_t * registerDumpPos);
 void * memset(void * destination, int32_t character, uint64_t length);
 void * memcpy(void * destination, const void * source, uint64_t length);
+
+/**
+ * @param       num Hexadecimal value to convert 
+ * @param       buffer Buffer to leave answer
+ * @param       fixedLength Size of register (0h => 0000 0000d => 4 bytes)
+ * 
+ * @return      Number of bytes written * 2
+*/
+int hex_to_string(uint64_t num, char * buffer, int fixedLength);
 
 #endif

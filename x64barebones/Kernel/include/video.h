@@ -45,92 +45,56 @@ void resetNormal();
 void resetLeft();
 void resetRight();
 
-/*
- * << write >>
- * ----------------------------------------------------------------------
- * Descripcion: Writes to corresponding screen
- * ----------------------------------------------------------------------
- * Recibe: 
- *      [buf] = string to be written
- * 		[format] = background color
- *      [count] = number of letters to be written
- *		[offset] = current cursor position
- * 		[start] = initial column of screen
- *		[length] = length of screen where we print
- *		[step] = number of positions to jump after we reach end of screen
- * Devuelve: 
- *      (uint) bytes written
- */
+/**
+ * @brief	Writes to corresponding screen
+ * 
+ * @param	buf String to be written
+ * @param 	format Background color
+ * @param 	count Number of letters to write
+ * @param	offset Current cursos position
+ * @param	start Initial column of screen
+ * @param	legth Length of screen where we print
+ * @param  	step Number of positions (x-axis) to jump after we reach the end of the screen
+ * 
+ * @return 	Bytes written
+*/
 unsigned int write(const char * buf, char format, unsigned int count, 
 					unsigned int * offset, unsigned int start,  unsigned int length , unsigned int step);
 
 
-/*
- * << clearScreen >>
- * ----------------------------------------------------------------------
- * Descripcion: Writes to corresponding screen
- * ----------------------------------------------------------------------
- * Recibe: 
- *      [start] = initial column of screen
- *      [length] = length of screen where we print
- *      [step] = number of positions to jump after we reach end of screen
- * Devuelve: --
- */
+/**
+ * @param	start Initial column of screen
+ * @param 	length Length of screen to clear
+ * @param	step Number of positions (x-axis) to jump after we reach end of screen 
+*/
 void clearScreen(int start, int length, int step);
 
-/*
- * << clearScreenDispatcher >>
- * ----------------------------------------------------------------------
- * Descripcion: Decides which screen to clear
- * ----------------------------------------------------------------------
- * Recibe: --
- * Devuelve: --
- */
+/**
+ * @brief 	Decides which screen to clear
+*/
 unsigned int clearScreenDispatcher();
 
-/*
- * << getFdOffset >>
- * ----------------------------------------------------------------------
- * Descripcion: Gets the offset of a given [fd]
- * ----------------------------------------------------------------------
- * Recibe: 
- *      [fd] = screen
- * Devuelve: 
- *      (uint) offset to write on screen
- */
 unsigned int getFdOffSet(unsigned int fd);
 
 
-
 /* ========================= SPECIAL KEYS ============================ */
-/*
- * << deleteKey >>
- * ----------------------------------------------------------------------
- * Descripcion: DeleteKey functionality
- * ----------------------------------------------------------------------
- * Recibe: 
- *		[offset] = current cursor position
- * 		[start] = initial column of screen (Eg: normal=izq=0, right= 80)
- *		[length] = length of screen where we print
- *		[step] = number of positions to jump after we reach end of screen
- * Devuelve: --
- */
+/**
+ * @brief	DeleteKey functionality
+ * 
+ * @param 	offset Current cursor position
+ * @param	start Initial column of screen
+ * @param	length Length of the current screen
+ * @param	step Number of positions (x-axis) to jump after end of screen
+*/
 void deleteKey(unsigned int * offset, unsigned int start,  unsigned int length , unsigned int step);
 
-/*
- * << scrollUp >>
- * ----------------------------------------------------------------------
- * Descripcion: ScrollUp functionality
- * ----------------------------------------------------------------------
- * Recibe: 
- * 		[start] = initial column of screen (Eg: normal=izq=0, right= 80)
- *		[length] = length of screen where we print
- *		[step] = number of positions to jump after we reach end of screen
- * Devuelve: --
- */
+/**
+ * @brief	ScrollUp functionality
+ * 
+ * @param	start Initial column of screen
+ * @param	length Length of the current screen
+ * @param	step Number of positions (x-axis) to jump after end of screen
+*/
 void scrollUp(int start, int length, int step);
-
-
-
 
 #endif

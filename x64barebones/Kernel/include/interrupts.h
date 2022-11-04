@@ -35,23 +35,15 @@ void picSlaveMask(uint8_t mask);
 /* Halts cpu */
 void haltcpu();
 
-
-/*
- * < forceNextTask >
- * ----------------------------------------------------
- *  Description: used after sys_pause and sys_kill to force 
- *  the next task to be executed
- */
 void forceNextTask(uint64_t rsp, uint64_t ss);
 void forceCurrentTask();
 void forceTimerTick();
 
-/*
- * < _swIntHandler >
- * ----------------------------------------------------
- *  Description: Converts arguments from an ASM-style to a 
- *  C-style for them to be used in the swIntDispatcher
- */
+/**
+ * @brief   Converts arguments from ASM-style to C-style
+ * 
+ * @note    It allows for arguments to be used by swIntDispatcher
+*/
 void _swIntHandler();
 
 

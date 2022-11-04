@@ -31,53 +31,17 @@ typedef union header_t {
 // so we can check if *ptr == 1 bc 1 = 000...001
 #define IS_EOL(size) ( !(GET_SIZE(size) > 0) )
 
-/*
- * << freeBlock >>
- * ----------------------------------------------------------------------
- * Description: frees block pointed by [ptr]
- * ----------------------------------------------------------------------
- * Receives: 
- *      [ptr] = pointer to block to be freed
- * Returns: --
- */
+/*-------------- Functions -----------------------*/
+
 void freeBlock(header_t * ptr);
 
-/*
- * << addBlock >>
- * ----------------------------------------------------------------------
- * Description: adds a block to the implicit list in [ptr] 
- * with [len] bytes of length. May split block to reduce fragmentation
- * ----------------------------------------------------------------------
- * Receives: 
- *      [ptr] = pointer to block to be freed
- *      [len] = size (in bytes) of memory block to be allocated
- * Returns: --
- */
 void addBlock(header_t * ptr, uint64_t len);
 
-/*
- * << findFree >>
- * ----------------------------------------------------------------------
- * Description: finds a free block of size [len] (in bytes)
- * ----------------------------------------------------------------------
- * Receives: 
- *       [len] = size (in bytes) of block requested
- * Returns: --
- *      (header_t *) pointer to the start of block. It does not allocate
- *      the header, thus this is the real start of the block
- */
 header_t * findFree(uint64_t len);
 
-/*
- * << addEOL >>
- * ----------------------------------------------------------------------
- * Description: adds EOL (End of List) block to the list in the direction
- * pointed by [ptr]. Assumes there is enough space in HEAP.
- * ----------------------------------------------------------------------
- * Receives: 
- *      [ptr] = pointer where EOL is to be added
- * Returns: --
- */
+/**
+ * @note EOL means End of List
+*/
 void addEOL(header_t * ptr);
 
 #endif // _MM_IMP_H_

@@ -1,6 +1,5 @@
 #include <io.h>
 
-/* Decides how to proceed depending on screen to write */
 int writeDispatcher(unsigned int fd, const char * buf, unsigned int count) 
 {
 	char format;
@@ -42,7 +41,6 @@ int writeDispatcher(unsigned int fd, const char * buf, unsigned int count)
     return count;
 }
 
-/* Decides how to proceed depending on where to read */
 int readDispatcher(unsigned int fd, char * buf, unsigned int count) 
 {
 	if(fd == STDIN) {										// Eligimos posicion de donde leer. Tambien lo podriamos hacer con una funcion/tabla
