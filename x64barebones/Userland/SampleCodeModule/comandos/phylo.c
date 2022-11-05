@@ -1,7 +1,7 @@
 #include "../include/syscalls.h"
 #include "../include/stdio.h"
 
-#define MAX_PHYLOS 30
+#define MAX_PHYLOS 15
 #define MIN_PHYLOS 5
 #define LEFT    (i + currentCount - 1) % currentCount
 #define RIGHT   (i + 1) % currentCount
@@ -84,7 +84,6 @@ void addPhylo(){
 
         args[0] = strncpy(args[0], string, 12);
         args[1] = buf;
-        // args = { "philosopher", i, NULL }
         philos = args;
 
         if(sys_register_child_process(&philosopher, STDIN, NORMAL_SCREEN, philos) <= 0) {
