@@ -7,6 +7,10 @@
 void pipe(){
 
 	pipes_info * info = malloc(20 * sizeof(pipes_info));
+	if(info == NULL) {
+		puts("No more memory");
+		return;
+	}
 
 	int len;
 	char buffer[20];
