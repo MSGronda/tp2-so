@@ -42,7 +42,7 @@ readKeyboard:
 	jmp end
 
 	no_key_recieved:
-		mov rax, -1				; caso leatra no leaida
+		mov rax, -1				; caso letra no leida
 		
 
 	end:

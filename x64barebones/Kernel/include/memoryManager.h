@@ -37,15 +37,6 @@ void * mm_malloc(uint64_t size);
 */
 void mm_free(void * ptr);
 
-
-/*
- * << getMemStatus >>
- * ----------------------------------------------------------------------
- * Description: returns a pointer to memStatus struct
- * ----------------------------------------------------------------------
- * Receives: --
- * Devuelve: memStatus *
- */
 memStatus * getMemStatus();
 
 #endif

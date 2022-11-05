@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <multitasking.h>
 
 // ---- Constantes ----
@@ -359,7 +361,6 @@ uint64_t next_task(uint64_t stackPointer, uint64_t stackSegment){
 		if(tasks[currentTask].state == ACTIVE_PROCESS){
 			found = 1;
 			tasks[currentTask].ticks++;
-			break;
 		}
 	}
 

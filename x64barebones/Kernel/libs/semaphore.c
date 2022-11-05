@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <semaphore.h>
 
 #define MAX_SEMAPHORES 50
@@ -154,6 +156,9 @@ unsigned int signal_sem(unsigned int sem_id){
 /* - - - Print info - - - */
 
 unsigned int get_sem_blocked_process(unsigned int i, unsigned int * blocked_pids){	
+	if(i > MAX_SEMAPHORES)
+		return 0;
+
 	if(size_queue(&(sem_info[i].queue)) > 0){
 		unsigned int pos;
 		new_iterator_queue(&(sem_info[i].queue), &pos);

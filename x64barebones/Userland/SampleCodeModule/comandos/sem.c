@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "../include/comandos.h"
 #include "../include/syscalls.h"
 #include "../include/data_types.h"
@@ -21,6 +23,10 @@ void print_blocked_processes(unsigned int * blocked_pids, unsigned int amount){
 void sem(){
 	
 	semaphore_info * info = malloc(20 * sizeof(semaphore_info));
+	if(info == NULL) {
+		puts("No more memory");
+		return;
+	}
 
 	uint64_t amount =  sys_semaphore_info(info);
 

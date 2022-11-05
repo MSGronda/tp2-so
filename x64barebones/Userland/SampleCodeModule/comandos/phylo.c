@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "../include/syscalls.h"
 #include "../include/stdio.h"
 #include <stdint.h>
@@ -50,7 +52,8 @@ void phylo() {
         switch(buf[0]){
             case 'a':
                 addPhylo();
-                for(int i = 0 ; i < 5000000 ; i++);
+                for(int i = 0 ; i < 5000000 ; i++) 
+                    ;
                 break;
             case 'r':
                 removePhylo();
@@ -91,8 +94,7 @@ void addPhylo(){
             puts("error creating philosopher. aborting");
             return;
         }
-        if(currentCount > MIN_PHYLOS)
-            puts("ADDED PHYLO");
+
         currentCount++;
     }
     sys_signal_sem(PRINT_MUTEX);
@@ -106,7 +108,6 @@ void removePhylo(){
         puts("MIN PHYLOS REACHED");
     } else{
         currentCount--;
-        puts("REMOVED PHYLO");
     }
     sys_signal_sem(PRINT_MUTEX);
     sys_signal_sem(MUTEX);
@@ -149,7 +150,8 @@ void test(int i) {
 }
 
 void eat() {
-    for(int i = 0; i < 5000000; i++);
+    for(int i = 0; i < 5000000; i++)
+        ;
     sys_wait_sem(PRINT_MUTEX);
     for(int i = 0; i < currentCount; i++) {
         print(state[i] == EATING? "E " : ". ", 2);
@@ -159,5 +161,6 @@ void eat() {
 }
 
 void think() {
-    for(int i = 0; i < 5000000; i++);
+    for(int i = 0; i < 5000000; i++)
+        ;
 }

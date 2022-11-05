@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "../include/stdlib.h"
 
 
@@ -44,7 +46,7 @@ int hex_to_string(uint64_t num, char * buffer, int fixedLength)
 
     for(int aux ; num > 0 ; i++, num/=16){
         aux = num % 16;
-        if(aux >=0 && aux < 10)                     // convierto a hex
+        if(aux < 10)                     // convierto a hex
             buffer[i] = aux + '0';
         else
             buffer[i] = aux - 10 + 'A';

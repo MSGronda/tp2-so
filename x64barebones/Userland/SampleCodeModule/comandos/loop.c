@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "../include/comandos.h"
 
 void loop(){
@@ -8,7 +10,8 @@ void loop(){
 	buffer[22 + len + 1] = 0;
 
 	while(1){
-		for(int i=0; i<5000000; i++);
+		for(int i=0; i<5000000; i++)
+			;
 		print(buffer, 22 + len + 1);
 	}	
 }

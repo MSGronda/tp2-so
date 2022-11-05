@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "../include/comandos.h"
 #include "../include/syscalls.h"
 #include "../include/stdlib.h"
@@ -12,6 +14,10 @@
 void ps(){
 
 	process_info * info = malloc(20 * sizeof(process_info));
+	if(info == NULL) {
+		puts("No more space");
+		return;
+	}
 
 	uint64_t amount =  sys_process_info(info);
 

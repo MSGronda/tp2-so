@@ -12,7 +12,7 @@
 
 #define HEADER_SIZE (sizeof(uint64_t)) // in order to stay alligned
 
-#define POW_2(exp) (1 << (exp))
+#define POW_2(exp) ((uint64_t) 1 << (exp))
 
 typedef struct TNode{
     char isAllocated;
