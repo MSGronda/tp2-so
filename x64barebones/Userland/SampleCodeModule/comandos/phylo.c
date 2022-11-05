@@ -1,5 +1,6 @@
 #include "../include/syscalls.h"
 #include "../include/stdio.h"
+#include <stdint.h>
 
 #define MAX_PHYLOS 15
 #define MIN_PHYLOS 5
@@ -82,11 +83,11 @@ void addPhylo(){
         char * buf = (char *) sys_alloc(8);
         num_to_string(currentCount, buf);
 
-        args[0] = strncpy(args[0], string, 12);
+        args[0] = (char *) (intptr_t) strncpy(args[0], string, 12);
         args[1] = buf;
         philos = args;
 
-        if(sys_register_child_process(&philosopher, STDIN, NORMAL_SCREEN, philos) <= 0) {
+        if(sys_register_child_process((uint64_t) &philosopher, STDIN, NORMAL_SCREEN, (uint64_t) philos) <= 0) {
             puts("error creating philosopher. aborting");
             return;
         }
