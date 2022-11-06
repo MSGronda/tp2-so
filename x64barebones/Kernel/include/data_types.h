@@ -2,6 +2,7 @@
 #define _DATA_TYPES_H
 
 // Como data types meant to be used in Kernel and Userland
+#include <stdint.h>
 
 typedef struct process_info{
 	char * name; 
