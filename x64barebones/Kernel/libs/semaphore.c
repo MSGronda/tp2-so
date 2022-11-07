@@ -156,7 +156,7 @@ unsigned int signal_sem(unsigned int sem_id){
 /* - - - Print info - - - */
 
 unsigned int get_sem_blocked_process(unsigned int i, unsigned int * blocked_pids){	
-	if(i > MAX_SEMAPHORES)
+	if(i >= MAX_SEMAPHORES)
 		return 0;
 
 	if(size_queue(&(sem_info[i].queue)) > 0){
