@@ -23,6 +23,8 @@ int end = FALSE;
 
 int state[MAX_PHYLOS] = { 0 };
 sem_t s[MAX_PHYLOS] = { 0 };
+sem_t safe[MAX_PHYLOS] = { 0 };
+int pids[MAX_PHYLOS] = { 0 };
 int currentCount = 0;
 
 void philosopher(char ** num);
@@ -52,8 +54,6 @@ void phylo() {
         switch(buf[0]){
             case 'a':
                 addPhylo();
-                for(int i = 0 ; i < 5000000 ; i++) 
-                    ;
                 break;
             case 'r':
                 removePhylo();
@@ -64,20 +64,25 @@ void phylo() {
         }
     }
 
-    sys_wait_for_children();
+    for(int i = 0 ; i < currentCount; i++){
+        sys_kill_process(pids[i]);
+        sys_destroy_sem(s[i]);
+        sys_destroy_sem(safe[i]);
+    }
 
-    if(MUTEX)
-        sys_destroy_sem(MUTEX);
+    sys_destroy_sem(MUTEX);
+    sys_destroy_sem(PRINT_MUTEX);
+
 }
 
 void addPhylo(){
     sys_wait_sem(MUTEX);
-    sys_wait_sem(PRINT_MUTEX);
     if(currentCount == MAX_PHYLOS){
         puts("MAX PHYLOS REACHED");
     } else{
         state[currentCount] = THINKING;
         s[currentCount] = sys_register_sem_available(0);
+        safe[currentCount] = sys_register_sem_available(1);
 
         char string[12] = { "philosopher" };
         char ** philos = { 0 };
@@ -89,37 +94,44 @@ void addPhylo(){
         args[0] = (char *) (intptr_t) strncpy(args[0], string, 12);
         args[1] = buf;
         philos = args;
-
-        if(sys_register_child_process((uint64_t) &philosopher, STDIN, NORMAL_SCREEN, (uint64_t) philos) <= 0) {
+        pids[currentCount] = sys_register_child_process((uint64_t) &philosopher, STDIN, NORMAL_SCREEN, (uint64_t) philos);
+        if( pids[currentCount] <= 0) {
             puts("error creating philosopher. aborting");
             return;
         }
 
+
         currentCount++;
     }
-    sys_signal_sem(PRINT_MUTEX);
     sys_signal_sem(MUTEX);
 }
 
 void removePhylo(){
-    sys_wait_sem(MUTEX);
-    sys_wait_sem(PRINT_MUTEX);
     if(currentCount == MIN_PHYLOS){
         puts("MIN PHYLOS REACHED");
-    } else{
-        currentCount--;
+        return;
     }
-    sys_signal_sem(PRINT_MUTEX);
+
+    sys_wait_sem(safe[currentCount-1]);
+    sys_wait_sem(MUTEX);
+
+    currentCount--;
+    sys_destroy_sem(safe[currentCount]);
+    sys_kill_process(pids[currentCount]);
+    sys_destroy_sem(s[currentCount]);
+    
     sys_signal_sem(MUTEX);
 }
 
 void philosopher(char ** num) {
     int i = atoi(num[1]);
     while(!end) {
+        sys_wait_sem(safe[i]);
         think();
         takeForks(i);
         eat();
         putForks(i);
+        sys_signal_sem(safe[i]);
     }
 }
 
