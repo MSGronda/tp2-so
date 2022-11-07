@@ -9,6 +9,11 @@ void page0()
     puts("= = = = = = = = = MULTITASKING = = = = = = = = ");
     puts("   - Con tecla - F1 - se pausa/reanuda ejecucion de modo normal");
     puts("   - Con tecla - ESC - regresa a la terminal unica");
+    puts("   - Agregando / como argumento a cualquier comando se puede correr en background.");
+    puts("    Puede imprimir a STDOUT y no se bloquea la shell.");
+    puts("   - Agregando // como argumento a cualquier comando se puede correr en background.");
+    puts("    NO puede imprimir a STDOUT y no se bloquea la shell.");
+    puts("   - Con tecla - ESC - regresa a la terminal unica");
     print("\n\n\n\n\n\n\n\n\n\n\n\n\n",13);
     puts("Pag 1/6 - proxima apretando \".\" - previa apretando \",\"");
 }
@@ -59,7 +64,7 @@ void page4() {
     puts("   - test-sem:\n    corre un testeo de semaforos (con semaforos)\n");
     puts("   - test-no-sem:\n    corre un testeo de semaforos (sin semaforos)\n");
     puts("   - test-mm:\n    corre un testeo del memory manager\n");
-    puts("   - test-process:\n    corre un testeo de procesos\n");
+    puts("   - test-process %cantProcesos:\n    corre un testeo de la cantidad de procesos que se le pida\n");
     puts("   - test-prio:\n    corre un testeo de prioridades\n");
     puts("   - test-pipe:\n    corre un testeo de pipes\n");
     puts("Pag 5/6 - proxima apretando \".\" - previa apretando \",\"");

@@ -50,7 +50,6 @@ memStatus * getMemStatus() {
     freeBlock(head);
  }
 
- // TODO: HACER EL FREE PARA ATRAS TAMBIEN
 void freeBlock(header_t * ptr) {
     ptr->allocated = FALSE;
 
