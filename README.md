@@ -18,8 +18,9 @@ This project is based on a UNIX based operating system where we implement many k
 2. Go inside the root directory of the repository and run the following command in order to start the Docker container:
 ```bash
     user@linux:$ docker run -d -v ${PWD}:/root --security-opt seccomp:unconfined -ti --name dockerSO agodio/itba-so:1.0
-from the directory where you have the x64Barebones project.
 ```
+from the directory where you have the x64Barebones project.
+
 ***Inside the Docker container***
 
 3. Compile the Toolchain
