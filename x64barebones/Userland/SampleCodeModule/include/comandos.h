@@ -28,6 +28,8 @@ void sem();
 void wc();
 void cat();
 
+void killTest();
+
 /**
  * @brief   Filters vowels passed as input
 */
