@@ -58,6 +58,8 @@ static unsigned int currentTask = 0;				// posicion en el array
 static unsigned int currentRemainingTicks = 0;			// How many timer ticks are remaining for the current process.
 static unsigned int currentDimTasks = 0;
 
+static unsigned int idleTaskPid = 1;
+
 /* =========== CODE =========== */
 
 /* --- Init --- */
@@ -70,7 +72,10 @@ void idleTask(){
 
 void enableMultiTasking(){
 
-	add_task((uint64_t)&idleTask, STDIN, BACKGROUND, DEFAULT_PRIORITY, IMMORTAL,idleArg);
+	idleTaskPid = add_task((uint64_t)&idleTask, STDIN, BACKGROUND, DEFAULT_PRIORITY, IMMORTAL,idleArg);
+	
+	alter_process_state(idleTaskPid, PAUSED_PROCESS);		// we pause the idle task until its actually needed (that being when all other tasks are paused)
+
 	forceCurrentTask();
 }
 
@@ -354,14 +359,29 @@ uint64_t next_task(uint64_t stackPointer, uint64_t stackSegment){
 	tasks[currentTask].stackSegment = stackSegment;
 	
 	char found=0;
-	while( !found  ){			// busco el proximo stack
+	unsigned int counter = 0;
+	while( !found && counter < currentDimTasks ){			// busco el proximo stack
 		
 		currentTask = (currentTask +  1) % TOTAL_TASKS;
+
+		if(tasks[currentTask].state != DEAD_PROCESS)		// to check if we have already passed by all the none dead processes 
+			counter++;
 
 		if(tasks[currentTask].state == ACTIVE_PROCESS){
 			found = 1;
 			tasks[currentTask].ticks++;
 		}
+	}
+
+	// Special case: idle tasks. The idle task is only necesary when all of the other tasks are paused/waiting. 
+	// By enabling it only in this special case, we save a lot of cpu usage (compared to leaving the idle task running constantly)
+
+	if(counter == currentDimTasks){				// all tasks are none active (paused, waiting for...) -> we must wake up idle task
+		currentTask = findTask(idleTaskPid);
+		alter_process_state(idleTaskPid, ACTIVE_PROCESS);
+	}
+	else if(tasks[currentTask].pid != idleTaskPid){			// if a normal tasks is chosen -> pause idle task
+		alter_process_state(idleTaskPid, PAUSED_PROCESS);
 	}
 
 	currentRemainingTicks = 0;		// reset del current task
