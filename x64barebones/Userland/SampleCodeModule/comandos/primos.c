@@ -22,20 +22,20 @@ char isPrime(uint64_t num)
 void primos() 
 {
     char buffer[30];
-    uint64_t current = 3;
+    uint64_t current = 3, count=0;
     int length;
 
-    print("2",1);           // caso especial
-    putchar('\n');
+    print("Calculating...\n",15);
 
     uint64_t init = sys_rtc(RTC_TIME);
 
     while(current < 100000) {
         if(isPrime(current)) {
-            length = num_to_string(current,buffer);
-            print(buffer,length);
-            putchar('\n');
+            //length = num_to_string(current,buffer);
+            //print(buffer,length);
+            //putchar('\n');
 
+            count++;
         }
 
         current++;
@@ -43,12 +43,17 @@ void primos()
 
     uint64_t end = sys_rtc(RTC_TIME);
 
+    length = num_to_string(count, buffer);
+    print("Primes found: ",14);
+    print(buffer,length);
+    putchar('\n');
+
     uint64_t init_seconds = (init / 10000) * 3600 + ((init / 100) % 100) * 60 + (init % 100);
     uint64_t end_seconds = (end / 10000) * 3600 + ((end / 100) % 100) * 60 + (end % 100);
-
     length = num_to_string(end_seconds - init_seconds, buffer);
+
     print("Time elapsed: ", 14);
     print(buffer, length);
-    putchar('\n');
+    print(" seconds\n",9);
 
 }
